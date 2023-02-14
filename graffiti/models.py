@@ -6,6 +6,7 @@ class Graffiti(models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to='images/')
     date = models.DateTimeField(auto_now_add=True)
+    house_id = models.ForeignKey('House', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -15,7 +16,7 @@ class Graffiti(models.Model):
 
 class GraffitiHasPart(models.Model):
     graffiti_id = models.ForeignKey(Graffiti, on_delete=models.CASCADE)
-    part_id = models.ForeignKey(Part, on_delete=models.CASCADE)
+    part_id = models.IntegerField()
 
     def __str__(self):
         return self.graffiti_id
@@ -23,6 +24,9 @@ class GraffitiHasPart(models.Model):
 class House(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    location = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
     image = models.ImageField(upload_to='images/')
     date = models.DateTimeField(auto_now_add=True)
 
