@@ -7,6 +7,7 @@ class Graffiti(models.Model):
     image = models.ImageField(upload_to='images/')
     date = models.DateTimeField(auto_now_add=True)
     house_id = models.ForeignKey('House', on_delete=models.CASCADE)
+    tags = models.CharField(max_length=100, default="")
 
     # When a user draws a selection of graffiti, a new canvas coordinate 
     # is added to the graffiti_has_part table
@@ -27,6 +28,7 @@ class GraffitiHasPart(models.Model):
     image = models.ImageField(upload_to='images/', null=True)
     # Canvas coordinates for the graffiti selection
     canvas = models.TextField(default="0,0,0,0")
+    related_graffiti = models.ForeignKey(Graffiti, on_delete=models.CASCADE, related_name='related_graffiti', null=True)
 
     def __str__(self):
         return self.name
