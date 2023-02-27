@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+## Local files that don't need committing
+*.sqlite3
+images/
+
 # C extensions
 *.so
 
