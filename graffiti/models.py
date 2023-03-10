@@ -43,7 +43,6 @@ class AncillarySource(models.Model):
     name = models.CharField(max_length=100)
     tags = models.ManyToManyField('Tag')
     archive = models.ForeignKey('Archive', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='sources/')
     access_rights = models.CharField(max_length=100)
     graffiti_id = models.ForeignKey(Graffiti, on_delete=models.CASCADE)
 
@@ -53,7 +52,7 @@ class AncillarySource(models.Model):
     def get_absolute_url(self):
         return reverse('detail', kwargs={'ancillary_id': self.id})
 
-class MetadataForLetters(models.Model):
+class MetadataForLetter(models.Model):
     id = models.AutoField(primary_key=True)
     ancillary_id = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
     date = models.CharField(max_length=100)
@@ -72,7 +71,7 @@ class MetadataForLetters(models.Model):
     def get_absolute_url(self):
         return reverse('detail', kwargs={'ancillary_id': self.id})
 
-class MetadataForDeeds(models.Model):
+class MetadataForDeed(models.Model):
     id = models.AutoField(primary_key=True)
     ancillary_id = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
     date = models.CharField(max_length=100)
@@ -91,7 +90,7 @@ class MetadataForDeeds(models.Model):
     def get_absolute_url(self):
         return reverse('detail', kwargs={'ancillary_id': self.id})
 
-class MetadataForMaps(models.Model):
+class MetadataForMap(models.Model):
     id = models.AutoField(primary_key=True)
     ancillary_id = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
     date = models.CharField(max_length=100)
@@ -108,7 +107,7 @@ class MetadataForMaps(models.Model):
     def get_absolute_url(self):
         return reverse('detail', kwargs={'ancillary_id': self.id})
     
-class MetadataForServiceRecords(models.Model):
+class MetadataForServiceRecord(models.Model):
     id = models.AutoField(primary_key=True)
     ancillary_id = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
     date = models.CharField(max_length=100)
