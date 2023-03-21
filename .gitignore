@@ -1,6 +1,7 @@
 # Locals
 models.png 
 .idea/
+.venv.bak/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "graffitihouse"
+version = "0.1.0"
+description = "Web application for Graffiti House"
+authors = ["Jason Heppler <jason.heppler@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^4.1.7"
+django-extensions = "^3.2.1"
+Pillow = "^9.4.0"
+django-tailwind = "^3.3.0"
+django-browser-reload = "^1.7.0"
+django-unfold = "^0.4.5"
+psycopg2 = "^2.9.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
