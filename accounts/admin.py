@@ -8,4 +8,5 @@ class CustomUserModel(UserAdmin):
     form = CustomUserChangeForm
     model = CustomUser
 
+admin.site.site_header = "Administration"
 admin.site.register(CustomUser, CustomUserModel)
