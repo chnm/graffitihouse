@@ -15,6 +15,13 @@ django-tailwind = "^3.3.0"
 django-browser-reload = "^1.7.0"
 django-unfold = "^0.4.5"
 psycopg2 = "^2.9.5"
+python-dotenv = "^1.0.0"
+django-environ = "^0.10.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+djhtml = "^3.0.6"
+pre-commit = "^3.2.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <title>{% block title %}Graffiti House Project{% endblock title %}</title>
     {% tailwind_css %}
+    <script src="{% static 'js/alpine.min.js' %}" defer></script>
 </html>
 <body>
+    {% include 'partials/nav.html' %}
     {% block content %}
     {% endblock %}
 </body>
