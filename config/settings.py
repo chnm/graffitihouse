@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import environ
 from dotenv import load_dotenv
 
@@ -20,10 +21,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "unfold",
-    "unfold.contrib.filters",
-    "unfold.contrib.forms",
+    "admin_interface",
+    "colorfield",
     "django.contrib.admin",
+    "prose",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -122,6 +123,8 @@ TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_URL = "static/"
