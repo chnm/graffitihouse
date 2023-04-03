@@ -2,6 +2,7 @@
 models.png 
 .idea/
 .venv.bak/
+staticfiles/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
