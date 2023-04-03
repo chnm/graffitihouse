@@ -1,3 +1,10 @@
 from django.shortcuts import render
 
-# Create your views here.
+from .forms import GraffitiForm
+
+
+def create_graffiti(request):
+    template_name = "templates/create_graffiti.html"
+    form = GraffitiForm(request.GET)
+
+    return render(request, template_name, {"form": form})
