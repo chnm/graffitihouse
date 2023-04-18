@@ -5,11 +5,8 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - given-names: Jason
-    family-names: Heppler
-    email: jheppler@gmu.edu
+  - email: jheppler@gmu.edu
     affiliation: George Mason University
-    orcid: 'https://orcid.org/0000-0003-4158-6186'
 repository-code: 'https://github.com/chnm/graffitihouse'
 keywords:
   - digital history

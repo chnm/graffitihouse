@@ -7,3 +7,4 @@ Change Log
     and is not yet ready for use.
 -   The project runs a custom AuthUserModel for getting started, provided by
     django-authuser (github.com/sesh/django-authuser).
+-   Added a CITATION.cff file for citing the project.
