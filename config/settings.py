@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import environ
@@ -85,6 +86,8 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/images/"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

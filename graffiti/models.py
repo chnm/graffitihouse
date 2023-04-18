@@ -4,6 +4,7 @@ logger = logging.getLogger(__name__)
 
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from prose.fields import RichTextField
 
 
@@ -12,13 +13,15 @@ class GraffitiWall(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
     description = RichTextField()
-    # description = models.OneToOneField(ArticleContent, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="images/")
     identifier = models.CharField(
-        max_length=100, help_text="Identifier refers to the image filename."
+        max_length=100,
+        help_text="Identifier refers to the image filename. Please ensure these match.",
     )
     date = models.DateTimeField(auto_now_add=True)
-    house_id = models.ForeignKey("House", on_delete=models.CASCADE)
+    house_id = models.ForeignKey(
+        "House", on_delete=models.CASCADE, verbose_name="House"
+    )
     tags = models.ManyToManyField("Tag")
 
     # When a user draws a selection of graffiti, a new canvas coordinate
@@ -33,6 +36,21 @@ class GraffitiWall(models.Model):
     def get_absolute_url(self):
         return reverse("detail", kwargs={"graffiti_id": self.id})
 
+    def description_as_markdown(self):
+        return mark_safe(self.description)
+
+    description_as_markdown.allow_tags = True
+
+    def image_canvas(self):
+        if self.image:
+            return mark_safe(
+                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
+            )
+        else:
+            return "No Image Found"
+
+    image_canvas.short_description = "Image"
+
 
 # GraffitiPhoto is a specific piece of graffiti from an overall wall.
 class GraffitiPhoto(models.Model):
@@ -43,8 +61,10 @@ class GraffitiPhoto(models.Model):
     identifier = models.CharField(
         max_length=100, verbose_name="Identifier refers to the image filename."
     )
-    # Canvas coordinates for the graffiti selection
-    canvas = models.TextField(default="0,0,0,0")
+    # canvas image data
+    canvas = models.TextField(null=True, blank=True)
+    # canvas image coords
+    canvas_coords = models.TextField(null=True, blank=True, default="[]")
     related_graffiti = models.ForeignKey(
         GraffitiWall,
         on_delete=models.CASCADE,
