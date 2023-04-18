@@ -5,6 +5,12 @@ preview :
 tailwind :
 	poetry run python3 manage.py tailwind start
 
+mm :
+	poetry run python3 manage.py makemigrations
+
+migrate :
+	poetry run python3 manage.py migrate
+
 graph_illustrate :
 	poetry run python3 manage.py graph_models -a -g -o models.png
 
