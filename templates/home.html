@@ -1,30 +1,35 @@
-{% extends "base.html" %}
-
-{% block title %}Graffiti House Project{% endblock %}
-
+{% extends "base.html" %} {% block title %}Graffiti House Project{% endblock %}
 {% block content %}
-  <main>
-
-    <!-- Hero section starts -->
-  <section class="flex bg-gradient-to-r from-red-100 to-orange-100 h-96">
-    <div class="container mx-auto flex justify-center items-center flex-col">
-      
-      <h1 class="text-black text-4xl md:text-5xl font-bold text-center w-1/2">
-        Graffiti House
-      </h1>
-
-      <a href="#" class="mt-9 bg-red-400 px-12 py-3 rounded-3xl hover:bg-red-500 text-white" role="button">
-        Get started!
-      </a>
-
-    </div>
-    
-  </section>
-
-    <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <p>Content here.</p>
-    </div>
-  </main>
-</div>
+    <main>
+        <!-- Hero section starts -->
+        <div class="relative bg-gray-800 overflow-hidden h-screen">
+            <!-- Hero image -->
+            <img
+                class="absolute inset-0 w-full h-full object-cover"
+                src="https://static.wixstatic.com/media/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg/v1/fill/w_825,h_600,al_c,lg_1,q_85,enc_auto/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg"
+                alt="Hero Image"
+            />
+            <!-- Overlay to darken the image -->
+            <div class="absolute inset-0 bg-gray-900 opacity-70"></div>
+            <!-- Hero content -->
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+                <h1
+                    class="text-5xl font-extrabold text-white sm:text-7xl lg:text-9xl mb-8"
+                >
+                    Site Title
+                </h1>
+                <p class="text-lg text-gray-300 max-w-2xl mb-12">
+                    Site description goes here. Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                    magna aliqua.
+                </p>
+                <a
+                    href="#"
+                    class="bg-white text-gray-800 hover:bg-gray-100 py-3 px-6 rounded-full text-lg font-bold uppercase"
+                >Get Started</a
+                    >
+                </div>
+            </div>
 
 {% endblock %}
+</main>

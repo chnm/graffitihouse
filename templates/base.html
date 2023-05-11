@@ -1,16 +1,55 @@
 {% load static tailwind_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{% block title %}Graffiti House Project{% endblock title %}</title>
         {% tailwind_css %}
         <script src="{% static 'js/alpine.min.js' %}" defer></script>
-    </html>
-    <body x-data="{ openMenu : false }"
-        :class="openMenu ? 'overflow-hidden' : 'overflow-visible' ">
-        {% include 'partials/nav.html' %}
-        {% block content %}
-        {% endblock %}
-    </body>
-</html>
+    </head>
+    <body>
+        <!-- Top Navigation -->
+        <nav class="bg-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="text-white font-bold">Graffiti House</div>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a
+                                    href="#"
+                                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                                >Home</a
+                                    >
+                                    <a
+                                        href="#"
+                                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                                    >About</a
+                                        >
+                                        <a
+                                            href="#"
+                                            class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                                        >Contact</a
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main>{% block content %} {% endblock %}</main>
+
+                    <footer class="bg-gray-800">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <div class="flex justify-center">
+                                <p class="text-gray-300">© 2023 RRCHNM.</p>
+                            </div>
+                        </div>
+                    </footer>
+                </body>
+            </html>
