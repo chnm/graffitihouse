@@ -3,20 +3,11 @@ from django.contrib.admin.widgets import AdminFileWidget
 from django.db import models
 from django.utils.html import format_html
 
-from .models import (
-    AncillarySource,
-    Archive,
-    GraffitiPhoto,
-    GraffitiWall,
-    House,
-    Person,
-    Tag,
-)
+from .models import AncillarySource, Archive, GraffitiPhoto, GraffitiWall, House, Person
 
 admin.site.register(GraffitiPhoto)
 admin.site.register(House)
 admin.site.register(Person)
-admin.site.register(Tag)
 admin.site.register(Archive)
 admin.site.register(AncillarySource)
 
@@ -29,7 +20,7 @@ class CustomAdminFileWidget(AdminFileWidget):
                 f"""<a href="{value.url}" target="_blank">
                       <img 
                         src="{value.url}" alt="{value}" 
-                        width="100" height="100"
+                        width="500" height="500"
                         style="object-fit: cover;"
                       />
                     </a>"""

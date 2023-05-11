@@ -18,6 +18,9 @@ python-dotenv = "^1.0.0"
 django-environ = "^0.10.0"
 django-prose = "^1.2.0"
 django-admin-interface = "^0.24.2"
+django-taggit = "^4.0.0"
+taggit-selectize = "^2.11.0"
+django-multiselectfield = "^0.1.12"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

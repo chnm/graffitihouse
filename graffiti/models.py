@@ -6,6 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from prose.fields import RichTextField
+from taggit_selectize.managers import TaggableManager
 
 
 # Graffiti is a specific wall from a house.
@@ -22,7 +23,7 @@ class GraffitiWall(models.Model):
     house_id = models.ForeignKey(
         "House", on_delete=models.CASCADE, verbose_name="House"
     )
-    tags = models.ManyToManyField("Tag")
+    tags = TaggableManager()
 
     # When a user draws a selection of graffiti, a new canvas coordinate
     # is added to the graffiti_has_part table
@@ -96,6 +97,7 @@ class AncillarySource(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="images/", null=True)
     item_type = models.CharField(max_length=100, choices=DOCUMENT_TYPES)
     creator = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField()
@@ -108,7 +110,7 @@ class AncillarySource(models.Model):
     folder = models.CharField(max_length=225, null=True, blank=True)
     access_rights = models.CharField(max_length=100, null=True, blank=True)
     graffiti_id = models.ForeignKey("GraffitiWall", on_delete=models.CASCADE, null=True)
-    tags = models.ManyToManyField("Tag")
+    tags = TaggableManager()
 
     # Document type specific metadata
     person = models.ManyToManyField("Person")
@@ -147,7 +149,7 @@ class Person(models.Model):
     image = models.ImageField(upload_to="images/")
     date_of_birth = models.DateTimeField(auto_now_add=True)
     date_of_death = models.DateField(auto_now_add=True)
-    tags = models.ManyToManyField("Tag")
+    tags = TaggableManager()
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -185,7 +187,7 @@ class House(models.Model):
     longitude = models.FloatField()
     image = models.ImageField(upload_to="images/")
     date = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField("Tag")
+    tags = TaggableManager()
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -195,18 +197,3 @@ class House(models.Model):
 
     def get_absolute_url(self):
         return reverse("detail", kwargs={"house_id": self.id})
-
-
-# Tags are used to categorize graffiti.
-class Tag(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse("tags_detail", kwargs={"pk": self.id})

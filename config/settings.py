@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "colorfield",
     "django.contrib.admin",
     "prose",
+    "taggit",
+    "taggit_selectize",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -88,6 +90,9 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/images/"
+
+TAGGIT_TAGS_FROM_STRING = "taggit_selectize.utils.parse_tags"
+TAGGIT_STRING_FROM_TAGS = "taggit_selectize.utils.join_tags"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
