@@ -186,7 +186,7 @@ class House(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
     image = models.ImageField(upload_to="images/")
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.CharField(max_length=100)
     tags = TaggableManager()
 
     updated_at = models.DateTimeField(auto_now=True)
