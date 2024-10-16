@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "prose",
     "taggit",
     "taggit_selectize",
+    "import_export",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
