@@ -257,6 +257,25 @@ class DocumentPersonRole(models.Model):
         return f"{self.person} - {self.get_role_display()} for {self.document}"
 
 
+class Alias(models.Model):
+    ALIAS_TYPE = (
+        ("ALIAS", "Alias"),
+        ("WALL", "Wall name"),
+    )
+
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    alias_type = models.CharField(max_length=5, choices=ALIAS_TYPE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = "Alias"
+        verbose_name_plural = "Aliases"
+
+
 class Archive(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)

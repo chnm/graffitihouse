@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
 
 from .models import (
+    Alias,
     AncillarySource,
     Archive,
     DocumentPersonRole,
@@ -139,8 +140,14 @@ class SiteAdmin(ImportExportModelAdmin):
 admin.site.register(Site, SiteAdmin)
 
 
+class AliasInline(admin.TabularInline):
+    model = Alias
+    extra = 1
+
+
 class PersonAdmin(ImportExportModelAdmin):
     list_display = ("name",)
+    inlines = [AliasInline]
 
 
 admin.site.register(Person, PersonAdmin)
