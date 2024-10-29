@@ -14,10 +14,16 @@ env = environ.FileAwareEnv(
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
-SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env(
+    "DJANGO_SECRET_KEY",
+    default="_&4l$xw8b*--m5lpq8$9f4e-nf^tr5y^5pvfwj#eui=7$fnxpg",
+)
+
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost"])
 
 # Application definition
 
