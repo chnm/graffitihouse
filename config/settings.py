@@ -20,7 +20,7 @@ DEBUG = env("DEBUG")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
-    default="_&4l$xw8b*--m5lpq8$9f4e-nf^tr5y^5pvfwj#eui=7$fnxpg",
+    default="django-insecure _&4l$xw8b*--m5lpq8$9f4e-nf^tr5y^5pvfwj#eui=7$fnxpg",
 )
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost"])
