@@ -1,0 +1,32 @@
+name: "Build and Publish, Deploy Docker Image"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "feature/cicd-workflows"
+    paths:
+      - "**"
+
+jobs:
+  build-publish:
+    uses: chnm/.github/.github/workflows/django--build-publish.yml@main
+    secrets: inherit
+    with:
+
+      container-registry: "ghcr.io"
+      container-image-name: "graffitihouse"
+
+      django-context-root: "."
+
+      website-devl-fqdn: "dev.civilwargraffiti.org"
+      website-prod-fqdn: "civilwargraffiti.org"
+
+  deploy:
+    uses: chnm/.github/.github/workflows/django--deploy.yml@main
+    needs: [build-publish]
+    secrets: inherit
+    with:
+      website-devl-fqdn: "dev.civilwargraffiti.org"
+      website-prod-fqdn: "civilwargraffiti.org"
