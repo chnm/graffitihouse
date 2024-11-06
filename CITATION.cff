@@ -5,9 +5,9 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - email: jheppler@gmu.edu
+  - email: chnm@gmu.edu
     affiliation: George Mason University
-repository-code: 'https://github.com/chnm/graffitihouse'
+repository-code: "https://github.com/chnm/graffitihouse"
 keywords:
   - digital history
   - django
