@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "pages.apps.PagesConfig",
     "accounts.apps.AccountsConfig",
     "django_extensions",
+    "django_dbml",
 ]
 
 MIDDLEWARE = [
