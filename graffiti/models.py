@@ -21,11 +21,17 @@ class GraffitiWall(models.Model):
     room = models.CharField(max_length=255, help_text="Record the room name/number.")
     spatial_position = models.CharField(
         max_length=100,
-        help_text="Record the region code for this wall (e.g., B1, C3.",
+        help_text="Record the region code for this wall (e.g., B1, C3).",
     )
     identifier = models.CharField(
         max_length=100,
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
+    )
+    has_part = models.ManyToManyField(
+        "GraffitiPhoto",
+        blank=True,
+        help_text="A related resource that is included either physically or logically in the described resource.",
+        related_name="graffiti_photo_has_part",
     )
     date_taken = models.DateField(help_text="Record the date the photograph was taken.")
     site_id = models.ForeignKey("Site", on_delete=models.CASCADE, verbose_name="Site")
@@ -113,31 +119,46 @@ class WallRecordHistory(models.Model):
 
 # GraffitiPhoto is a specific piece of graffiti from an overall wall.
 class GraffitiPhoto(models.Model):
+    GRAFFITI_TYPES = (
+        ("Item 1", "Item 1"),
+        ("Item 2", "Item 2"),
+        ("Item 3", "Item 3"),
+    )
     id = models.BigAutoField(primary_key=True)
-    graffiti_id = models.ForeignKey(
+    graffiti_wall = models.ForeignKey(
         GraffitiWall,
         on_delete=models.CASCADE,
         verbose_name="Graffiti wall",
         help_text="Select the graffiti wall this photo belongs to.",
     )
-    name = models.CharField(max_length=100, default="Name")
-    image = models.ImageField(upload_to="images/", null=True)
+    graffiti_type = models.CharField(null=True, max_length=100, choices=GRAFFITI_TYPES)
+    description = RichTextField(blank=True, null=True)
+    image = models.ImageField(upload_to="images/derived/", null=True)
     identifier = models.CharField(
         max_length=100,
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
     )
-
-    # canvas image data
-    canvas = models.TextField(null=True, blank=True)
-    # canvas image coords
-    canvas_coords = models.TextField(null=True, blank=True, default="[]")
-    related_graffiti = models.ForeignKey(
-        GraffitiWall,
-        on_delete=models.CASCADE,
-        related_name="related_graffiti",
-        null=True,
+    has_part = models.ManyToManyField(
+        "GraffitiWall",
         blank=True,
+        help_text="A related resource that is included either physically or logically in the described resource.",
+        related_name="graffiti_has_part",
     )
+    is_part_of = models.ManyToManyField(
+        "GraffitiWall",
+        blank=True,
+        help_text="A related resource in which the described resource is physically or logically included.",
+        related_name="graffiti_is_part_of",
+    )
+    tags = TaggableManager(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    canvas = models.TextField(null=True, blank=True)
+    coordinates = models.JSONField(null=True)
+    canvas_coords = models.TextField(null=True, blank=True, default="[]")
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -178,7 +199,12 @@ class AncillarySource(models.Model):
         blank=True,
         help_text="An entity responsible for making contributions to the resource.",
     )
-    date = models.CharField(max_length=100, null=True, blank=True)
+    date = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="The date of the source, if known.",
+    )
     language = models.CharField(max_length=100, null=True, blank=True)
     site = models.ForeignKey("Site", on_delete=models.CASCADE, null=True)
     archive = models.ForeignKey("Archive", on_delete=models.CASCADE, null=True)
@@ -211,7 +237,9 @@ class AncillarySource(models.Model):
 # Person is a specific person who is mentioned in a primary source.
 class Person(models.Model):
     id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    first_name = models.CharField(blank=True, max_length=255)
+    middle_name_or_initial = models.CharField(blank=True, max_length=255)
+    last_name = models.CharField(max_length=255, default="Unknown")
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="images/", blank=True, null=True)
     date_of_birth = models.DateField(
@@ -249,7 +277,9 @@ class DocumentPersonRole(models.Model):
     role = models.CharField(max_length=100, choices=ROLE_CHOICES)
 
     class Meta:
-        unique_together = ["person", "document", "role"]
+        indexes = [
+            models.Index(fields=["person", "document", "role"]),
+        ]
         verbose_name = "People"
         verbose_name_plural = "People"
 
@@ -258,14 +288,8 @@ class DocumentPersonRole(models.Model):
 
 
 class Alias(models.Model):
-    ALIAS_TYPE = (
-        ("ALIAS", "Alias"),
-        ("WALL", "Wall name"),
-    )
-
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    alias_type = models.CharField(max_length=5, choices=ALIAS_TYPE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
@@ -274,6 +298,28 @@ class Alias(models.Model):
     class Meta:
         verbose_name = "Alias"
         verbose_name_plural = "Aliases"
+
+
+class Organization(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(blank=True, max_length=255)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
+
+    def __str__(self):
+        return self.name
+
+
+class Service(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
+    military_rank = models.CharField(blank=True, max_length=255)
+    military_unit = models.CharField(blank=True, max_length=255)
+    military_branch = models.CharField(blank=True, max_length=255)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.person} - {self.military_rank}"
 
 
 class Archive(models.Model):
@@ -315,7 +361,7 @@ class Site(models.Model):
 
 class Location(models.Model):
     id = models.BigAutoField(primary_key=True)
-    place = models.CharField(max_length=255)
+    place = models.CharField(max_length=255, verbose_name="Display name")
     address = models.CharField(max_length=255, blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     state = models.CharField(max_length=255, blank=True, null=True)
@@ -342,7 +388,9 @@ class Location(models.Model):
 
     def set_lat_lon_from_address(self):
         # Build full address string from data fields
-        full_address = f"{self.address}, {self.city}, {self.state}, {self.country}, {self.postal_code}"
+        full_address = ", ".join(
+            part for part in [self.address, self.city, self.state] if part
+        )
         geolocator = Nominatim(user_agent="graffitihouse")
         try:
             location = geolocator.geocode(full_address)
