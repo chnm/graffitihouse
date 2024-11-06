@@ -1,0 +1,45 @@
+---
+name: graffitihouse
+
+services:
+  app:
+    build: .
+    image: "rrchnm/graffitihouse"
+    ports:
+      - 8000:8000
+    volumes:
+      - dj-data:/app
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=thisisnotasecretkey
+      - DJANGO_ALLOWED_HOSTS=localhost
+      - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=graffitihouse
+      - DB_USER=graffitihouse
+      - DB_PASSWORD=password
+    command: >
+        sh -c "poetry run python3 manage.py migrate &&
+               poetry run python3 manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=graffitihouse
+      - POSTGRES_USER=graffitihouse
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U graffitihouse"]
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pg-data:
+  dj-data:
