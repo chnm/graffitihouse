@@ -1,0 +1,8 @@
+/* static/css/custom_admin.css */
+a {
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
