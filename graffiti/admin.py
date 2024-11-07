@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import traceback
 from io import BytesIO
 
 from django.contrib import admin
@@ -64,6 +65,7 @@ class CustomAdminFileWidget(AdminFileWidget):
 @admin.register(GraffitiWall)
 class GraffitiWallAdmin(ImportExportModelAdmin):
     list_display = (
+        "name",
         "description_as_markdown",
         "get_derive_button",
         "created_at",
@@ -99,69 +101,95 @@ class GraffitiWallAdmin(ImportExportModelAdmin):
         ]
         return custom_urls + urls
 
+    # In your admin.py derive_graffiti_view
     def derive_graffiti_view(self, request, wall_id):
         graffiti_wall = get_object_or_404(GraffitiWall, id=wall_id)
+        derived_photos = GraffitiPhoto.objects.filter(graffiti_wall=graffiti_wall)
+
+        # Prepare a simpler data structure
+        derived_data = []
+        for photo in derived_photos:
+            if photo.coordinates and "canvas" in photo.coordinates:
+                derived_data.append(
+                    {"identifier": photo.identifier, "coords": photo.coordinates}
+                )
+
         context = {
             "graffiti_wall": graffiti_wall,
             "is_popup": "_popup" in request.GET,
             "opts": self.model._meta,
             "graffiti_types": GraffitiPhoto.GRAFFITI_TYPES,
             "wall_image_url": graffiti_wall.image.url,
+            "derived_photos": json.dumps(derived_data),  # Pass to template as JSON
         }
-        return TemplateResponse(
-            request,
-            "admin/image_crop.html",
-            context,
-        )
+        return TemplateResponse(request, "admin/image_crop.html", context)
 
     @csrf_exempt
     def save_derived_graffiti(self, request):
-        if request.method == "POST":
+        try:
             data = json.loads(request.body)
+
+            # Log the received metadata
+            print("Received metadata:", json.dumps(data["metadata"], indent=2))
+
+            # Extract base64 image data
             image_data = data["image"].split(",")[1]
-            wall_id = data["wall_id"]
-            graffiti_wall = GraffitiWall.objects.get(id=wall_id)
+            image_binary = base64.b64decode(image_data)
 
-            # Create the GraffitiPhoto instance
+            # Create new GraffitiPhoto instance
             graffiti_photo = GraffitiPhoto(
-                graffiti_wall=graffiti_wall,
-                graffiti_type=data.get("graffiti_type"),
-                description=data.get("description", ""),
-                identifier=data.get("identifier", ""),
-                coordinates=data["coordinates"],
-                canvas=data.get("canvas", ""),
-                canvas_coords=json.dumps(data["coordinates"]),
+                # Get wall_id from the nested structure
+                graffiti_wall_id=data["metadata"]["coordinates"]["metadata"]["wall_id"],
+                identifier=data["metadata"]["coordinates"]["metadata"]["identifier"],
+                graffiti_type=data["metadata"]["coordinates"]["metadata"][
+                    "graffiti_type"
+                ],
+                description=data["metadata"]["coordinates"]["metadata"]["description"],
+                coordinates=data["metadata"][
+                    "coordinates"
+                ],  # Store all coordinates metadata
             )
 
-            # Handle the cropped image
-            image_data = base64.b64decode(image_data)
-            image = Image.open(BytesIO(image_data))
-            output = BytesIO()
-            image.save(output, format="PNG")
+            # Save the image
+            image_name = f"derived_{graffiti_photo.identifier}.png"
+            graffiti_photo.image.save(image_name, ContentFile(image_binary), save=False)
 
-            graffiti_photo.image.save(
-                f'derived_{wall_id}_{data.get("identifier", "unnamed")}.png',
-                BytesIO(output.getvalue()),
-                save=False,
-            )
+            # Save the instance first to get primary key
             graffiti_photo.save()
 
-            # Handle relationships
-            if data.get("is_part_of"):
-                graffiti_photo.is_part_of.add(graffiti_wall)
+            # Now that we have a primary key, we can add tags
+            if data["metadata"]["coordinates"]["metadata"].get("tags"):
+                graffiti_photo.tags.add(
+                    *data["metadata"]["coordinates"]["metadata"]["tags"]
+                )
 
-            # Handle tags if provided
-            if data.get("tags"):
-                graffiti_photo.tags.add(*data["tags"].split(","))
+            # Handle is_part_of relationship
+            if data["metadata"]["coordinates"]["metadata"].get("is_part_of"):
+                graffiti_photo.is_part_of.add(
+                    data["metadata"]["coordinates"]["metadata"]["wall_id"]
+                )
 
+            return JsonResponse({"success": True, "photo_id": graffiti_photo.id})
+
+        except KeyError as e:
+            print("KeyError accessing metadata:", str(e))
+            print("Received data structure:", data)
             return JsonResponse(
                 {
-                    "success": True,
-                    "id": graffiti_photo.id,
-                    "message": "Graffiti photo saved successfully",
-                }
+                    "success": False,
+                    "error": "Missing required metadata field",
+                    "details": str(e),
+                },
+                status=400,
             )
-        return JsonResponse({"success": False}, status=400)
+
+        except Exception as e:
+            print("Error saving graffiti photo:", str(e))
+            print("Traceback:", traceback.format_exc())
+            return JsonResponse(
+                {"success": False, "error": "Server error", "details": str(e)},
+                status=500,
+            )
 
     def rollback_to_previous(self, request, queryset):
         for photo_record in queryset:
@@ -188,8 +216,14 @@ class WallRecordHistoryAdmin(admin.ModelAdmin):
 
 
 class GraffitiPhotoAdmin(ImportExportModelAdmin):
-    list_display = ("graffiti_type",)
-    readonly_fields = ("canvas", "canvas_coords")
+    list_display = ("graffiti_type", "description", "get_associated_wall")
+    readonly_fields = ("coordinates",)
+
+    def get_associated_wall(self, obj):
+        # build hyperlink to the wall using its obj id
+        return format_html(
+            f'<a style="text-decoration: underline;" href="/admin/graffiti/graffitiwall/{obj.graffiti_wall.id}/change/">{obj.graffiti_wall.name}</a>'
+        )
 
 
 admin.site.register(GraffitiPhoto, GraffitiPhotoAdmin)
