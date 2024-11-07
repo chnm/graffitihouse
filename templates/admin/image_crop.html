@@ -50,6 +50,9 @@
         .leaflet-container {
             background: #f8f9fa;
         }
+        #labelToggle.labels-hidden {
+            background: #999;
+        }
     </style>
 {% endblock %}
 
@@ -57,6 +60,15 @@
     <div id="content-main">
         <div class="image-container">
             <div id="map"></div>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="labelToggle">Existing Polygon Labels</label>
+                <select id="labelToggle" class="form-control">
+                    <option value="show">Show Labels</option>
+                    <option value="hide">Hide Labels</option>
+                </select>
+            </div>
         </div>
 
         <div class="controls">
@@ -103,9 +115,9 @@
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize variables
             let currentRect = null;
             const img = new Image();
+            let labelLayers = [];
 
             function clearForm() {
                 // Clear all input fields
@@ -115,21 +127,75 @@
                 document.getElementById('tags').value = '';
                 document.getElementById('isPartOf').checked = true;  // Reset to default checked state
             }
-
             img.onload = function() {
-                // Initialize map
+                // Initialize map with custom CRS
+                const imageWidth = this.width;
+                const imageHeight = this.height;
+
                 const map = L.map('map', {
                     crs: L.CRS.Simple,
-                    minZoom: -2
+                    minZoom: -2,
+                    maxZoom: 4
                 });
 
-                const bounds = [[0, 0], [this.height, this.width]];
+                // Set up the image bounds based on pixels
+                const southWest = map.unproject([0, imageHeight], map.getMaxZoom());
+                const northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
+                const bounds = new L.LatLngBounds(southWest, northEast);
+
+                // Add the image overlay
                 L.imageOverlay('{{ wall_image_url }}', bounds).addTo(map);
                 map.fitBounds(bounds);
 
                 // Initialize the FeatureGroup to store editable layers
                 const drawnItems = new L.FeatureGroup();
                 map.addLayer(drawnItems);
+
+                // Draw existing selections
+                // Draw existing selections
+                const existingSelections = {{ derived_photos|safe }};
+                existingSelections.forEach(function(selection) {
+                    if (selection.coords.leaflet) {
+                        const bounds = [
+                            [selection.coords.leaflet.northWest.lat, selection.coords.leaflet.northWest.lng],
+                            [selection.coords.leaflet.southEast.lat, selection.coords.leaflet.southEast.lng]
+                        ];
+
+                        // Create rectangle
+                        const rect = L.rectangle(bounds, {
+                            color: '#4a83ec',
+                            fillColor: '#4a83ec',
+                            fillOpacity: 0.2,
+                            weight: 2
+                        }).addTo(drawnItems);
+
+                        // Add label
+                        const center = rect.getBounds().getCenter();
+                        const label = L.tooltip({
+                            permanent: true,
+                            direction: 'center',
+                            className: 'selection-label'
+                        })
+                            .setContent(selection.identifier)
+                            .setLatLng(center)
+                            .addTo(map);
+
+                        // Store reference to the label
+                        labelLayers.push(label);
+                    }
+                });
+
+                // Add event listener for the label toggle
+                document.getElementById('labelToggle').addEventListener('change', function(e) {
+                    const showLabels = e.target.value === 'show';
+                    labelLayers.forEach(label => {
+                        if (showLabels) {
+                            map.addLayer(label);
+                        } else {
+                            map.removeLayer(label);
+                        }
+                    });
+                });
 
                 // Initialize draw control
                 const drawControl = new L.Control.Draw({
@@ -147,49 +213,77 @@
                         }
                     },
                     edit: {
-                        featureGroup: drawnItems,
-                        remove: true
+                        featureGroup: drawnItems
                     }
                 });
                 map.addControl(drawControl);
 
-                // Handle drawn items - now we keep track of all rectangles
                 map.on('draw:created', function(e) {
                     const layer = e.layer;
                     drawnItems.addLayer(layer);
 
-                    // Store coordinates for the most recently drawn rectangle
+                    // Get Leaflet bounds
                     const bounds = layer.getBounds();
+
+                    // Get pixel coordinates
+                    const topLeft = map.project(bounds.getNorthWest(), map.getMaxZoom());
+                    const bottomRight = map.project(bounds.getSouthEast(), map.getMaxZoom());
+
                     currentRect = {
-                        topLeft: bounds.getNorthWest(),
-                        bottomRight: bounds.getSouthEast(),
-                        width: bounds.getEast() - bounds.getWest(),
-                        height: bounds.getNorth() - bounds.getSouth(),
-                        layer: layer  // Store reference to the layer
+                        // Pixel coordinates
+                        canvas: {
+                            x: Math.round(topLeft.x),
+                            y: Math.round(topLeft.y),
+                            width: Math.round(bottomRight.x - topLeft.x),
+                            height: Math.round(bottomRight.y - topLeft.y)
+                        },
+                        // Leaflet coordinates
+                        leaflet: {
+                            northWest: bounds.getNorthWest(),
+                            southEast: bounds.getSouthEast(),
+                            width: Math.abs(bounds.getEast() - bounds.getWest()),
+                            height: Math.abs(bounds.getNorth() - bounds.getSouth())
+                        },
+                        layer: layer
                     };
 
+                    const style = document.createElement('style');
+                    style.textContent = `
+    .selection-label {
+        background: white;
+        border: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        padding: 2px 6px;
+        font-size: 12px;
+        border-radius: 3px;
+    }
+                    `;
+                    document.head.appendChild(style);
                     console.log('Selection created:', currentRect);
                 });
 
-                // Update currentRect when a rectangle is clicked
+                // Handle clicking existing rectangles
                 drawnItems.on('click', function(e) {
                     const layer = e.layer;
                     const bounds = layer.getBounds();
+                    const topLeft = map.project(bounds.getNorthWest(), map.getMaxZoom());
+                    const bottomRight = map.project(bounds.getSouthEast(), map.getMaxZoom());
+
                     currentRect = {
-                        topLeft: bounds.getNorthWest(),
-                        bottomRight: bounds.getSouthEast(),
-                        width: bounds.getEast() - bounds.getWest(),
-                        height: bounds.getNorth() - bounds.getSouth(),
+                        x: Math.round(topLeft.x),
+                        y: Math.round(topLeft.y),
+                        width: Math.round(bottomRight.x - topLeft.x),
+                        height: Math.round(bottomRight.y - topLeft.y),
                         layer: layer
                     };
 
                     // Highlight the selected rectangle
                     drawnItems.eachLayer(function(l) {
-                        l.setStyle({ color: '#79aec8' });  // Reset all to default color
+                        l.setStyle({ color: '#79aec8' });
                     });
-                    layer.setStyle({ color: '#ff4444' });  // Highlight selected rectangle
+                    layer.setStyle({ color: '#ff4444' });
 
-                    console.log('Selection updated:', currentRect);
+                    console.log('Selection updated (in pixels):', currentRect);
                 });
 
                 // Handle deleted items
@@ -201,7 +295,6 @@
                         }
                     });
                 });
-
                 window.saveDerivedGraffiti = function() {
                     if (!currentRect) {
                         alert('Please draw a selection first');
@@ -214,66 +307,130 @@
                         return;
                     }
 
-                    // Create temporary canvas for the cropped image
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = currentRect.width;
-                    tempCanvas.height = currentRect.height;
-                    const tempCtx = tempCanvas.getContext('2d');
+                    try {
+                        // Get current timestamp
+                        const now = new Date();
 
-                    // Draw the selected portion of the image
-                    tempCtx.drawImage(
-                        img,
-                        currentRect.topLeft.lng,
-                        currentRect.topLeft.lat,
-                        currentRect.width,
-                        currentRect.height,
-                        0,
-                        0,
-                        currentRect.width,
-                        currentRect.height
-                    );
+                        // Create temporary canvas for the cropped image
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = currentRect.canvas.width;
+                        tempCanvas.height = currentRect.canvas.height;
+                        const tempCtx = tempCanvas.getContext('2d');
 
-                    const payload = {
-                        image: tempCanvas.toDataURL('image/png'),
-                        wall_id: {{ graffiti_wall.id }},
-                        identifier: identifier,
-                        graffiti_type: document.getElementById('graffitiType').value,
-                        description: document.getElementById('description').value,
-                        tags: document.getElementById('tags').value,
-                        is_part_of: document.getElementById('isPartOf').checked,
-                        coordinates: {
-                            x: currentRect.topLeft.lng,
-                            y: currentRect.topLeft.lat,
-                            width: currentRect.width,
-                            height: currentRect.height
-                        }
-                    };
+                        tempCtx.drawImage(
+                            img,
+                            currentRect.canvas.x,
+                            currentRect.canvas.y,
+                            currentRect.canvas.width,
+                            currentRect.canvas.height,
+                            0,
+                            0,
+                            currentRect.canvas.width,
+                            currentRect.canvas.height
+                        );
 
-                    fetch('{% url "admin:save-derived-graffiti" %}', {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                        if (data.success) {
-                            alert('Graffiti photo saved successfully!');
-
-                            // Clear the form
-                            clearForm();
-
-                            // Reset the current rectangle selection but keep it visible
-                            currentRect.layer.setStyle({ color: '#79aec8' });  // Reset to default color
-                            currentRect = null;
-
-                            if (window.opener) {
-                                window.opener.location.reload();
+                        // Split the metadata and image data into separate parts
+                        const metadata = {
+                            // Spatial and measurement data
+                            coordinates: {
+                                canvas: {
+                                    x: Math.round(currentRect.canvas.x),
+                                    y: Math.round(currentRect.canvas.y),
+                                    width: Math.round(currentRect.canvas.width),
+                                    height: Math.round(currentRect.canvas.height),
+                                    aspectRatio: Number((currentRect.canvas.width / currentRect.canvas.height).toFixed(4))
+                                },
+                                leaflet: {
+                                    northWest: {
+                                        lat: Number(currentRect.leaflet.northWest.lat.toFixed(4)),
+                                        lng: Number(currentRect.leaflet.northWest.lng.toFixed(4))
+                                    },
+                                    southEast: {
+                                        lat: Number(currentRect.leaflet.southEast.lat.toFixed(4)),
+                                        lng: Number(currentRect.leaflet.southEast.lng.toFixed(4))
+                                    },
+                                    width: Math.round(currentRect.leaflet.width),
+                                    height: Math.round(currentRect.leaflet.height)
+                                },
+                                // Image metadata
+                                image: {
+                                    originalSize: {
+                                        width: img.naturalWidth,
+                                        height: img.naturalHeight
+                                    },
+                                    derivedSize: {
+                                        width: Math.round(currentRect.canvas.width),
+                                        height: Math.round(currentRect.canvas.height)
+                                    },
+                                    format: 'PNG',
+                                    scaleFactor: Number((currentRect.canvas.width / img.naturalWidth).toFixed(4))
+                                },
+                                // Temporal metadata
+                                timestamp: {
+                                    created: now.toISOString(),
+                                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                    unix: Math.floor(now.getTime() / 1000)
+                                },
+                                // Source and user input metadata
+                                metadata: {
+                                    identifier: identifier,
+                                    graffiti_type: document.getElementById('graffitiType').value || null,
+                                    description: document.getElementById('description').value || '',
+                                    tags: document.getElementById('tags').value ?
+                                    document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag) :
+                                    [],
+                                    is_part_of: document.getElementById('isPartOf').checked,
+                                    wall_id: {{ graffiti_wall.id }},
+                                    parentId: {{ graffiti_wall.id }},
+                                    derivationType: 'rectangular-selection'
+                                },
+                                // Versioning
+                                version: '1.0.0'
                             }
-                        }
-                    })
-                        .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error saving graffiti photo');
-                    });
+                        };
+
+                        // Update the payload structure
+                        const payload = {
+                            metadata: metadata,
+                            image: tempCanvas.toDataURL('image/png')
+                        };
+
+                        // Log the metadata (without image data) for debugging
+                        console.log('Metadata being sent:', metadata);
+
+                        fetch('{% url "admin:save-derived-graffiti" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                            .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                            .then(data => {
+                            if (data.success) {
+                                console.log('Successfully saved with metadata');
+                                alert('Graffiti photo saved successfully!');
+                                clearForm();
+                                currentRect.layer.setStyle({ color: '#79aec8' });
+                                currentRect = null;
+                                if (window.opener) {
+                                    window.opener.location.reload();
+                                }
+                            }
+                        })
+                            .catch(error => {
+                            console.error('Error details:', error);
+                            alert('Error saving graffiti photo: ' + error.message);
+                        });
+                    } catch (error) {
+                        console.error('Error in saveDerivedGraffiti:', error);
+                        alert('Error preparing graffiti data: ' + error.message);
+                    }
                 };
 
                 // Add this to your existing JavaScript
@@ -292,8 +449,199 @@
             };
 
             img.src = '{{ wall_image_url }}';
-
         });
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     // Initialize variables
+        //     let currentRect = null;
+        //     const img = new Image();
+        //
+        //     function clearForm() {
+        //         // Clear all input fields
+        //         document.getElementById('identifier').value = '';
+        //         document.getElementById('graffitiType').value = '';
+        //         document.getElementById('description').value = '';
+        //         document.getElementById('tags').value = '';
+        //         document.getElementById('isPartOf').checked = true;  // Reset to default checked state
+        //     }
+        //
+        //     img.onload = function() {
+        //         // Initialize map
+        //         const map = L.map('map', {
+        //             crs: L.CRS.Simple,
+        //             minZoom: -2
+        //         });
+        //
+        //         const bounds = [[0, 0], [this.height, this.width]];
+        //         L.imageOverlay('{{ wall_image_url }}', bounds).addTo(map);
+        //         map.fitBounds(bounds);
+        //
+        //         // Initialize the FeatureGroup to store editable layers
+        //         const drawnItems = new L.FeatureGroup();
+        //         map.addLayer(drawnItems);
+        //
+        //         // Initialize draw control
+        //         const drawControl = new L.Control.Draw({
+        //             draw: {
+        //                 polygon: false,
+        //                 polyline: false,
+        //                 circle: false,
+        //                 circlemarker: false,
+        //                 marker: false,
+        //                 rectangle: {
+        //                     shapeOptions: {
+        //                         color: '#79aec8',
+        //                         fillOpacity: 0.3
+        //                     }
+        //                 }
+        //             },
+        //             edit: {
+        //                 featureGroup: drawnItems,
+        //                 remove: true
+        //             }
+        //         });
+        //         map.addControl(drawControl);
+        //
+        //         // Handle drawn items - now we keep track of all rectangles
+        //         map.on('draw:created', function(e) {
+        //             const layer = e.layer;
+        //             drawnItems.addLayer(layer);
+        //
+        //             // Store coordinates for the most recently drawn rectangle
+        //             const bounds = layer.getBounds();
+        //             currentRect = {
+        //                 topLeft: bounds.getNorthWest(),
+        //                 bottomRight: bounds.getSouthEast(),
+        //                 width: bounds.getEast() - bounds.getWest(),
+        //                 height: bounds.getNorth() - bounds.getSouth(),
+        //                 layer: layer  // Store reference to the layer
+        //             };
+        //
+        //             console.log('Selection created:', currentRect);
+        //         });
+        //
+        //         // Update currentRect when a rectangle is clicked
+        //         drawnItems.on('click', function(e) {
+        //             const layer = e.layer;
+        //             const bounds = layer.getBounds();
+        //             currentRect = {
+        //                 topLeft: bounds.getNorthWest(),
+        //                 bottomRight: bounds.getSouthEast(),
+        //                 width: bounds.getEast() - bounds.getWest(),
+        //                 height: bounds.getNorth() - bounds.getSouth(),
+        //                 layer: layer
+        //             };
+        //
+        //             // Highlight the selected rectangle
+        //             drawnItems.eachLayer(function(l) {
+        //                 l.setStyle({ color: '#79aec8' });  // Reset all to default color
+        //             });
+        //             layer.setStyle({ color: '#ff4444' });  // Highlight selected rectangle
+        //
+        //             console.log('Selection updated:', currentRect);
+        //         });
+        //
+        //         // Handle deleted items
+        //         map.on('draw:deleted', function(e) {
+        //             const deletedLayers = e.layers;
+        //             deletedLayers.eachLayer(function(layer) {
+        //                 if (currentRect && currentRect.layer === layer) {
+        //                     currentRect = null;
+        //                 }
+        //             });
+        //         });
+        //
+        //         window.saveDerivedGraffiti = function() {
+        //             if (!currentRect) {
+        //                 alert('Please draw a selection first');
+        //                 return;
+        //             }
+        //
+        //             const identifier = document.getElementById('identifier').value;
+        //             if (!identifier) {
+        //                 alert('Please enter an identifier');
+        //                 return;
+        //             }
+        //
+        //             // Create temporary canvas for the cropped image
+        //             const tempCanvas = document.createElement('canvas');
+        //             tempCanvas.width = currentRect.width;
+        //             tempCanvas.height = currentRect.height;
+        //             const tempCtx = tempCanvas.getContext('2d');
+        //
+        //             // Draw the selected portion of the image
+        //             tempCtx.drawImage(
+        //                 img,
+        //                 currentRect.topLeft.lng,
+        //                 currentRect.topLeft.lat,
+        //                 currentRect.width,
+        //                 currentRect.height,
+        //                 0,
+        //                 0,
+        //                 currentRect.width,
+        //                 currentRect.height
+        //             );
+        //
+        //             const payload = {
+        //                 image: tempCanvas.toDataURL('image/png'),
+        //                 wall_id: {{ graffiti_wall.id }},
+        //                 identifier: identifier,
+        //                 graffiti_type: document.getElementById('graffitiType').value,
+        //                 description: document.getElementById('description').value,
+        //                 tags: document.getElementById('tags').value,
+        //                 is_part_of: document.getElementById('isPartOf').checked,
+        //                 coordinates: {
+        //                     x: currentRect.topLeft.lng,
+        //                     y: currentRect.topLeft.lat,
+        //                     width: currentRect.width,
+        //                     height: currentRect.height
+        //                 }
+        //             };
+        //
+        //             fetch('{% url "admin:save-derived-graffiti" %}', {
+        //                 method: 'POST',
+        //                 body: JSON.stringify(payload)
+        //             })
+        //                 .then(response => response.json())
+        //                 .then(data => {
+        //                 if (data.success) {
+        //                     alert('Graffiti photo saved successfully!');
+        //
+        //                     // Clear the form
+        //                     clearForm();
+        //
+        //                     // Reset the current rectangle selection but keep it visible
+        //                     currentRect.layer.setStyle({ color: '#79aec8' });  // Reset to default color
+        //                     currentRect = null;
+        //
+        //                     if (window.opener) {
+        //                         window.opener.location.reload();
+        //                     }
+        //                 }
+        //             })
+        //                 .catch(error => {
+        //                 console.error('Error:', error);
+        //                 alert('Error saving graffiti photo');
+        //             });
+        //         };
+        //
+        //         // Add this to your existing JavaScript
+        //         function returnToList() {
+        //             if (window.opener) {
+        //                 // If this is a popup, close it
+        //                 window.close();
+        //             } else {
+        //                 // If not a popup, navigate back
+        //                 window.location.href = "{% url 'admin:graffiti_graffitiwall_changelist' %}";
+        //             }
+        //         }
+        //
+        //         // Make it globally available
+        //         window.returnToList = returnToList;
+        //     };
+        //
+        //     img.src = '{{ wall_image_url }}';
+        //
+        // });
     </script>
 {% endblock %}
 
