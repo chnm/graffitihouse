@@ -3,59 +3,52 @@
 
 {% block extrahead %}
     {{ block.super }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
     <style>
         .image-container {
             position: relative;
-            overflow: auto;
-            max-height: 600px;
+            height: 600px;
             border: 1px solid #ddd;
             margin-bottom: 20px;
         }
-
-        #imageCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: crosshair;
+        #map {
+            height: 100%;
         }
-
         .controls {
             margin: 20px 0;
             display: grid;
             grid-gap: 15px;
             max-width: 600px;
         }
-
         .control-group {
-            display: grid;
-            grid-gap: 5px;
+            margin-bottom: 10px;
         }
-
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .control-group input[type="text"],
+        .control-group select,
+        .control-group textarea {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
         .button {
             background: #79aec8;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
             color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
         }
-
         .button:hover {
             background: #609ab6;
         }
-
-        input[type="text"],
-        select,
-        textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        label {
-            font-weight: bold;
-            color: #666;
+        .leaflet-container {
+            background: #f8f9fa;
         }
     </style>
 {% endblock %}
@@ -63,14 +56,15 @@
 {% block content %}
     <div id="content-main">
         <div class="image-container">
-            <img id="originalImage" src="{{ wall_image_url }}" style="display: block;">
-            <canvas id="imageCanvas"></canvas>
+            <div id="map"></div>
         </div>
+
         <div class="controls">
             <div class="control-group">
                 <label for="identifier">Identifier</label>
                 <input type="text" id="identifier" placeholder="Enter identifier">
             </div>
+
             <div class="control-group">
                 <label for="graffitiType">Graffiti Type</label>
                 <select id="graffitiType">
@@ -80,144 +74,226 @@
                     {% endfor %}
                 </select>
             </div>
+
             <div class="control-group">
                 <label for="description">Description</label>
                 <textarea id="description" rows="3"></textarea>
             </div>
+
             <div class="control-group">
                 <label for="tags">Tags (comma-separated)</label>
                 <input type="text" id="tags" placeholder="Enter tags">
             </div>
+
             <div class="control-group">
                 <label>
                     <input type="checkbox" id="isPartOf" checked>
                     Is part of this wall
                 </label>
             </div>
-            <button onclick="saveDerivedGraffiti()" class="button">Save Graffiti Photo</button>
+
+            <div class="control-group" style="display: flex; gap: 10px;">
+                <button onclick="saveDerivedGraffiti()" class="button">Save Graffiti Photo</button>
+                <button onclick="returnToList()" class="button">&larr; Return to Wall List</button>
+            </div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script>
-        const canvas = document.getElementById('imageCanvas');
-        const ctx = canvas.getContext('2d');
-        const img = document.getElementById('originalImage');
-        let isDrawing = false;
-        let startX, startY;
-        let currentRect = null;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let currentRect = null;
+            const img = new Image();
 
-        img.onload = function () {
-            canvas.width = img.width;
-            canvas.height = img.height;
-        };
-
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left + canvas.parentElement.scrollLeft;
-            startY = e.clientY - rect.top + canvas.parentElement.scrollTop;
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const currentX = e.clientX - rect.left + canvas.parentElement.scrollLeft;
-            const currentY = e.clientY - rect.top + canvas.parentElement.scrollTop;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.beginPath();
-            ctx.strokeStyle = '#79aec8';
-            ctx.lineWidth = 2;
-
-            const width = currentX - startX;
-            const height = currentY - startY;
-
-            ctx.strokeRect(startX, startY, width, height);
-            ctx.fillStyle = 'rgba(121, 174, 200, 0.3)';
-            ctx.fillRect(startX, startY, width, height);
-
-            currentRect = {
-                x: Math.min(startX, currentX),
-                y: Math.min(startY, currentY),
-                width: Math.abs(width),
-                height: Math.abs(height)
-            };
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
-        function saveDerivedGraffiti() {
-            if (!currentRect) {
-                alert('Please draw a selection first');
-                return;
+            function clearForm() {
+                // Clear all input fields
+                document.getElementById('identifier').value = '';
+                document.getElementById('graffitiType').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('tags').value = '';
+                document.getElementById('isPartOf').checked = true;  // Reset to default checked state
             }
 
-            const identifier = document.getElementById('identifier').value;
-            if (!identifier) {
-                alert('Please enter an identifier');
-                return;
-            }
+            img.onload = function() {
+                // Initialize map
+                const map = L.map('map', {
+                    crs: L.CRS.Simple,
+                    minZoom: -2
+                });
 
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = currentRect.width;
-            tempCanvas.height = currentRect.height;
-            const tempCtx = tempCanvas.getContext('2d');
+                const bounds = [[0, 0], [this.height, this.width]];
+                L.imageOverlay('{{ wall_image_url }}', bounds).addTo(map);
+                map.fitBounds(bounds);
 
-            tempCtx.drawImage(
-                img,
-                currentRect.x,
-                currentRect.y,
-                currentRect.width,
-                currentRect.height,
-                0,
-                0,
-                currentRect.width,
-                currentRect.height
-            );
+                // Initialize the FeatureGroup to store editable layers
+                const drawnItems = new L.FeatureGroup();
+                map.addLayer(drawnItems);
 
-            const payload = {
-                image: tempCanvas.toDataURL('image/png'),
-                wall_id: {{ graffiti_wall.id }},
-                identifier: identifier,
-                graffiti_type: document.getElementById('graffitiType').value,
-                description: document.getElementById('description').value,
-                tags: document.getElementById('tags').value,
-                is_part_of: document.getElementById('isPartOf').checked,
-                coordinates: {
-                    x: currentRect.x,
-                    y: currentRect.y,
-                    width: currentRect.width,
-                    height: currentRect.height
-                },
-                canvas: JSON.stringify(currentRect)
-            };
-
-            fetch('{% url "admin:save-derived-graffiti" %}', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
-                .then(response => response.json())
-                .then(data => {
-                if (data.success) {
-                    alert('Graffiti photo saved successfully!');
-                    if (window.opener) {
-                        window.opener.location.reload();
+                // Initialize draw control
+                const drawControl = new L.Control.Draw({
+                    draw: {
+                        polygon: false,
+                        polyline: false,
+                        circle: false,
+                        circlemarker: false,
+                        marker: false,
+                        rectangle: {
+                            shapeOptions: {
+                                color: '#79aec8',
+                                fillOpacity: 0.3
+                            }
+                        }
+                    },
+                    edit: {
+                        featureGroup: drawnItems,
+                        remove: true
                     }
-                    window.close();
+                });
+                map.addControl(drawControl);
+
+                // Handle drawn items - now we keep track of all rectangles
+                map.on('draw:created', function(e) {
+                    const layer = e.layer;
+                    drawnItems.addLayer(layer);
+
+                    // Store coordinates for the most recently drawn rectangle
+                    const bounds = layer.getBounds();
+                    currentRect = {
+                        topLeft: bounds.getNorthWest(),
+                        bottomRight: bounds.getSouthEast(),
+                        width: bounds.getEast() - bounds.getWest(),
+                        height: bounds.getNorth() - bounds.getSouth(),
+                        layer: layer  // Store reference to the layer
+                    };
+
+                    console.log('Selection created:', currentRect);
+                });
+
+                // Update currentRect when a rectangle is clicked
+                drawnItems.on('click', function(e) {
+                    const layer = e.layer;
+                    const bounds = layer.getBounds();
+                    currentRect = {
+                        topLeft: bounds.getNorthWest(),
+                        bottomRight: bounds.getSouthEast(),
+                        width: bounds.getEast() - bounds.getWest(),
+                        height: bounds.getNorth() - bounds.getSouth(),
+                        layer: layer
+                    };
+
+                    // Highlight the selected rectangle
+                    drawnItems.eachLayer(function(l) {
+                        l.setStyle({ color: '#79aec8' });  // Reset all to default color
+                    });
+                    layer.setStyle({ color: '#ff4444' });  // Highlight selected rectangle
+
+                    console.log('Selection updated:', currentRect);
+                });
+
+                // Handle deleted items
+                map.on('draw:deleted', function(e) {
+                    const deletedLayers = e.layers;
+                    deletedLayers.eachLayer(function(layer) {
+                        if (currentRect && currentRect.layer === layer) {
+                            currentRect = null;
+                        }
+                    });
+                });
+
+                window.saveDerivedGraffiti = function() {
+                    if (!currentRect) {
+                        alert('Please draw a selection first');
+                        return;
+                    }
+
+                    const identifier = document.getElementById('identifier').value;
+                    if (!identifier) {
+                        alert('Please enter an identifier');
+                        return;
+                    }
+
+                    // Create temporary canvas for the cropped image
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = currentRect.width;
+                    tempCanvas.height = currentRect.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    // Draw the selected portion of the image
+                    tempCtx.drawImage(
+                        img,
+                        currentRect.topLeft.lng,
+                        currentRect.topLeft.lat,
+                        currentRect.width,
+                        currentRect.height,
+                        0,
+                        0,
+                        currentRect.width,
+                        currentRect.height
+                    );
+
+                    const payload = {
+                        image: tempCanvas.toDataURL('image/png'),
+                        wall_id: {{ graffiti_wall.id }},
+                        identifier: identifier,
+                        graffiti_type: document.getElementById('graffitiType').value,
+                        description: document.getElementById('description').value,
+                        tags: document.getElementById('tags').value,
+                        is_part_of: document.getElementById('isPartOf').checked,
+                        coordinates: {
+                            x: currentRect.topLeft.lng,
+                            y: currentRect.topLeft.lat,
+                            width: currentRect.width,
+                            height: currentRect.height
+                        }
+                    };
+
+                    fetch('{% url "admin:save-derived-graffiti" %}', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                        if (data.success) {
+                            alert('Graffiti photo saved successfully!');
+
+                            // Clear the form
+                            clearForm();
+
+                            // Reset the current rectangle selection but keep it visible
+                            currentRect.layer.setStyle({ color: '#79aec8' });  // Reset to default color
+                            currentRect = null;
+
+                            if (window.opener) {
+                                window.opener.location.reload();
+                            }
+                        }
+                    })
+                        .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error saving graffiti photo');
+                    });
+                };
+
+                // Add this to your existing JavaScript
+                function returnToList() {
+                    if (window.opener) {
+                        // If this is a popup, close it
+                        window.close();
+                    } else {
+                        // If not a popup, navigate back
+                        window.location.href = "{% url 'admin:graffiti_graffitiwall_changelist' %}";
+                    }
                 }
-            })
-                .catch(error => {
-                console.error('Error:', error);
-                alert('Error saving graffiti photo');
-            });
-        }
+
+                // Make it globally available
+                window.returnToList = returnToList;
+            };
+
+            img.src = '{{ wall_image_url }}';
+
+        });
     </script>
 {% endblock %}
+
