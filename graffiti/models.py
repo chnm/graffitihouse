@@ -151,17 +151,16 @@ class GraffitiPhoto(models.Model):
         related_name="graffiti_is_part_of",
     )
     tags = TaggableManager(blank=True)
+    coordinates = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    canvas = models.TextField(null=True, blank=True)
-    coordinates = models.JSONField(null=True)
-    canvas_coords = models.TextField(null=True, blank=True, default="[]")
-
-    created_at = models.DateTimeField(auto_now_add=True)
+    def save(self, *args, **kwargs):
+        print("Saving with coordinates:", self.coordinates)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.graffiti_type
 
 
 # Ancellary sources include maps, deeds, service records, letters, and other primary
@@ -254,7 +253,7 @@ class Person(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.last_name
 
     def get_absolute_url(self):
         return reverse("detail", kwargs={"person_id": self.id})
