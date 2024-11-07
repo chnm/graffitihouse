@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Overall Image</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+        <style>
+            .image-container {
+                position: relative;
+                height: 600px;
+                border: 1px solid #ddd;
+                margin-bottom: 20px;
+            }
+
+            #map {
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="image-container">
+            <div id="map"></div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const map = L.map('map', {
+                    crs: L.CRS.Simple,
+                    minZoom: -2,
+                    maxZoom: 4
+                });
+
+                const imageWidth = {{ wall.image.width }};
+                const imageHeight = {{ wall.image.height }};
+                const southWest = map.unproject([0, imageHeight], map.getMaxZoom());
+                const northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
+                const bounds = new L.LatLngBounds(southWest, northEast);
+
+                L.imageOverlay('{{ wall.image.url }}', bounds).addTo(map);
+                map.fitBounds(bounds);
+
+                const derivedImages = {{ derived_images| safe }};
+                console.log('Derived Images:', derivedImages); // Debugging
+
+                derivedImages.forEach(function (image) {
+                    const bounds = [
+                        [image.coordinates.leaflet.northWest.lat, image.coordinates.leaflet.northWest.lng],
+                        [image.coordinates.leaflet.southEast.lat, image.coordinates.leaflet.southEast.lng]
+                    ];
+
+                    const rect = L.rectangle(bounds, {
+                        color: '#4a83ec',
+                        fillColor: '#4a83ec',
+                        fillOpacity: 0.2,
+                        weight: 2
+                    }).addTo(map);
+
+                    rect.on('click', function () {
+                        window.location.href = image.detail_url;
+                    });
+                });
+            });
+        </script>
+    </body>
+
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Derived Image Detail</title>
+        <style>
+            .image-container {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .metadata {
+                max-width: 600px;
+                margin: 0 auto;
+                text-align: left;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="image-container">
+            <img src="{{ derived_image.image.url }}" alt="Derived Image">
+        </div>
+        <div class="metadata">
+            <h2>Metadata</h2>
+            <p><strong>Identifier:</strong> {{ derived_image.identifier }}</p>
+            <p><strong>Graffiti Type:</strong> {{ derived_image.graffiti_type }}</p>
+            <p><strong>Description:</strong> {{ derived_image.description }}</p>
+            <p><strong>Tags:</strong> {{ derived_image.tags }}</p>
+            <p><strong>Is Part Of:</strong> {{ derived_image.is_part_of }}</p>
+            <p><strong>Coordinates:</strong> {{ derived_image.coordinates }}</p>
+        </div>
+    </body>
+
+</html>
