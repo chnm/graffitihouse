@@ -21,21 +21,22 @@ class GraffitiWall(models.Model):
     room = models.CharField(max_length=255, help_text="Record the room name/number.")
     spatial_position = models.CharField(
         max_length=100,
-        help_text="Record the region code for this wall (e.g., B1, C3).",
+        help_text="Mike's record the region code for this wall (e.g., B1, C3).",
+    )
+    wall_grid_position = models.CharField(
+        max_length=100,
+        help_text="General record for the wall grid position. For example, A1 or A1A2. Please consult the grid image reference for more information.",
     )
     identifier = models.CharField(
         max_length=100,
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
     )
-    has_part = models.ManyToManyField(
-        "GraffitiPhoto",
-        blank=True,
-        help_text="A related resource that is included either physically or logically in the described resource.",
-        related_name="graffiti_photo_has_part",
-    )
     date_taken = models.DateField(help_text="Record the date the photograph was taken.")
     site_id = models.ForeignKey("Site", on_delete=models.CASCADE, verbose_name="Site")
+    notes = models.TextField(blank=True, null=True)
+    interpretation = models.TextField(blank=True, null=True)
     tags = TaggableManager(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -120,9 +121,10 @@ class WallRecordHistory(models.Model):
 # GraffitiPhoto is a specific piece of graffiti from an overall wall.
 class GraffitiPhoto(models.Model):
     GRAFFITI_TYPES = (
-        ("Item 1", "Item 1"),
-        ("Item 2", "Item 2"),
-        ("Item 3", "Item 3"),
+        ("name", "name"),
+        ("image", "image"),
+        ("unit", "unit"),
+        ("other", "other"),
     )
     id = models.BigAutoField(primary_key=True)
     graffiti_wall = models.ForeignKey(
@@ -137,12 +139,6 @@ class GraffitiPhoto(models.Model):
     identifier = models.CharField(
         max_length=100,
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
-    )
-    has_part = models.ManyToManyField(
-        "GraffitiWall",
-        blank=True,
-        help_text="A related resource that is included either physically or logically in the described resource.",
-        related_name="graffiti_has_part",
     )
     is_part_of = models.ManyToManyField(
         "GraffitiWall",
@@ -246,6 +242,14 @@ class Person(models.Model):
     )
     date_of_death = models.DateField(
         blank=True, null=True, help_text="Enter the date as YYYY-MM-DD."
+    )
+    associated_graffiti_photo = models.ForeignKey(
+        GraffitiPhoto,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="graffiti_associated_person",
+        verbose_name="Associated photo",
     )
     tags = TaggableManager(blank=True)
 

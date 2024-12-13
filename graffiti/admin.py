@@ -15,9 +15,8 @@ from django.urls import path
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
 from import_export.admin import ImportExportModelAdmin
-from PIL import Image
 
-from .models import (
+from graffiti.models import (
     Alias,
     AncillarySource,
     Archive,
@@ -215,9 +214,15 @@ class WallRecordHistoryAdmin(admin.ModelAdmin):
         return False
 
 
+class GraffitiPhotoInline(admin.TabularInline):
+    model = Person
+    extra = 1
+
+
 class GraffitiPhotoAdmin(ImportExportModelAdmin):
     list_display = ("graffiti_type", "description", "get_associated_wall")
     readonly_fields = ("coordinates",)
+    inlines = [GraffitiPhotoInline]
 
     def get_associated_wall(self, obj):
         # build hyperlink to the wall using its obj id
@@ -282,7 +287,7 @@ class AliasInline(admin.StackedInline):
     extra = 1
 
 
-class ServiceInline(admin.TabularInline):
+class ServiceInline(admin.StackedInline):
     model = Service
     extra = 1
 
