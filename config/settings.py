@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "django.contrib.staticfiles",
     "graffiti.apps.GraffitiConfig",
+    "people.apps.PeopleConfig",
     "pages.apps.PagesConfig",
     "accounts.apps.AccountsConfig",
     "django_extensions",
