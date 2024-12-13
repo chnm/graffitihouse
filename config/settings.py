@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "django.contrib.staticfiles",
     "graffiti.apps.GraffitiConfig",
+    "people.apps.PeopleConfig",
     "pages.apps.PagesConfig",
     "accounts.apps.AccountsConfig",
     "django_extensions",
+    "django_dbml",
 ]
 
 MIDDLEWARE = [
@@ -92,6 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
