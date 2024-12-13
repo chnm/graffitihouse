@@ -3,7 +3,7 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    is_staff = models.BooleanField(default=True)
+    # Remove is_staff since it's already in AbstractUser
     is_volunteer = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     is_contributor = models.BooleanField(default=False)
