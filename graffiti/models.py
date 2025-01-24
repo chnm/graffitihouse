@@ -12,6 +12,86 @@ from prose.fields import RichTextField
 from taggit_selectize.managers import TaggableManager
 
 
+class Location(models.Model):
+    """
+    The model handles georaphic locations for various models.
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    place = models.CharField(max_length=255, verbose_name="Display name")
+    address = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=255, blank=True, null=True)
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=4,
+        blank=True,
+        null=True,
+        help_text="If left blank, the system will attempt to geocode the information if address and state information are provided.",
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=4,
+        blank=True,
+        null=True,
+        help_text="If left blank, the system will attempt to geocode the information if address and state information are provided.",
+    )
+
+    def save(self, *args, **kwargs):
+        # Only geocode if we don’t have lat/lon and enough address info is provided
+        if not self.latitude or not self.longitude:
+            self.set_lat_lon_from_address()
+        super().save(*args, **kwargs)
+
+    def set_lat_lon_from_address(self):
+        # Build full address string from data fields
+        full_address = ", ".join(
+            part for part in [self.address, self.city, self.state] if part
+        )
+        geolocator = Nominatim(user_agent="graffitihouse")
+        try:
+            location = geolocator.geocode(full_address)
+            if location:
+                self.latitude = location.latitude
+                self.longitude = location.longitude
+            else:
+                raise ValidationError(f"Could not geocode address: {full_address}")
+        except Exception as e:
+            raise ValidationError(f"Geocoding error: {e}")
+
+    def __str__(self) -> str:
+        return self.place
+
+    class Meta:
+        ordering = ["state", "city", "place"]
+        verbose_name = "Location"
+        verbose_name_plural = "Locations"
+
+
+class Site(models.Model):
+    """
+    Site is a specific structure or space with multiple walls that contain graffiti.
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, blank=True, null=True
+    )
+    image = models.ImageField(upload_to="images/", blank=True, null=True)
+    tags = TaggableManager(blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("detail", kwargs={"site_id": self.id})
+
+
 # Graffiti is a specific wall from a site.
 class GraffitiWall(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -32,7 +112,7 @@ class GraffitiWall(models.Model):
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
     )
     date_taken = models.DateField(help_text="Record the date the photograph was taken.")
-    site_id = models.ForeignKey("Site", on_delete=models.CASCADE, verbose_name="Site")
+    site_id = models.ForeignKey(Site, on_delete=models.CASCADE, verbose_name="Site")
     notes = models.TextField(blank=True, null=True)
     interpretation = models.TextField(blank=True, null=True)
     tags = TaggableManager(blank=True)
@@ -141,7 +221,7 @@ class GraffitiPhoto(models.Model):
         help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
     )
     is_part_of = models.ManyToManyField(
-        "GraffitiWall",
+        GraffitiWall,
         blank=True,
         help_text="A related resource in which the described resource is physically or logically included.",
         related_name="graffiti_is_part_of",
@@ -157,258 +237,3 @@ class GraffitiPhoto(models.Model):
 
     def __str__(self):
         return self.graffiti_type
-
-
-# Ancellary sources include maps, deeds, service records, letters, and other primary
-# documents related to a specific image. These are connected to specific
-# metadata for individual object types. These can be associated with specific
-# pieces of graffiti or people.
-class AncillarySource(models.Model):
-    DOCUMENT_TYPES = (
-        ("image", "Image"),
-        ("newsprint", "Newsprint"),
-        ("wall", "Wall"),
-        ("letter", "Letter"),
-        ("photograph", "Photograph"),
-        ("drawing", "Drawing"),
-        ("artwork", "Artwork"),
-        ("game", "Game"),
-        ("poem", "Poem"),
-        ("other", "Other"),
-    )
-
-    id = models.BigAutoField(primary_key=True)
-    title = models.CharField(max_length=100)
-    image = models.ImageField(upload_to="images/", null=True)
-    item_type = models.CharField(max_length=100, choices=DOCUMENT_TYPES)
-    creator = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True,
-        help_text="An entity primarily responsible for making the resource.",
-    )
-    description = models.TextField(blank=True, null=True)
-    contributor = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True,
-        help_text="An entity responsible for making contributions to the resource.",
-    )
-    date = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True,
-        help_text="The date of the source, if known.",
-    )
-    language = models.CharField(max_length=100, null=True, blank=True)
-    site = models.ForeignKey("Site", on_delete=models.CASCADE, null=True)
-    archive = models.ForeignKey("Archive", on_delete=models.CASCADE, null=True)
-    box = models.CharField(max_length=225, null=True, blank=True)
-    folder = models.CharField(max_length=225, null=True, blank=True)
-    access_rights = models.CharField(max_length=100, null=True, blank=True)
-    graffiti_id = models.ForeignKey(
-        "GraffitiWall",
-        on_delete=models.CASCADE,
-        null=True,
-        verbose_name="Associated wall",
-    )
-    people = models.ManyToManyField("Person", through="DocumentPersonRole")
-    tags = TaggableManager(blank=True)
-    location = models.ForeignKey("Location", on_delete=models.CASCADE, null=True)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
-    transcription = models.TextField(null=True, blank=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
-
-    def get_absolute_url(self):
-        return reverse("detail", kwargs={"ancillary_id": self.id})
-
-
-# Person is a specific person who is mentioned in a primary source.
-class Person(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    first_name = models.CharField(blank=True, max_length=255)
-    middle_name_or_initial = models.CharField(blank=True, max_length=255)
-    last_name = models.CharField(max_length=255, default="Unknown")
-    description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to="images/", blank=True, null=True)
-    date_of_birth = models.DateField(
-        blank=True, null=True, help_text="Enter the date as YYYY-MM-DD."
-    )
-    date_of_death = models.DateField(
-        blank=True, null=True, help_text="Enter the date as YYYY-MM-DD."
-    )
-    associated_graffiti_photo = models.ForeignKey(
-        GraffitiPhoto,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="graffiti_associated_person",
-        verbose_name="Associated photo",
-    )
-    tags = TaggableManager(blank=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.last_name
-
-    def get_absolute_url(self):
-        return reverse("detail", kwargs={"person_id": self.id})
-
-    class Meta:
-        verbose_name = "Person"
-        verbose_name_plural = "People"
-
-
-class DocumentPersonRole(models.Model):
-    ROLE_CHOICES = (
-        ("SENDER", "Sender"),
-        ("RECIPIENT", "Recipient"),
-        ("GRANTEE", "Grantee"),
-        ("GRANTOR", "Grantor"),
-    )
-
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    document = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
-    role = models.CharField(max_length=100, choices=ROLE_CHOICES)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["person", "document", "role"]),
-        ]
-        verbose_name = "People"
-        verbose_name_plural = "People"
-
-    def __str__(self):
-        return f"{self.person} - {self.get_role_display()} for {self.document}"
-
-
-class Alias(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
-
-    def __str__(self):
-        return str(self.name)
-
-    class Meta:
-        verbose_name = "Alias"
-        verbose_name_plural = "Aliases"
-
-
-class Organization(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(blank=True, max_length=255)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
-
-    def __str__(self):
-        return self.name
-
-
-class Service(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
-    military_rank = models.CharField(blank=True, max_length=255)
-    military_unit = models.CharField(blank=True, max_length=255)
-    military_branch = models.CharField(blank=True, max_length=255)
-    start_date = models.DateField(blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.person} - {self.military_rank}"
-
-
-class Archive(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    location = models.ForeignKey("Location", on_delete=models.CASCADE)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse("detail", kwargs={"archive_id": self.id})
-
-
-# Site is a specific structure or space with multiple walls.
-class Site(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    location = models.ForeignKey(
-        "Location", on_delete=models.CASCADE, blank=True, null=True
-    )
-    image = models.ImageField(upload_to="images/", blank=True, null=True)
-    tags = TaggableManager(blank=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse("detail", kwargs={"site_id": self.id})
-
-
-class Location(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    place = models.CharField(max_length=255, verbose_name="Display name")
-    address = models.CharField(max_length=255, blank=True, null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    state = models.CharField(max_length=255, blank=True, null=True)
-    latitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=4,
-        blank=True,
-        null=True,
-        help_text="If left blank, the system will attempt to geocode the information if address and state information are provided.",
-    )
-    longitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=4,
-        blank=True,
-        null=True,
-        help_text="If left blank, the system will attempt to geocode the information if address and state information are provided.",
-    )
-
-    def save(self, *args, **kwargs):
-        # Only geocode if we don’t have lat/lon and enough address info is provided
-        if not self.latitude or not self.longitude:
-            self.set_lat_lon_from_address()
-        super().save(*args, **kwargs)
-
-    def set_lat_lon_from_address(self):
-        # Build full address string from data fields
-        full_address = ", ".join(
-            part for part in [self.address, self.city, self.state] if part
-        )
-        geolocator = Nominatim(user_agent="graffitihouse")
-        try:
-            location = geolocator.geocode(full_address)
-            if location:
-                self.latitude = location.latitude
-                self.longitude = location.longitude
-            else:
-                raise ValidationError(f"Could not geocode address: {full_address}")
-        except Exception as e:
-            raise ValidationError(f"Geocoding error: {e}")
-
-    def __str__(self) -> str:
-        return self.place
-
-    class Meta:
-        ordering = ["state", "city", "place"]
-        verbose_name = "Location"
-        verbose_name_plural = "Locations"
