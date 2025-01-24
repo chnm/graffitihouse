@@ -17,19 +17,14 @@ from django.views.decorators.csrf import csrf_exempt
 from import_export.admin import ImportExportModelAdmin
 
 from graffiti.models import (
-    Alias,
-    AncillarySource,
-    Archive,
-    DocumentPersonRole,
     GraffitiPhoto,
     GraffitiWall,
     Location,
-    Organization,
-    Person,
-    Service,
     Site,
     WallRecordHistory,
 )
+from people.models import Alias, Organization, Person, Service
+from source.models import AncillarySource, Archive, DocumentPersonRole
 
 admin.site.register(Archive)
 
