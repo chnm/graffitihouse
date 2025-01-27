@@ -231,6 +231,16 @@ class GraffitiPhoto(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def image_canvas(self):
+        if self.image:
+            return mark_safe(
+                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
+            )
+        else:
+            return "No Image Found"
+
+    image_canvas.short_description = "Image"
+
     def save(self, *args, **kwargs):
         print("Saving with coordinates:", self.coordinates)
         super().save(*args, **kwargs)

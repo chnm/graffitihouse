@@ -41,19 +41,25 @@ class GraffitiWallHistoryInline(admin.TabularInline):
 
 class CustomAdminFileWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
-        result = []
+        output = ['<div style="display: flex; flex-direction: column; gap: 10px;">']
+
         if hasattr(value, "url"):
-            result.append(
-                f"""<a href="{value.url}" target="_blank">
-                      <img 
-                        src="{value.url}" alt="{value}" 
-                        width="500" height="500"
-                        style="object-fit: cover;"
-                      />
-                    </a>"""
+            output.append(
+                f"""<div>
+                      <a href="{value.url}" target="_blank">
+                        <img 
+                          src="{value.url}" alt="{value}" 
+                          width="500" height="500"
+                          style="object-fit: cover;"
+                        />
+                      </a>
+                    </div>"""
             )
-        result.append(super().render(name, value, attrs, renderer))
-        return format_html("".join(result))
+
+        output.append(f"<div>{super().render(name, value, attrs, renderer)}</div>")
+        output.append("</div>")
+
+        return format_html("".join(output))
 
 
 @admin.register(GraffitiWall)
@@ -95,7 +101,6 @@ class GraffitiWallAdmin(ImportExportModelAdmin):
         ]
         return custom_urls + urls
 
-    # In your admin.py derive_graffiti_view
     def derive_graffiti_view(self, request, wall_id):
         graffiti_wall = get_object_or_404(GraffitiWall, id=wall_id)
         derived_photos = GraffitiPhoto.objects.filter(graffiti_wall=graffiti_wall)
@@ -218,6 +223,7 @@ class GraffitiPhotoAdmin(ImportExportModelAdmin):
     list_display = ("graffiti_type", "description", "get_associated_wall")
     readonly_fields = ("coordinates",)
     inlines = [GraffitiPhotoInline]
+    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
         # build hyperlink to the wall using its obj id
