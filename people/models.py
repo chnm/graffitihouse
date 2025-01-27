@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from prose.fields import RichTextField
+from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 
 from graffiti.models import GraffitiPhoto
@@ -32,6 +33,7 @@ class Person(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.last_name
@@ -48,6 +50,7 @@ class Alias(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
+    history = HistoricalRecords()
 
     def __str__(self):
         return str(self.name)
@@ -61,6 +64,7 @@ class Organization(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(blank=True, max_length=255)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -74,6 +78,7 @@ class Service(models.Model):
     military_branch = models.CharField(blank=True, max_length=255)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.person} - {self.military_rank}"

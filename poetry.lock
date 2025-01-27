@@ -354,6 +354,20 @@ bleach = ">=4.0"
 django = ">=3.2"
 
 [[package]]
+name = "django-simple-history"
+version = "3.8.0"
+description = "Store model history and view/revert changes from admin site."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "django_simple_history-3.8.0-py3-none-any.whl", hash = "sha256:7f8bbdaa5b2c4c1c9a48c89a95ff3389eda6c82cf9de9b09ae99b558205d132f"},
+    {file = "django_simple_history-3.8.0.tar.gz", hash = "sha256:e70d70fb4cc2af60a50904f1420d5a6440d24efddceba3daeff8b02d269ebdf0"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+
+[[package]]
 name = "django-taggit"
 version = "6.1.0"
 description = "django-taggit is a reusable Django application for simple tagging."
@@ -1006,4 +1020,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7672af617ad29a911719ac883b8fe0ddb05ee3ab4a9a07242b16649e5436ea98"
+content-hash = "a1b0ea4b4c9149b9e34ff01c773e9a5607d06590ebc99071fc911508240eca1e"

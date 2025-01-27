@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from prose.fields import RichTextField
+from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 
 from graffiti.models import GraffitiWall, Location, Site
@@ -67,6 +68,7 @@ class AncillarySource(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.title
@@ -83,6 +85,7 @@ class Archive(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -102,6 +105,8 @@ class DocumentPersonRole(models.Model):
     person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
     document = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
     role = models.CharField(max_length=100, choices=ROLE_CHOICES)
+
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [

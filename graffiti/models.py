@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from geopy.geocoders import Nominatim
 from prose.fields import RichTextField
+from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 
 
@@ -36,6 +37,8 @@ class Location(models.Model):
         null=True,
         help_text="If left blank, the system will attempt to geocode the information if address and state information are provided.",
     )
+
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         # Only geocode if we don’t have lat/lon and enough address info is provided
@@ -85,6 +88,8 @@ class Site(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.name
 
@@ -119,6 +124,7 @@ class GraffitiWall(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     # When a user draws a selection of graffiti, a new canvas coordinate
     # is added to the graffiti_has_part table
@@ -147,18 +153,6 @@ class GraffitiWall(models.Model):
 
     image_canvas.short_description = "Image"
 
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
-        if is_new:
-            WallRecordHistory.objects.create(
-                photo_record=self, action="CREATE", data=self.to_dict()
-            )
-        else:
-            WallRecordHistory.objects.create(
-                photo_record=self, action="UPDATE", data=self.to_dict()
-            )
-
     def to_dict(self):
         return {
             "id": self.id,
@@ -180,22 +174,6 @@ class GraffitiWall(models.Model):
             self.save()
         else:
             raise ValueError("Invalid version for rollback.")
-
-
-class WallRecordHistory(models.Model):
-    photo_record = models.ForeignKey(
-        GraffitiWall, on_delete=models.CASCADE, related_name="history"
-    )
-    action = models.CharField(max_length=10)  # 'CREATE', 'UPDATE', 'DELETE'
-    data = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
-    )
-
-    class Meta:
-        ordering = ["-created_at"]
-        verbose_name_plural = "Wall Record Histories"
 
 
 # GraffitiPhoto is a specific piece of graffiti from an overall wall.
@@ -230,6 +208,7 @@ class GraffitiPhoto(models.Model):
     coordinates = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     def image_canvas(self):
         if self.image:
