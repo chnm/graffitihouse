@@ -107,8 +107,12 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": env("DB_HOST", default="localhost"),
+        "PORT": env("DB_PORT", default="5432"),
+        "NAME": env("DB_NAME", default="graffitihouse"),
+        "USER": env("DB_USER", default="graffitihouse"),
+        "PASSWORD": env("DB_PASS", default="password"),
     }
 }
 
