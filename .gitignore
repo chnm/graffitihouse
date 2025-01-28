@@ -3,6 +3,8 @@ models.png
 .idea/
 .venv.bak/
 staticfiles/
+dumpdata.json
+dumpdata2.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
