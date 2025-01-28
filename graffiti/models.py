@@ -196,7 +196,7 @@ class GraffitiPhoto(models.Model):
     image = models.ImageField(upload_to="images/derived/", null=True)
     identifier = models.CharField(
         max_length=100,
-        help_text="Identifier refers to the number produced by the camera/phone. Please ensure these match.",
+        help_text="An auto-generated unique identifier for the photo.",
     )
     is_part_of = models.ManyToManyField(
         GraffitiWall,
@@ -225,4 +225,6 @@ class GraffitiPhoto(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.graffiti_type
+        graffiti_type = self.graffiti_type or "No type"
+        identifier = self.identifier or "No ID"
+        return f"{graffiti_type} - {identifier}"
