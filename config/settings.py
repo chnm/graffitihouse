@@ -46,12 +46,14 @@ INSTALLED_APPS = [
     "theme",
     "django_browser_reload",
     "django.contrib.staticfiles",
-    "graffiti.apps.GraffitiConfig",
-    "people.apps.PeopleConfig",
-    "pages.apps.PagesConfig",
-    "accounts.apps.AccountsConfig",
     "django_extensions",
     "django_dbml",
+    "simple_history",
+    # apps
+    "graffiti",
+    "people",
+    "source",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -63,6 +65,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 

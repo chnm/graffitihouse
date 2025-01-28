@@ -15,54 +15,40 @@ from django.urls import path
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
 from import_export.admin import ImportExportModelAdmin
+from simple_history.admin import SimpleHistoryAdmin
 
-from graffiti.models import (
-    Alias,
-    AncillarySource,
-    Archive,
-    DocumentPersonRole,
-    GraffitiPhoto,
-    GraffitiWall,
-    Location,
-    Organization,
-    Person,
-    Service,
-    Site,
-    WallRecordHistory,
-)
+from graffiti.models import GraffitiPhoto, GraffitiWall, Location, Site
+from people.models import Alias, Organization, Person, Service
+from source.models import AncillarySource, Archive, DocumentPersonRole
 
 admin.site.register(Archive)
 
 
-class GraffitiWallHistoryInline(admin.TabularInline):
-    model = WallRecordHistory
-    readonly_fields = ("action", "data", "created_at", "user")
-    extra = 0
-    can_delete = False
-
-    def has_add_permission(self, request, obj):
-        return False
-
-
 class CustomAdminFileWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
-        result = []
+        output = ['<div style="display: flex; flex-direction: column; gap: 10px;">']
+
         if hasattr(value, "url"):
-            result.append(
-                f"""<a href="{value.url}" target="_blank">
-                      <img 
-                        src="{value.url}" alt="{value}" 
-                        width="500" height="500"
-                        style="object-fit: cover;"
-                      />
-                    </a>"""
+            output.append(
+                f"""<div>
+                      <a href="{value.url}" target="_blank">
+                        <img 
+                          src="{value.url}" alt="{value}" 
+                          width="500" height="500"
+                          style="object-fit: cover;"
+                        />
+                      </a>
+                    </div>"""
             )
-        result.append(super().render(name, value, attrs, renderer))
-        return format_html("".join(result))
+
+        output.append(f"<div>{super().render(name, value, attrs, renderer)}</div>")
+        output.append("</div>")
+
+        return format_html("".join(output))
 
 
 @admin.register(GraffitiWall)
-class GraffitiWallAdmin(ImportExportModelAdmin):
+class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     list_display = (
         "name",
         "description_as_markdown",
@@ -70,7 +56,6 @@ class GraffitiWallAdmin(ImportExportModelAdmin):
         "created_at",
     )
     formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
-    inlines = [GraffitiWallHistoryInline]
     actions = ["rollback_to_previous"]
 
     def get_derive_button(self, obj):
@@ -100,7 +85,6 @@ class GraffitiWallAdmin(ImportExportModelAdmin):
         ]
         return custom_urls + urls
 
-    # In your admin.py derive_graffiti_view
     def derive_graffiti_view(self, request, wall_id):
         graffiti_wall = get_object_or_404(GraffitiWall, id=wall_id)
         derived_photos = GraffitiPhoto.objects.filter(graffiti_wall=graffiti_wall)
@@ -190,28 +174,8 @@ class GraffitiWallAdmin(ImportExportModelAdmin):
                 status=500,
             )
 
-    def rollback_to_previous(self, request, queryset):
-        for photo_record in queryset:
-            previous_version = photo_record.history.order_by("-id")[1]
-            photo_record.rollback(previous_version.id)
-        self.message_user(
-            request, "Selected records rolled back to their previous versions"
-        )
-
-    rollback_to_previous.short_description = "Rollback to previous versions."
-
-
-@admin.register(WallRecordHistory)
-class WallRecordHistoryAdmin(admin.ModelAdmin):
-    list_display = ("photo_record", "action", "created_at", "user")
-    list_filter = ("action", "created_at", "user")
-    readonly_fields = ("photo_record", "action", "created_at", "user")
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
+    # Add history view
+    history_list_display = ["changed_fields"]
 
 
 class GraffitiPhotoInline(admin.TabularInline):
@@ -219,16 +183,20 @@ class GraffitiPhotoInline(admin.TabularInline):
     extra = 1
 
 
-class GraffitiPhotoAdmin(ImportExportModelAdmin):
+class GraffitiPhotoAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     list_display = ("graffiti_type", "description", "get_associated_wall")
     readonly_fields = ("coordinates",)
     inlines = [GraffitiPhotoInline]
+    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
         # build hyperlink to the wall using its obj id
         return format_html(
             f'<a style="text-decoration: underline;" href="/admin/graffiti/graffitiwall/{obj.graffiti_wall.id}/change/">{obj.graffiti_wall.name}</a>'
         )
+
+    # Add history view
+    history_list_display = ["changed_fields"]
 
 
 admin.site.register(GraffitiPhoto, GraffitiPhotoAdmin)
@@ -239,7 +207,7 @@ class SourcePersonRoleInline(admin.TabularInline):
     extra = 1
 
 
-class AncillarySourceAdmin(ImportExportModelAdmin):
+class AncillarySourceAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     list_display = ("title", "date")
     inlines = [SourcePersonRoleInline]
     fieldsets = (
@@ -271,12 +239,18 @@ class AncillarySourceAdmin(ImportExportModelAdmin):
         ),
     )
 
+    # Add history view
+    history_list_display = ["changed_fields"]
+
 
 admin.site.register(AncillarySource, AncillarySourceAdmin)
 
 
-class SiteAdmin(ImportExportModelAdmin):
+class SiteAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     list_display = ("name", "description")
+
+    # Add history view
+    history_list_display = ["changed_fields"]
 
 
 admin.site.register(Site, SiteAdmin)
@@ -297,7 +271,7 @@ class OrganizationInline(admin.StackedInline):
     extra = 1
 
 
-class PersonAdmin(ImportExportModelAdmin):
+class PersonAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     list_display = (
         "last_name",
         "first_name",

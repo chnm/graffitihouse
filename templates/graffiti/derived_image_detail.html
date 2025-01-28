@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +8,13 @@
             .image-container {
                 text-align: center;
                 margin-bottom: 20px;
+            }
+
+            .image-container img {
+                max-width: 900px;
+                height: auto;
+                display: block;
+                margin: 0 auto;
             }
 
             .metadata {
@@ -20,16 +26,15 @@
     </head>
 
     <body>
+        <h1>Item ID: {{ derived_image.identifier }}</h1>
         <div class="image-container">
-            <img src="{{ derived_image.image.url }}" alt="Derived Image">
+            <img src="{{ derived_image.image.url }}" alt="{{ derived_image.description }}">
         </div>
         <div class="metadata">
             <h2>Metadata</h2>
-            <p><strong>Identifier:</strong> {{ derived_image.identifier }}</p>
             <p><strong>Graffiti Type:</strong> {{ derived_image.graffiti_type }}</p>
-            <p><strong>Description:</strong> {{ derived_image.description }}</p>
+            <p><strong>Description:</strong> {{ derived_image.description | safe }}</p>
             <p><strong>Tags:</strong> {{ derived_image.tags }}</p>
-            <p><strong>Is Part Of:</strong> {{ derived_image.is_part_of }}</p>
             <p><strong>Coordinates:</strong> {{ derived_image.coordinates }}</p>
         </div>
     </body>
