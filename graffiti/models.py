@@ -103,6 +103,12 @@ class GraffitiWall(models.Model):
     name = models.CharField(max_length=100)
     description = RichTextField(blank=True, null=True)
     image = models.ImageField(upload_to="images/")
+    archival_image = models.ImageField(
+        blank=True,
+        null=True,
+        upload_to="images/archival/",
+        help_text="An archival quality image. Optional.",
+    )
     room = models.CharField(max_length=255, help_text="Record the room name/number.")
     spatial_position = models.CharField(
         max_length=100,
@@ -118,7 +124,10 @@ class GraffitiWall(models.Model):
     )
     date_taken = models.DateField(help_text="Record the date the photograph was taken.")
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, verbose_name="Site")
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True, help_text="Internal project notes.")
+    conservation_notes = models.TextField(
+        blank=True, null=True, help_text="Conservation notes."
+    )
     interpretation = models.TextField(blank=True, null=True)
     tags = TaggableManager(blank=True)
 
@@ -176,8 +185,9 @@ class GraffitiWall(models.Model):
             raise ValueError("Invalid version for rollback.")
 
 
-# GraffitiPhoto is a specific piece of graffiti from an overall wall.
 class GraffitiPhoto(models.Model):
+    """GraffitiPhoto refers to a specific piece of graffiti on an overall wall."""
+
     GRAFFITI_TYPES = (
         ("name", "name"),
         ("image", "image"),
