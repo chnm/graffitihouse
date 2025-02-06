@@ -28,7 +28,7 @@ class CustomAdminFileWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
         output = ['<div style="display: flex; flex-direction: column; gap: 10px;">']
 
-        if hasattr(value, "url"):
+        if name == "image" and value and hasattr(value, "url"):
             output.append(
                 f"""<div>
                       <a href="{value.url}" target="_blank">
@@ -60,9 +60,8 @@ class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 
     def get_derive_button(self, obj):
         return format_html(
-            '<a class="button" href="{}derive/" '
-            'style="background: #79aec8; color: white; padding: 5px 10px; '
-            'border-radius: 4px; text-decoration: none;">'
+            '<a href="{}derive/" '
+            'style="text-decoration: underline;">'
             "Derive Photo</a>",
             f"{obj.pk}/",
         )
