@@ -189,11 +189,15 @@ class GraffitiPhoto(models.Model):
     """GraffitiPhoto refers to a specific piece of graffiti on an overall wall."""
 
     GRAFFITI_TYPES = (
-        ("name", "name"),
+        ("drawing", "drawing"),
         ("image", "image"),
+        ("name", "name"),
+        ("poetry", "poetry"),
         ("unit", "unit"),
+        ("other writing", "other writing"),
         ("other", "other"),
     )
+
     id = models.BigAutoField(primary_key=True)
     graffiti_wall = models.ForeignKey(
         GraffitiWall,
