@@ -16,15 +16,16 @@ class AncillarySource(models.Model):
     """
 
     DOCUMENT_TYPES = (
-        ("image", "Image"),
-        ("newsprint", "Newsprint"),
-        ("wall", "Wall"),
-        ("letter", "Letter"),
-        ("photograph", "Photograph"),
-        ("drawing", "Drawing"),
         ("artwork", "Artwork"),
+        ("document", "Document"),
+        ("drawing", "Drawing"),
         ("game", "Game"),
+        ("image", "Image"),
+        ("letter", "Letter"),
+        ("newsprint", "Newsprint"),
+        ("photograph", "Photograph"),
         ("poem", "Poem"),
+        ("wall", "Wall"),
         ("other", "Other"),
     )
 
