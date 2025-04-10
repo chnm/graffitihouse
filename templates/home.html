@@ -1,31 +1,368 @@
-{% extends "base.html" %} {% block title %}Graffiti House Project{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+{% load image_tags %}
+
+{% block title %}Civil War Graffiti Project{% endblock %}
+
+{% block extra_head %}
+    <style>
+        /* Custom navigation styles */
+        .nav-link {
+            position: relative;
+            color: #e5e7eb;
+            padding: 0.5rem 0;
+            margin: 0 1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #3b82f6;
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link.active {
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            width: 100%;
+            background-color: #3b82f6;
+        }
+
+        /* Card hover effects */
+        .site-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Hero section parallax effect */
+        .parallax-hero {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <main>
-        <!-- Hero section starts -->
-        <div class="relative bg-gray-800 overflow-hidden h-screen">
-            <!-- Hero image -->
-            <img
-                class="absolute inset-0 w-full h-full object-cover"
-                src="https://static.wixstatic.com/media/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg/v1/fill/w_825,h_600,al_c,lg_1,q_85,enc_auto/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg"
-                alt="Hero Image"
-            />
-            <!-- Overlay to darken the image -->
-            <div class="absolute inset-0 bg-gray-900 opacity-70"></div>
-            <!-- Hero content -->
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-                <h1
-                    class="text-3xl font-extrabold text-white sm:text-2xl lg:text-7xl mb-8"
-                >
-                    Civil War Graffiti
-                </h1>
-                <p class="text-lg text-gray-300 max-w-2xl mb-12">
-                    Site description goes here. Lorem ipsum dolor sit amet, consectetur
-                    adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-                    magna aliqua.
-                </p>
-                >
+    <!-- Hero Section -->
+    <div class="relative overflow-hidden">
+        <!-- Hero image with parallax effect -->
+        <div class="parallax-hero absolute inset-0 w-full h-full" style="background-image: url('https://static.wixstatic.com/media/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg/v1/fill/w_825,h_600,al_c,lg_1,q_85,enc_auto/33a0c8_2a20866012684002852095b34c4223f6~mv2.jpg');">
+        </div>
+
+        <!-- Overlay to darken the image -->
+        <div class="absolute inset-0 bg-cwg-black opacity-70"></div>
+
+        <!-- Hero content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-48">
+            <h1 class="text-4xl font-extrabold text-cwg-white sm:text-5xl lg:text-7xl mb-8 tracking-tight">
+                Preserving Civil War Graffiti
+            </h1>
+            <p class="text-lg text-cwg-white text-opacity-90 max-w-2xl mb-8">
+                Documenting and preserving historical graffiti left by soldiers during the American Civil War,
+                providing unique insights into the lived experiences of those who fought.
+            </p>
+            <div class="mt-10 space-x-4">
+                <a href="{% url 'graffiti:walls_list' %}" class="btn-cwg-primary inline-flex items-center">
+                    Explore Graffiti
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+                <a href="{% url 'people:people_list' %}" class="btn-cwg-secondary inline-flex items-center">
+                    People
+                </a>
             </div>
         </div>
 
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-cwg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-cwg-black sm:text-4xl">
+                    About the Project
+                </h2>
+                <div class="mt-4 max-w-3xl mx-auto">
+                    <div class="w-20 h-1 bg-cwg-red mx-auto mb-6"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-cwg-black mb-4">Preserving Historical Voices</h3>
+                    <p class="text-cwg-black text-opacity-80 mb-6">
+                        The Civil War Graffiti Project documents and preserves the markings left by soldiers during the American Civil War. These writings and drawings, often found on the walls of homes, churches, and other buildings, provide unique insights into the thoughts, feelings, and experiences of those who lived through this pivotal period in American history.
+                    </p>
+                    <p class="text-cwg-black text-opacity-80 mb-6">
+                        Using advanced imaging techniques and historical research, our team works to capture, analyze, and contextualize these fragile pieces of history before they are lost to time. Each piece of graffiti tells a story—from simple signatures and unit designations to personal messages, political statements, and artistic expressions.
+                    </p>
+                    <p class="text-cwg-black text-opacity-80">
+                        By making these historical artifacts accessible through digital preservation, we hope to provide researchers, educators, students, and the public with a window into the personal experiences of Civil War soldiers and the communities affected by the conflict.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    {% if random_wall_images %}
+                        {% with first_image=random_wall_images.0 %}
+                            <div class="rounded-lg overflow-hidden shadow-lg">
+                                <a href="{% url 'graffiti:overall_image' wall_id=first_image.id %}" class="group">
+                                    <div class="relative h-full">
+                                        {% if first_image.image %}
+                                            {% comment %}Use template tag to handle path issues{% endcomment %}
+                                            <img src="{% image_path first_image.image %}" alt="{{ first_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            {% comment %}Fallbacks if template tag doesn't work{% endcomment %}
+                                            <noscript>
+                                                <!-- Alternative paths for potential debugging:
+                                             1. {{ first_image.image.url }}
+                                             2. /{{ first_image.image.name }}
+                                             3. /images/{{ first_image.image.name|cut:"images/" }} -->
+                                            </noscript>
+                                        {% else %}
+                                            <div class="w-full h-full bg-cwg-blue-light flex items-center justify-center">
+                                                <span class="text-cwg-white">{{ first_image.name }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <div class="absolute bottom-0 left-0 right-0 bg-cwg-black bg-opacity-60 text-cwg-white p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {{ first_image.name }}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endwith %}
+
+                        {% if random_wall_images.1 %}
+                            {% with second_image=random_wall_images.1 %}
+                                <div class="rounded-lg overflow-hidden shadow-lg row-span-2">
+                                    <a href="{% url 'graffiti:overall_image' wall_id=second_image.id %}" class="group">
+                                        <div class="relative h-full">
+                                            {% if second_image.image %}
+                                                <img src="{% image_path second_image.image %}" alt="{{ second_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            {% else %}
+                                                <div class="w-full h-full bg-cwg-blue-light flex items-center justify-center">
+                                                    <span class="text-cwg-white">{{ second_image.name }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <div class="absolute bottom-0 left-0 right-0 bg-cwg-black bg-opacity-60 text-cwg-white p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {{ second_image.name }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+
+                        {% if random_wall_images.2 %}
+                            {% with third_image=random_wall_images.2 %}
+                                <div class="rounded-lg overflow-hidden shadow-lg">
+                                    <a href="{% url 'graffiti:overall_image' wall_id=third_image.id %}" class="group">
+                                        <div class="relative h-full">
+                                            {% if third_image.image %}
+                                                <img src="{% image_path third_image.image %}" alt="{{ third_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            {% else %}
+                                                <div class="w-full h-full bg-cwg-blue-light flex items-center justify-center">
+                                                    <span class="text-cwg-white">{{ third_image.name }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <div class="absolute bottom-0 left-0 right-0 bg-cwg-black bg-opacity-60 text-cwg-white p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {{ third_image.name }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% elif random_graffiti_photos %}
+                        <!-- Fallback to graffiti photos if no wall images -->
+                        {% for photo in random_graffiti_photos %}
+                            <div class="rounded-lg overflow-hidden shadow-lg {% if forloop.first %}{% elif forloop.counter == 2 %}row-span-2{% endif %}">
+                                <a href="{% url 'graffiti:derived_image_detail' image_id=photo.id %}" class="group">
+                                    <div class="relative h-full">
+                                        {% if photo.image %}
+                                            <img src="{% image_path photo.image %}" alt="{{ photo.identifier }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                        {% else %}
+                                            <div class="w-full h-full bg-cwg-green-light flex items-center justify-center">
+                                                <span class="text-cwg-white">{{ photo.identifier }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <div class="absolute bottom-0 left-0 right-0 bg-cwg-black bg-opacity-60 text-cwg-white p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {{ photo.identifier }}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Fallback to placeholders if no images found -->
+                        <div class="rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://images.pexels.com/photos/15368115/pexels-photo-15368115/free-photo-of-old-building-in-rural-area.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Historic building" class="w-full h-full object-cover">
+                        </div>
+                        <div class="rounded-lg overflow-hidden shadow-lg row-span-2">
+                            <img src="https://images.pexels.com/photos/1010656/pexels-photo-1010656.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Wall with graffiti" class="w-full h-full object-cover">
+                        </div>
+                        <div class="rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://images.pexels.com/photos/5767574/pexels-photo-5767574.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Historic preservation" class="w-full h-full object-cover">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sites Section -->
+    <section id="sites" class="py-16 bg-cwg-black bg-opacity-[0.03]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-cwg-black sm:text-4xl">
+                    Featured Sites
+                </h2>
+                <div class="mt-4 max-w-3xl mx-auto">
+                    <div class="w-20 h-1 bg-cwg-green mx-auto mb-6"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% if sites %}
+                    {% for site in sites|slice:":2" %}
+                        <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
+                            <div class="card-cwg h-full">
+                                <div class="h-48 overflow-hidden">
+                                    {% if site.image %}
+                                        <img src="{{ site.image.url }}" alt="{{ site.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    {% else %}
+                                        <div class="w-full h-full bg-gradient-to-r from-cwg-blue-light to-cwg-blue flex items-center justify-center">
+                                            <span class="text-cwg-white text-xl font-bold px-4 text-center">{{ site.name }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold text-cwg-black mb-2 group-hover:text-cwg-blue transition-colors">{{ site.name }}</h3>
+                                    {% if site.location %}
+                                        <p class="text-cwg-black text-opacity-60 mb-4">
+                                            {{ site.location.place }}{% if site.location.city %}, {{ site.location.city }}{% endif %}{% if site.location.state %}, {{ site.location.state }}{% endif %}
+                                        </p>
+                                    {% endif %}
+                                    <p class="text-cwg-black text-opacity-80">
+                                        {% if site.description %}
+                                            {{ site.description|truncatewords:25 }}
+                                        {% else %}
+                                            A historic site featuring Civil War graffiti with preserved walls and inscriptions.
+                                        {% endif %}
+                                    </p>
+                                    <div class="mt-6 flex items-center text-cwg-blue">
+                                        <span>View graffiti walls</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback cards if no sites in database -->
+                    <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
+                        <div class="card-cwg h-full">
+                            <div class="h-48 overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-cwg-blue-light to-cwg-blue flex items-center justify-center">
+                                    <span class="text-cwg-white text-xl font-bold">Graffiti House</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-cwg-black mb-2 group-hover:text-cwg-blue transition-colors">Graffiti House</h3>
+                                <p class="text-cwg-black text-opacity-60 mb-4">Brandy Station, VA</p>
+                                <p class="text-cwg-black text-opacity-80">
+                                    A historic site featuring Civil War graffiti with multiple preserved walls and inscriptions.
+                                </p>
+                                <div class="mt-6 flex items-center text-cwg-blue">
+                                    <span>View graffiti walls</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endif %}
+
+                <!-- Explore More Card (always shown) -->
+                <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
+                    <div class="card-cwg h-full flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-16 h-16 bg-cwg-blue bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cwg-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-cwg-black mb-2">Explore All Sites</h3>
+                        <p class="text-cwg-black text-opacity-70 mb-4">
+                            Discover more historic locations and their preserved Civil War graffiti in our complete collection.
+                        </p>
+                        <div class="mt-2 inline-flex items-center text-cwg-blue">
+                            <span>View all sites</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="bg-cwg-blue py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-cwg-white mb-4">Ready to explore Civil War graffiti?</h2>
+            <p class="text-cwg-white text-opacity-90 mb-8 max-w-3xl mx-auto">
+                Discover the personal narratives and historical insights preserved in these unique historical artifacts.
+            </p>
+            <a href="{% url 'graffiti:walls_list' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md bg-cwg-white text-cwg-blue hover:bg-cwg-white hover:bg-opacity-90 transition-colors">
+                Browse the Collection
+            </a>
+        </div>
+    </section>
 {% endblock %}
-</main>
+
+{% block extra_js %}
+    <script>
+        // Smooth scrolling for anchor links
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80, // Offset for fixed header
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
