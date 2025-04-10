@@ -26,12 +26,13 @@
         }
 
         .letter-index-item.active {
-            background-color: #3b82f6;
-            color: white;
+            background-color: var(--cwg-blue, #256EFF);
+            color: var(--cwg-white, #FDFFFC);
         }
 
         .letter-index-item:hover:not(.active) {
-            background-color: #e5e7eb;
+            background-color: var(--cwg-black, #2A2D34);
+            background-opacity: 0.1;
         }
     </style>
 {% endblock %}
@@ -41,18 +42,18 @@
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div class="mb-10">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">People</h1>
-                <p class="text-gray-600 max-w-3xl">
+                <h1 class="text-3xl font-bold text-cwg-black mb-4">People</h1>
+                <p class="text-cwg-black text-opacity-70 max-w-3xl">
                     Explore the individuals associated with Civil War graffiti. This archive includes soldiers, civilians, and others who left their mark or were mentioned in the historical record.
                 </p>
             </div>
 
             <!-- Alphabet filter -->
             <div class="mb-8">
-                <div class="flex flex-wrap justify-center bg-gray-100 rounded-lg p-4">
+                <div class="flex flex-wrap justify-center bg-cwg-black bg-opacity-5 rounded-lg p-4">
                     <div id="letter-index" class="flex flex-wrap justify-center">
                         {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                            <a href="#letter-{{ letter }}" class="letter-index-item">{{ letter }}</a>
+                            <a href="#letter-{{ letter }}" class="letter-index-item hover:text-white">{{ letter }}</a>
                         {% endfor %}
                     </div>
                 </div>
@@ -60,8 +61,8 @@
 
             <!-- Count indicator -->
             <div class="text-center mb-8">
-                <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                    {{ total_count }} people documented
+                <span class="badge-cwg-blue inline-block text-sm px-3 py-1 rounded-full">
+                    {{ total_count }} people identified from wall graffiti
                 </span>
             </div>
 
@@ -71,31 +72,31 @@
 
                 {% for letter_group in by_letter %}
                     <div id="letter-{{ letter_group.grouper }}" class="scroll-mt-24">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">
+                        <h2 class="text-2xl font-bold text-cwg-black mb-6 pb-2 border-b border-cwg-black border-opacity-10">
                             {{ letter_group.grouper }}
                         </h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {% for person in letter_group.list %}
-                                <a href="{{ person.get_absolute_url }}" class="person-card block bg-white rounded-lg shadow hover:shadow-md p-6">
+                                <a href="{{ person.get_absolute_url }}" class="person-card block card-cwg p-6">
                                     <div class="flex items-start">
                                         {% if person.image %}
                                             <div class="flex-shrink-0 mr-4">
                                                 <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}"
-                                                    class="w-16 h-16 object-cover rounded-full">
+                                                    class="w-16 h-16 object-cover rounded-full border-2 border-cwg-white shadow">
                                             </div>
                                         {% else %}
-                                            <div class="flex-shrink-0 mr-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                                                <span class="text-gray-500 text-lg">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
+                                            <div class="flex-shrink-0 mr-4 w-16 h-16 bg-cwg-blue bg-opacity-10 rounded-full border-2 border-cwg-white shadow flex items-center justify-center">
+                                                <span class="text-cwg-blue text-lg">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
                                             </div>
                                         {% endif %}
 
                                         <div class="flex-1">
-                                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                                            <h3 class="text-lg font-semibold text-cwg-black hover:text-cwg-blue transition-colors">
                                                 {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
                                             </h3>
 
-                                            <div class="mt-1 text-sm text-gray-600">
+                                            <div class="mt-1 text-sm text-cwg-black text-opacity-60">
                                                 {% if person.date_of_birth or person.date_of_death %}
                                                     <p>
                                                         {% if person.date_of_birth %}
@@ -113,13 +114,18 @@
                                                         <p class="mt-1">
                                                             {% if service.military_rank %}{{ service.military_rank }}{% endif %}
                                                             {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
+                                                            {% if service.military_governance %}
+                                                                <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">
+                                                                    {{ service.military_governance|title }}
+                                                                </span>
+                                                            {% endif %}
                                                         </p>
                                                     {% endif %}
                                                 {% endfor %}
                                             </div>
                                         </div>
 
-                                        <div class="ml-2 text-blue-600">
+                                        <div class="ml-2 text-cwg-blue">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                             </svg>
@@ -154,7 +160,7 @@
                                                 {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
                                             </h3>
 
-                                            <div class="mt-1 text-sm text-gray-600">
+                                            <div class="mt-1 text-sm text-cwg-black text-opacity-60">
                                                 {% if person.date_of_birth or person.date_of_death %}
                                                     <p>
                                                         {% if person.date_of_birth %}
@@ -172,13 +178,18 @@
                                                         <p class="mt-1">
                                                             {% if service.military_rank %}{{ service.military_rank }}{% endif %}
                                                             {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
+                                                            {% if service.military_governance %}
+                                                                <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">
+                                                                    {{ service.military_governance|title }}
+                                                                </span>
+                                                            {% endif %}
                                                         </p>
                                                     {% endif %}
                                                 {% endfor %}
                                             </div>
                                         </div>
 
-                                        <div class="ml-2 text-blue-600">
+                                        <div class="ml-2 text-cwg-blue">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                             </svg>

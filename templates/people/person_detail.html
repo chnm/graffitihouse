@@ -8,7 +8,7 @@
         <div class="max-w-5xl mx-auto">
             <!-- Back link -->
             <div class="mb-6">
-                <a href="{% url 'people:people_list' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                <a href="{% url 'people:people_list' %}" class="inline-flex items-center text-cwg-blue hover:text-cwg-blue-dark transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -17,25 +17,25 @@
             </div>
 
             <!-- Person header -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="card-cwg overflow-hidden">
                 <div class="md:flex">
                     <!-- Image column -->
-                    <div class="md:w-1/3 bg-gray-50 p-6 flex flex-col items-center justify-start">
+                    <div class="md:w-1/3 bg-cwg-black bg-opacity-[0.03] p-6 flex flex-col items-center justify-start">
                         {% if person.image %}
                             <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}"
-                                class="w-48 h-48 object-cover rounded-full border-4 border-white shadow-lg mb-6">
+                                class="w-48 h-48 object-cover rounded-full border-4 border-cwg-white shadow-lg mb-6">
                         {% else %}
-                            <div class="w-48 h-48 bg-gray-200 rounded-full border-4 border-white shadow-lg mb-6 flex items-center justify-center">
-                                <span class="text-gray-500 text-4xl">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
+                            <div class="w-48 h-48 bg-cwg-blue bg-opacity-10 rounded-full border-4 border-cwg-white shadow-lg mb-6 flex items-center justify-center">
+                                <span class="text-cwg-blue text-4xl">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
                             </div>
                         {% endif %}
 
-                        <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">
+                        <h1 class="text-2xl font-bold text-center text-cwg-black mb-2">
                             {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
                         </h1>
 
                         {% if person.date_of_birth or person.date_of_death %}
-                            <p class="text-gray-600 text-center mb-4">
+                            <p class="text-cwg-black text-opacity-60 text-center mb-4">
                                 {% if person.date_of_birth %}
                                     {{ person.date_of_birth|date:"F j, Y" }}
                                 {% endif %}
@@ -48,19 +48,19 @@
 
                         {% if aliases %}
                             <div class="mt-4 text-center">
-                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Also Known As</h3>
+                                <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Also Known As</h3>
                                 {% for alias in aliases %}
-                                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-1 mr-1">{{ alias.name }}</span>
+                                    <span class="badge-cwg-blue text-xs mb-1 mr-1">{{ alias.name }}</span>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
                         {% if person.tags.all %}
                             <div class="mt-4 text-center">
-                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Tags</h3>
+                                <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Tags</h3>
                                 <div class="flex flex-wrap justify-center">
                                     {% for tag in person.tags.all %}
-                                        <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded mb-1 mr-1">{{ tag }}</span>
+                                        <span class="badge-cwg-green text-xs mb-1 mr-1">{{ tag }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -69,69 +69,34 @@
 
                     <!-- Details column -->
                     <div class="md:w-2/3 p-6">
-                        <!-- Tabs -->
-                        <div class="border-b border-gray-200 mb-6" x-data="{ activeTab: 'biography' }">
-                            <div class="flex -mb-px">
-                                <button @click="activeTab = 'biography'"
-                                    :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'biography', 'text-gray-500 hover:text-gray-700': activeTab !== 'biography'}"
-                                    class="py-4 px-6 font-medium text-sm">
-                                    Biography
-                                </button>
-
-                                {% if service_records %}
-                                    <button @click="activeTab = 'service'"
-                                        :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'service', 'text-gray-500 hover:text-gray-700': activeTab !== 'service'}"
-                                        class="py-4 px-6 font-medium text-sm">
-                                        Military Service
-                                    </button>
-                                {% endif %}
-
-                                {% if organizations %}
-                                    <button @click="activeTab = 'organizations'"
-                                        :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'organizations', 'text-gray-500 hover:text-gray-700': activeTab !== 'organizations'}"
-                                        class="py-4 px-6 font-medium text-sm">
-                                        Organizations
-                                    </button>
-                                {% endif %}
-
-                                {% if person.associated_graffiti_photo %}
-                                    <button @click="activeTab = 'graffiti'"
-                                        :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'graffiti', 'text-gray-500 hover:text-gray-700': activeTab !== 'graffiti'}"
-                                        class="py-4 px-6 font-medium text-sm">
-                                        Associated Graffiti
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-
                         <!-- Tab content -->
-                        <div x-show="activeTab === 'biography'">
-                            <h2 class="text-xl font-semibold text-gray-900 mb-4">Biography</h2>
+                        <div>
+                            <h2 class="text-xl font-semibold text-cwg-black mb-4">Biography</h2>
                             {% if person.description %}
-                                <div class="prose max-w-none text-gray-700">
+                                <div class="prose max-w-none text-cwg-black">
                                     {{ person.description|safe }}
                                 </div>
                             {% else %}
-                                <p class="text-gray-500 italic">No biographical information available.</p>
+                                <p class="text-cwg-black text-opacity-60 italic">No biographical information available.</p>
                             {% endif %}
                         </div>
 
                         {% if service_records %}
-                            <div x-show="activeTab === 'service'">
-                                <h2 class="text-xl font-semibold text-gray-900 mb-4">Military Service</h2>
-                                <div class="overflow-hidden bg-white shadow sm:rounded-md">
-                                    <ul class="divide-y divide-gray-200">
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Military Service</h2>
+                                <div class="overflow-hidden bg-cwg-white rounded-lg">
+                                    <ul class="divide-y divide-cwg-black divide-opacity-10">
                                         {% for service in service_records %}
                                             <li class="p-4">
                                                 <div class="flex flex-col">
                                                     <div class="flex justify-between">
-                                                        <h3 class="font-medium text-gray-900">
+                                                        <h3 class="font-medium text-cwg-black">
                                                             {% if service.military_rank %}{{ service.military_rank }}{% endif %}
                                                             {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
                                                         </h3>
 
                                                         {% if service.start_date or service.end_date %}
-                                                            <span class="text-sm text-gray-500">
+                                                            <span class="text-sm text-cwg-black text-opacity-60">
                                                                 {% if service.start_date %}
                                                                     {{ service.start_date|date:"Y" }}
                                                                 {% endif %}
@@ -143,10 +108,32 @@
                                                         {% endif %}
                                                     </div>
 
-                                                    {% if service.military_branch %}
-                                                        <p class="mt-1 text-sm text-gray-600">
-                                                            {{ service.military_branch }}
-                                                        </p>
+                                                    <div class="mt-2 grid grid-cols-2 gap-2">
+                                                        {% if service.military_branch %}
+                                                            <div>
+                                                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Branch</span>
+                                                                <p class="text-sm text-cwg-black">
+                                                                    {{ service.military_branch }}
+                                                                </p>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        {% if service.military_division %}
+                                                            <div>
+                                                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Division</span>
+                                                                <p class="text-sm text-cwg-black">
+                                                                    {{ service.military_division }}
+                                                                </p>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    {% if service.military_governance %}
+                                                        <div class="mt-2">
+                                                            <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs">
+                                                                {{ service.military_governance|title }}
+                                                            </span>
+                                                        </div>
                                                     {% endif %}
                                                 </div>
                                             </li>
@@ -157,12 +144,12 @@
                         {% endif %}
 
                         {% if organizations %}
-                            <div x-show="activeTab === 'organizations'">
-                                <h2 class="text-xl font-semibold text-gray-900 mb-4">Organizations</h2>
-                                <ul class="divide-y divide-gray-200 border border-gray-200 rounded-md">
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Organizations</h2>
+                                <ul class="divide-y divide-cwg-black divide-opacity-10 border border-cwg-black border-opacity-10 rounded-lg">
                                     {% for org in organizations %}
                                         <li class="p-4">
-                                            <p class="text-gray-900">{{ org.name }}</p>
+                                            <p class="text-cwg-black">{{ org.name }}</p>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -170,30 +157,30 @@
                         {% endif %}
 
                         {% if person.associated_graffiti_photo %}
-                            <div x-show="activeTab === 'graffiti'">
-                                <h2 class="text-xl font-semibold text-gray-900 mb-4">Associated Graffiti</h2>
-                                <div class="bg-gray-100 p-4 rounded-md">
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Associated Graffiti</h2>
+                                <div class="bg-cwg-black bg-opacity-5 p-4 rounded-lg">
                                     <div class="flex flex-col md:flex-row items-start gap-6">
                                         {% if person.associated_graffiti_photo.image %}
                                             <div class="md:w-1/2">
                                                 <img src="{{ person.associated_graffiti_photo.image.url }}"
                                                     alt="Graffiti associated with {{ person.first_name }} {{ person.last_name }}"
-                                                    class="w-full h-auto rounded-md shadow">
+                                                    class="w-full h-auto">
                                             </div>
                                         {% endif %}
 
                                         <div class="md:w-1/2">
-                                            <h3 class="font-medium text-gray-900 mb-2">{{ person.associated_graffiti_photo.identifier }}</h3>
+                                            <h3 class="font-medium text-cwg-black mb-2">{{ person.associated_graffiti_photo.identifier }}</h3>
 
                                             {% if person.associated_graffiti_photo.description %}
-                                                <div class="prose text-sm text-gray-700 mb-4">
+                                                <div class="prose text-sm text-cwg-black mb-4">
                                                     {{ person.associated_graffiti_photo.description|safe }}
                                                 </div>
                                             {% endif %}
 
                                             <div class="mt-4">
                                                 <a href="{% url 'graffiti:derived_image_detail' image_id=person.associated_graffiti_photo.id %}"
-                                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                                    class="btn-cwg-primary inline-flex items-center">
                                                     View Full Details
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />

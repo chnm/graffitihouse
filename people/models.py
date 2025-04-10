@@ -71,14 +71,36 @@ class Organization(models.Model):
 
 
 class Service(models.Model):
+    GOV_CHOICES = (
+        ("union", "Union"),
+        ("confederacy", "Confederacy"),
+    )
+
+    BRANCH_CHOICES = (
+        ("army", "Army"),
+        ("navy", "Navy"),
+        ("cavalry", "Cavalry"),
+        ("coastguard", "Coast Guard"),
+    )
+
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
     military_rank = models.CharField(blank=True, max_length=255)
     military_unit = models.CharField(blank=True, max_length=255)
-    military_branch = models.CharField(blank=True, max_length=255)
+    military_branch = models.CharField(
+        blank=True, max_length=255, choices=BRANCH_CHOICES
+    )
+    military_division = models.CharField(blank=True, max_length=255)
+    military_governance = models.CharField(
+        blank=True, max_length=11, choices=GOV_CHOICES
+    )
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+
+    # Bookkeeping
     history = HistoricalRecords()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.person} - {self.military_rank}"
+        return f"{self.person}"
