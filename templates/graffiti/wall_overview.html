@@ -1,71 +1,427 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Overall Image</title>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>
-            .image-container {
-                position: relative;
-                height: 600px;
-                border: 1px solid #ddd;
-                margin-bottom: 20px;
-            }
 
-            #map {
-                height: 100%;
-            }
-        </style>
-    </head>
+{% block title %}{{ wall.name }} - Graffiti Wall{% endblock %}
 
-    <body>
-        <div class="image-container">
-            <div id="map"></div>
+{% block extra_head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Modal overlay styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(42, 45, 52, 0.7); /* Using cwg-black with opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-container {
+            background-color: var(--cwg-white, #FDFFFC);
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Fade in animation */
+        [x-cloak] { display: none !important; }
+
+        .fade-in {
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Custom styles for Leaflet map */
+        .leaflet-container {
+            font-family: inherit;
+        }
+
+        .leaflet-control-attribution a {
+            color: var(--cwg-blue, #256EFF);
+        }
+
+        .graffiti-highlight {
+            border: 2px solid var(--cwg-blue, #256EFF);
+            border-radius: 4px;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background-color: var(--cwg-white, #FDFFFC);
+            color: var(--cwg-black, #2A2D34);
+            border-radius: 8px;
+        }
+
+        .leaflet-popup-tip {
+            background-color: var(--cwg-white, #FDFFFC);
+        }
+
+        /* Hover effects for map highlights */
+        .leaflet-interactive:hover {
+            stroke: var(--cwg-red, #d72638) !important;
+            stroke-width: 3 !important;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="app" class="bg-cwg-white pt-12 pb-16">
+        <div class="container mx-auto px-4">
+            <div class="mb-8">
+                <a href="{% url 'graffiti:walls_list' %}" class="inline-flex items-center text-cwg-blue hover:text-cwg-blue-dark transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to All Sites
+                </a>
+            </div>
+
+            <!-- Header with site information -->
+            <div class="mb-8">
+                <div class="flex items-center mb-4">
+                    {% if wall.site_id.name %}
+                        <span class="badge-cwg-blue mr-3">{{ wall.site_id.name }}</span>
+                    {% endif %}
+                    <h1 class="text-3xl font-bold text-cwg-black">{{ wall.name }}</h1>
+                </div>
+                <div class="flex items-start text-cwg-black text-opacity-60 text-sm">
+                    <div class="flex items-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span>Room: {{ wall.room }}</span>
+                    </div>
+                    <div class="flex items-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                        <span>Position: {{ wall.spatial_position }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Photographed: {{ wall.date_taken|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left: Leaflet Map -->
+                <div class="lg:col-span-2">
+                    <div class="card-cwg overflow-hidden">
+                        <div class="card-cwg-header">
+                            <h2 class="text-lg font-semibold">Graffiti Wall Map</h2>
+                        </div>
+                        <div class="image-container rounded-b-lg border border-gray-200 border-t-0">
+                            <div id="map" class="h-[600px]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Documented graffiti count -->
+                    <div class="mt-4 bg-cwg-blue bg-opacity-10 p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cwg-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                            </svg>
+                            <span class="text-cwg-black">
+                                <strong>{{ derived_images_objects|length }}</strong>
+                                documented graffiti items on this wall
+                            </span>
+                        </div>
+                        <span class="text-sm text-cwg-blue">Click highlighted areas to view details</span>
+                    </div>
+                </div>
+
+                <!-- Right: Wall Details -->
+                <div class="lg:col-span-1">
+                    <div class="card-cwg">
+                        <div class="card-cwg-header">
+                            <h2 class="text-lg font-semibold">Wall Details</h2>
+                        </div>
+                        <div class="p-6">
+                            {% if wall.description %}
+                                <div class="mb-4">
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Description</h3>
+                                    <div class="prose max-w-none text-cwg-black">{{ wall.description|safe }}</div>
+                                </div>
+                            {% endif %}
+
+                            <dl class="divide-y divide-cwg-black divide-opacity-10">
+                                <div class="py-3 flex justify-between">
+                                    <dt class="text-sm font-medium text-cwg-black text-opacity-60">Room</dt>
+                                    <dd class="text-sm text-cwg-black">{{ wall.room }}</dd>
+                                </div>
+
+                                <div class="py-3 flex justify-between">
+                                    <dt class="text-sm font-medium text-cwg-black text-opacity-60">Position</dt>
+                                    <dd class="text-sm text-cwg-black">{{ wall.spatial_position }}</dd>
+                                </div>
+
+                                <div class="py-3 flex justify-between">
+                                    <dt class="text-sm font-medium text-cwg-black text-opacity-60">Wall Grid</dt>
+                                    <dd class="text-sm text-cwg-black">{{ wall.wall_grid_position }}</dd>
+                                </div>
+
+                                <div class="py-3 flex justify-between">
+                                    <dt class="text-sm font-medium text-cwg-black text-opacity-60">Date Taken</dt>
+                                    <dd class="text-sm text-cwg-black">{{ wall.date_taken }}</dd>
+                                </div>
+                            </dl>
+
+                            {% if wall.tags.all %}
+                                <div class="mt-4">
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Tags</h3>
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for tag in wall.tags.all %}
+                                            <span class="badge-cwg-green">{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if wall.notes %}
+                                <div class="mt-4">
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Notes</h3>
+                                    <p class="text-cwg-black">{{ wall.notes }}</p>
+                                </div>
+                            {% endif %}
+
+                            {% if wall.conservation_notes %}
+                                <div class="mt-4">
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Conservation Notes</h3>
+                                    <p class="text-cwg-black">{{ wall.conservation_notes }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Detail Modal Template (Hidden by default) -->
+            <div id="imageModal" style="display: none;" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 id="modalTitle" class="text-2xl font-bold text-cwg-black">Graffiti Detail</h2>
+                            <button onclick="closeModal()" class="text-cwg-black text-opacity-60 hover:text-cwg-red transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <div class="md:w-2/3">
+                                <div class="bg-cwg-black bg-opacity-5 p-4 rounded-lg mb-6">
+                                    <div class="image-container">
+                                        <img id="modalImage" src="" alt="Graffiti image"
+                                            class="max-w-full h-auto rounded-lg shadow-sm mx-auto">
+                                        <div id="noImagePlaceholder" class="bg-cwg-black bg-opacity-10 rounded-lg p-12 text-center text-cwg-black text-opacity-60" style="display: none;">
+                                            No image available
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md:w-1/3">
+                                <div class="bg-cwg-black bg-opacity-[0.03] rounded-lg p-6">
+                                    <h3 class="text-xl font-semibold mb-4 text-cwg-black">Metadata</h3>
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">ID</h4>
+                                            <p id="modalId" class="text-cwg-black">-</p>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Graffiti Type</h4>
+                                            <span id="modalType" class="badge-cwg-blue">-</span>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Description</h4>
+                                            <div id="modalDescription" class="prose max-w-none text-cwg-black">-</div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Tags</h4>
+                                            <div id="modalTags" class="flex flex-wrap gap-2">
+                                                <!-- Tags will be inserted here -->
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Created</h4>
+                                            <p id="modalCreated" class="text-cwg-black">-</p>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Last Updated</h4>
+                                            <p id="modalUpdated" class="text-cwg-black">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+{% endblock %}
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const map = L.map('map', {
-                    crs: L.CRS.Simple,
-                    minZoom: -2,
-                    maxZoom: 4
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Plain JavaScript modal implementation
+        function openModal(image) {
+            console.log('Opening modal for image:', image);
+
+            // Set modal content
+            document.getElementById('modalTitle').innerText = 'Graffiti Detail: ' + (image.identifier || 'Unknown');
+
+            // Handle image
+            const imageEl = document.getElementById('modalImage');
+            const noImageEl = document.getElementById('noImagePlaceholder');
+
+            if (image.image_url) {
+                imageEl.src = image.image_url;
+                imageEl.alt = image.identifier || 'Graffiti image';
+                imageEl.style.display = 'block';
+                noImageEl.style.display = 'none';
+            } else {
+                imageEl.style.display = 'none';
+                noImageEl.style.display = 'block';
+            }
+
+            // Set other metadata
+            document.getElementById('modalId').innerText = image.identifier || 'Not available';
+
+            const typeEl = document.getElementById('modalType');
+            if (image.graffiti_type && image.graffiti_type !== 'Not specified') {
+                typeEl.innerText = image.graffiti_type;
+                typeEl.className = 'badge-cwg-blue';
+                typeEl.style.display = 'inline-block';
+            } else {
+                typeEl.innerText = 'Not specified';
+                typeEl.className = 'text-cwg-black text-opacity-60 italic';
+            }
+
+            document.getElementById('modalDescription').innerHTML = image.description || 'No description available';
+
+            // Handle tags
+            const tagsContainer = document.getElementById('modalTags');
+            tagsContainer.innerHTML = '';
+
+            if (image.tags && image.tags.length > 0) {
+                image.tags.forEach(tag => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'badge-cwg-green';
+                    tagEl.innerText = tag;
+                    tagsContainer.appendChild(tagEl);
                 });
+            } else {
+                const noTagsEl = document.createElement('span');
+                noTagsEl.className = 'text-cwg-black text-opacity-60 italic';
+                noTagsEl.innerText = 'No tags';
+                tagsContainer.appendChild(noTagsEl);
+            }
 
-                const imageWidth = {{ wall.image.width }};
-                const imageHeight = {{ wall.image.height }};
-                const southWest = map.unproject([0, imageHeight], map.getMaxZoom());
-                const northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
-                const bounds = new L.LatLngBounds(southWest, northEast);
+            document.getElementById('modalCreated').innerText = image.created_at || 'Not available';
+            document.getElementById('modalUpdated').innerText = image.updated_at || 'Not available';
 
-                L.imageOverlay('{{ wall.image.url }}', bounds).addTo(map);
-                map.fitBounds(bounds);
+            // Show the modal
+            document.getElementById('imageModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
 
-                const derivedImages = {{ derived_images| safe }};
-                console.log('Derived Images:', derivedImages); // Debugging
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
 
-                derivedImages.forEach(function (image) {
-                    const bounds = [
-                        [image.coordinates.leaflet.northWest.lat, image.coordinates.leaflet.northWest.lng],
-                        [image.coordinates.leaflet.southEast.lat, image.coordinates.leaflet.southEast.lng]
-                    ];
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('imageModal').style.display === 'flex') {
+                closeModal();
+            }
+        });
 
-                    const rect = L.rectangle(bounds, {
-                        color: '#4a83ec',
-                        fillColor: '#4a83ec',
-                        fillOpacity: 0.2,
-                        weight: 2
-                    }).addTo(map);
+        // Close modal when clicking outside the modal content
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
 
-                    rect.on('click', function () {
-                        window.location.href = image.detail_url;
-                    });
-                });
+        // Initialize the map after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing map');
+
+            // Initialize the map
+            var map = L.map('map', {
+                crs: L.CRS.Simple,
+                minZoom: -2,
+                maxZoom: 4
             });
-        </script>
-    </body>
 
-</html>
+            // Get the image dimensions
+            var imageWidth = {{ wall.image.width }};
+            var imageHeight = {{ wall.image.height }};
+            console.log('Image dimensions:', imageWidth, 'x', imageHeight);
+
+            // Create bounds for the image
+            var southWest = map.unproject([0, imageHeight], map.getMaxZoom());
+            var northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
+            var bounds = new L.LatLngBounds(southWest, northEast);
+
+            // Add the image overlay
+            L.imageOverlay('{{ wall.image.url }}', bounds).addTo(map);
+            map.fitBounds(bounds);
+
+            // Add rectangles for the derived images
+            var derivedImages = {{ derived_images|safe }};
+            console.log('Derived images count:', derivedImages ? derivedImages.length : 0);
+
+            if (derivedImages && derivedImages.length > 0) {
+                derivedImages.forEach(function(image) {
+                    if (image.coordinates && image.coordinates.leaflet) {
+                        var imageBounds = [
+                            [image.coordinates.leaflet.northWest.lat, image.coordinates.leaflet.northWest.lng],
+                            [image.coordinates.leaflet.southEast.lat, image.coordinates.leaflet.southEast.lng]
+                        ];
+
+                        var rect = L.rectangle(imageBounds, {
+                            color: '#256EFF', // cwg-blue
+                            fillColor: '#256EFF', // cwg-blue
+                            fillOpacity: 0.2,
+                            weight: 2
+                        }).addTo(map);
+
+                        rect.on('click', function(e) {
+                            console.log('Rectangle clicked for image ID:', image.id);
+                            // Prevent the default behavior
+                            L.DomEvent.stopPropagation(e);
+
+                            // Open the modal with vanilla JS instead of Alpine
+                            openModal(image);
+
+                            return false;
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

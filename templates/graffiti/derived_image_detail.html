@@ -1,42 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Derived Image Detail</title>
-        <style>
-            .image-container {
-                text-align: center;
-                margin-bottom: 20px;
-            }
+{% extends "base.html" %}
+{% load static %}
 
-            .image-container img {
-                max-width: 900px;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-            }
+{% block title %}{{ derived_image.identifier }} - Graffiti Detail{% endblock %}
 
-            .metadata {
-                max-width: 600px;
-                margin: 0 auto;
-                text-align: left;
-            }
-        </style>
-    </head>
+{% block content %}
+    <div class="bg-cwg-white pt-12 pb-16">
+        <div class="container mx-auto px-4">
+            <div class="mb-8">
+                <a href="{% url 'graffiti:overall_image' wall_id=derived_image.graffiti_wall.id %}" class="inline-flex items-center text-cwg-blue hover:text-cwg-blue-dark transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Wall
+                </a>
+            </div>
 
-    <body>
-        <h1>Item ID: {{ derived_image.identifier }}</h1>
-        <div class="image-container">
-            <img src="{{ derived_image.image.url }}" alt="{{ derived_image.description }}">
+            <!-- Header with graffiti information -->
+            <div class="mb-8">
+                <div class="flex items-center mb-4">
+                    {% if derived_image.graffiti_wall.site_id.name %}
+                        <span class="badge-cwg-blue mr-3">{{ derived_image.graffiti_wall.site_id.name }}</span>
+                    {% endif %}
+                    <h1 class="text-3xl font-bold text-cwg-black">{{ derived_image.identifier }}</h1>
+                </div>
+                <div class="flex items-start text-cwg-black text-opacity-60 text-sm">
+                    <div class="flex items-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span>Wall: {{ derived_image.graffiti_wall.name }}</span>
+                    </div>
+                    <div class="flex items-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                        </svg>
+                        <span>Type: {{ derived_image.graffiti_type|default:"Not specified" }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-cwg-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Created: {{ derived_image.created_at|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left: Graffiti Image -->
+                <div class="lg:col-span-2">
+                    <div class="card-cwg overflow-hidden">
+                        <div class="card-cwg-header">
+                            <h2 class="text-lg font-semibold">Graffiti Image</h2>
+                        </div>
+                        <div class="p-6 border border-cwg-black border-opacity-10 border-t-0 rounded-b-lg">
+                            <div class="bg-cwg-black bg-opacity-5 p-4 rounded-lg">
+                                <div class="image-container">
+                                    {% if derived_image.image %}
+                                        <img src="{{ derived_image.image.url }}" alt="{{ derived_image.identifier }}"
+                                            class="max-w-full h-auto rounded-lg shadow-sm mx-auto">
+                                    {% else %}
+                                        <div class="bg-cwg-black bg-opacity-10 rounded-lg p-12 text-center text-cwg-black text-opacity-60">
+                                            No image available
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Metadata -->
+                <div class="lg:col-span-1">
+                    <div class="card-cwg">
+                        <div class="card-cwg-header">
+                            <h2 class="text-lg font-semibold">Metadata</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">ID</h3>
+                                    <p class="text-cwg-black">{{ derived_image.identifier }}</p>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Graffiti Type</h3>
+                                    <p>
+                                        {% if derived_image.graffiti_type %}
+                                            <span class="badge-cwg-blue">
+                                                {{ derived_image.graffiti_type }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-cwg-black text-opacity-60 italic">Not specified</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Wall</h3>
+                                    <p>
+                                        <a href="{% url 'graffiti:overall_image' wall_id=derived_image.graffiti_wall.id %}"
+                                            class="text-cwg-blue hover:text-cwg-blue-dark transition-colors">
+                                            {{ derived_image.graffiti_wall.name }}
+                                        </a>
+                                    </p>
+                                </div>
+
+                                {% if derived_image.description %}
+                                    <div>
+                                        <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Description</h3>
+                                        <div class="prose max-w-none text-cwg-black">
+                                            {{ derived_image.description|safe }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if derived_image.tags.all %}
+                                    <div>
+                                        <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Tags</h3>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for tag in derived_image.tags.all %}
+                                                <span class="badge-cwg-green">{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <div>
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Created</h3>
+                                    <p class="text-cwg-black">{{ derived_image.created_at|date:"F j, Y" }}</p>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-1">Last Updated</h3>
+                                    <p class="text-cwg-black">{{ derived_image.updated_at|date:"F j, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="metadata">
-            <h2>Metadata</h2>
-            <p><strong>Graffiti Type:</strong> {{ derived_image.graffiti_type }}</p>
-            <p><strong>Description:</strong> {{ derived_image.description | safe }}</p>
-            <p><strong>Tags:</strong> {{ derived_image.tags }}</p>
-            <p><strong>Coordinates:</strong> {{ derived_image.coordinates }}</p>
-        </div>
-    </body>
-
-</html>
+    </div>
+{% endblock %}
