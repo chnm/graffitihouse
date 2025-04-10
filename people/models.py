@@ -39,7 +39,7 @@ class Person(models.Model):
         return self.last_name
 
     def get_absolute_url(self):
-        return reverse("detail", kwargs={"person_id": self.id})
+        return reverse("people:person_detail", kwargs={"person_id": self.id})
 
     class Meta:
         verbose_name = "Person"
