@@ -128,7 +128,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/"
 MEDIA_ROOT = BASE_DIR / "images"
 
 TAGGIT_TAGS_FROM_STRING = "taggit_selectize.utils.parse_tags"
