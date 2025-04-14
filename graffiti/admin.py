@@ -275,7 +275,7 @@ class PersonAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
         "last_name",
         "first_name",
     )
-    inlines = [AliasInline, ServiceInline, OrganizationInline]
+    inlines = [AliasInline, ServiceInline]
 
 
 admin.site.register(Person, PersonAdmin)
