@@ -5,6 +5,7 @@ models.png
 staticfiles/
 dumpdata.json
 dumpdata2.json
+graffiti.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

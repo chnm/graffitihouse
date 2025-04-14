@@ -5,51 +5,90 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="{% block meta_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+        <meta name="keywords" content="{% block meta_keywords %}Civil War, graffiti, historical preservation, American history, soldiers, Graffiti House{% endblock %}" />
+        <meta name="author" content="RRCHNM" />
+        <meta property="og:title" content="{% block og_title %}{{ block.super }}{% endblock %}" />
+        <meta property="og:description" content="{% block og_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="{% block twitter_title %}{{ block.super }}{% endblock %}" />
+        <meta name="twitter:description" content="{% block twitter_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="{{ request.build_absolute_uri }}" />
         <title>{% block title %}Graffiti House Project{% endblock title %}</title>
         {% tailwind_css %}
         <script src="{% static 'js/alpine.min.js' %}" defer></script>
+        {% block extra_head %}{% endblock %}
     </head>
     <body>
         <!-- Top Navigation -->
-        <nav class="bg-gray-800">
+        <nav class="bg-cwg-black navbar-cwg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="text-white font-bold">Civil War Graffiti</div>
+                            <div class="text-cwg-white font-bold">Civil War Graffiti</div>
                         </div>
                         <div class="hidden md:block">
                             <div class="ml-10 flex items-baseline space-x-4">
                                 <a
-                                    href="#"
-                                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                                >Home</a
-                                    >
-                                    <a
-                                        href="#"
-                                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                                    >About</a
-                                        >
-                                        <a
-                                            href="{% url 'admin:index' %}"
-                                            class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                                        >Admin</a
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
+                                    href="{% url 'home' %}"
+                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium" >
+                                    Home
+                                </a>
+                                <a href="{% url 'graffiti:walls_list' %}"
+                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
+                                >Graffiti</a>
+                                <a href="{% url 'people:people_list' %}"
+                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
+                                >People</a>
+                                <a href="{% url 'home' %}#about"
+                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
+                                >About</a>
+                                <a href="{% url 'home' %}#sites"
+                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
+                                >Sites</a>
                             </div>
                         </div>
-                    </nav>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-                    <main>{% block content %} {% endblock %}</main>
+        <main>{% block content %} {% endblock %}</main>
 
-                    <footer class="bg-gray-800">
-                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                            <div class="flex justify-center">
-                                <p class="text-gray-300">© 2023 RRCHNM.</p>
+        <footer class="bg-cwg-black">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="flex flex-col items-center space-y-4">
+                    <p class="text-cwg-white">
+                        <em>Civil War Graffiti</em> is generously funded in part by the <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://www.neh.gov/">National Endowment for the Humanities</a> and developed by the <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://rrchnm.org/">Roy Rosenzweig Center for History and New Media</a> at <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://www.gmu.edu/">George Mason University</a>.
+                    </p>
+
+                    <!-- Admin Login Section -->
+                    <div class="mt-4 text-center">
+                        {% if user.is_authenticated %}
+                            <div class="text-cwg-white text-sm">
+                                <span>Logged in as: <strong>{{ user.username }}</strong></span>
+                                <span class="mx-2">|</span>
+                                <a href="{% url 'admin:index' %}" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors">Admin Panel</a>
+                                <span class="mx-2">|</span>
+                                <form method="post" action="{% url 'admin:logout' %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm">Log Out</button>
+                                </form>
                             </div>
-                        </div>
-                    </footer>
-                </body>
-            </html>
+                        {% else %}
+                            <a href="{% url 'admin:login' %}" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue text-sm transition-colors">
+                                Admin Login
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>

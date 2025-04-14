@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Graffiti Sites & Walls{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .site-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .wall-item {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .wall-item:hover {
+            background-color: rgba(37, 110, 255, 0.05); /* cwg-blue with opacity */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="bg-cwg-white">
+        <div class="container mx-auto px-4 py-12">
+            <!-- Header Section -->
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h1 class="text-4xl font-bold text-cwg-black mb-4">Civil War Graffiti Sites</h1>
+                <div class="w-20 h-1 bg-cwg-blue mx-auto mb-6"></div>
+                <p class="text-lg text-cwg-black text-opacity-80">
+                    Explore historical locations with preserved graffiti from the American Civil War era.
+                    These sites contain walls with documented inscriptions left by soldiers.
+                </p>
+            </div>
+
+            {% if sites %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% for site in sites %}
+                        <div class="site-card card-cwg">
+                            <div class="relative h-48 overflow-hidden">
+                                {% if site.image %}
+                                    <img src="{{ site.image.url }}" alt="{{ site.name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-r from-cwg-blue-light to-cwg-blue flex items-center justify-center">
+                                        <span class="text-cwg-white text-2xl font-bold">{{ site.name }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="absolute top-0 left-0 right-0 p-3">
+                                    <span class="inline-block bg-cwg-black bg-opacity-80 text-cwg-white text-xs px-2 py-1 rounded uppercase tracking-wider">
+                                        Historical Site
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="p-6">
+                                <h2 class="text-2xl font-semibold text-cwg-black mb-4">{{ site.name }}</h2>
+
+                                {% if site.description %}
+                                    <p class="text-cwg-black text-opacity-80 mb-4">{{ site.description|truncatewords:30 }}</p>
+                                {% endif %}
+
+                                {% if site.location %}
+                                    <div class="flex items-start mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cwg-red mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <div>
+                                            <span class="font-semibold text-cwg-black">Location:</span>
+                                            <span class="text-cwg-black text-opacity-80">
+                                                {{ site.location.place }}{% if site.location.city %}, {{ site.location.city }}{% endif %}{% if site.location.state %}, {{ site.location.state }}{% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <div class="mt-6">
+                                    <div class="flex items-center mb-3">
+                                        <h3 class="text-lg font-semibold text-cwg-black mr-3">Documented Walls</h3>
+                                        {% with walls_count=site.graffitiwall_set.all|length %}
+                                            <span class="badge-cwg-blue">{{ walls_count }} wall{% if walls_count != 1 %}s{% endif %}</span>
+                                        {% endwith %}
+                                    </div>
+
+                                    {% if site.graffitiwall_set.all %}
+                                        <ul class="divide-y divide-cwg-black divide-opacity-10 border border-cwg-black border-opacity-10 rounded-lg overflow-hidden">
+                                            {% for wall in site.graffitiwall_set.all %}
+                                                <li class="wall-item">
+                                                    <a href="{% url 'graffiti:overall_image' wall_id=wall.id %}"
+                                                        class="flex items-center space-x-3 p-3 group">
+                                                        {% if wall.image %}
+                                                            <div class="flex-shrink-0 w-16 h-16 overflow-hidden rounded">
+                                                                <img src="{{ wall.image.url }}" alt="{{ wall.name }}"
+                                                                    class="w-full h-full object-cover transform group-hover:scale-105 transition duration-300">
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="flex-shrink-0 w-16 h-16 bg-cwg-green bg-opacity-20 rounded flex items-center justify-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cwg-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                                                </svg>
+                                                            </div>
+                                                        {% endif %}
+                                                        <div class="flex-grow">
+                                                            <span class="text-cwg-blue group-hover:text-cwg-blue-dark font-medium">{{ wall.name }}</span>
+                                                            <p class="text-sm text-cwg-black text-opacity-60">Room: {{ wall.room }} | Position: {{ wall.spatial_position }}</p>
+                                                        </div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cwg-black text-opacity-40 group-hover:text-cwg-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <div class="text-center py-8 bg-cwg-black bg-opacity-5 rounded-lg border border-cwg-black border-opacity-10">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-cwg-black text-opacity-30 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
+                                            <p class="text-cwg-black text-opacity-60 italic">No walls have been added to this site yet.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="bg-cwg-black bg-opacity-5 max-w-lg mx-auto rounded-lg p-8 border border-cwg-black border-opacity-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-cwg-black text-opacity-30 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="text-xl font-semibold text-cwg-black mb-2">No Sites Available</h3>
+                        <p class="text-cwg-black text-opacity-70">No historical sites have been added to the database yet. Please check back later.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

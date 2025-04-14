@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ person.first_name }} {{ person.last_name }} - Civil War Graffiti Project{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-5xl mx-auto">
+            <!-- Back link -->
+            <div class="mb-6">
+                <a href="{% url 'people:people_list' %}" class="inline-flex items-center text-cwg-blue hover:text-cwg-blue-dark transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to People
+                </a>
+            </div>
+
+            <!-- Person header -->
+            <div class="card-cwg overflow-hidden">
+                <div class="md:flex">
+                    <!-- Image column -->
+                    <div class="md:w-1/3 bg-cwg-black bg-opacity-[0.03] p-6 flex flex-col items-center justify-start">
+                        {% if person.image %}
+                            <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}"
+                                class="w-48 h-48 object-cover rounded-full border-4 border-cwg-white shadow-lg mb-6">
+                        {% else %}
+                            <div class="w-48 h-48 bg-cwg-blue bg-opacity-10 rounded-full border-4 border-cwg-white shadow-lg mb-6 flex items-center justify-center">
+                                <span class="text-cwg-blue text-4xl">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
+                            </div>
+                        {% endif %}
+
+                        <h1 class="text-2xl font-bold text-center text-cwg-black mb-2">
+                            {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
+                        </h1>
+
+                        {% if person.date_of_birth or person.date_of_death %}
+                            <p class="text-cwg-black text-opacity-60 text-center mb-4">
+                                {% if person.date_of_birth %}
+                                    {{ person.date_of_birth|date:"F j, Y" }}
+                                {% endif %}
+                                {% if person.date_of_death %}
+                                    {% if person.date_of_birth %} - {% endif %}
+                                    {{ person.date_of_death|date:"F j, Y" }}
+                                {% endif %}
+                            </p>
+                        {% endif %}
+
+                        {% if aliases %}
+                            <div class="mt-4 text-center">
+                                <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Also Known As</h3>
+                                {% for alias in aliases %}
+                                    <span class="badge-cwg-blue text-xs mb-1 mr-1">{{ alias.name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if person.tags.all %}
+                            <div class="mt-4 text-center">
+                                <h3 class="text-sm font-medium text-cwg-black text-opacity-60 uppercase tracking-wider mb-2">Tags</h3>
+                                <div class="flex flex-wrap justify-center">
+                                    {% for tag in person.tags.all %}
+                                        <span class="badge-cwg-green text-xs mb-1 mr-1">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Details column -->
+                    <div class="md:w-2/3 p-6">
+                        <!-- Tab content -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-cwg-black mb-4">Biography</h2>
+                            {% if person.description %}
+                                <div class="prose max-w-none text-cwg-black">
+                                    {{ person.description|safe }}
+                                </div>
+                            {% else %}
+                                <p class="text-cwg-black text-opacity-60 italic">No biographical information available.</p>
+                            {% endif %}
+                        </div>
+
+                        {% if service_records %}
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Military Service</h2>
+                                <div class="overflow-hidden bg-cwg-white rounded-lg">
+                                    <ul class="divide-y divide-cwg-black divide-opacity-10">
+                                        {% for service in service_records %}
+                                            <li class="p-4">
+                                                <div class="flex flex-col">
+                                                    <div class="flex justify-between">
+                                                        <h3 class="font-medium text-cwg-black">
+                                                            {% if service.military_rank %}{{ service.military_rank }}{% endif %}
+                                                            {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
+                                                        </h3>
+
+                                                        {% if service.start_date or service.end_date %}
+                                                            <span class="text-sm text-cwg-black text-opacity-60">
+                                                                {% if service.start_date %}
+                                                                    {{ service.start_date|date:"Y" }}
+                                                                {% endif %}
+                                                                {% if service.end_date %}
+                                                                    {% if service.start_date %} - {% endif %}
+                                                                    {{ service.end_date|date:"Y" }}
+                                                                {% endif %}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <div class="mt-2 grid grid-cols-2 gap-2">
+                                                        {% if service.military_branch %}
+                                                            <div>
+                                                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Branch</span>
+                                                                <p class="text-sm text-cwg-black">
+                                                                    {{ service.military_branch }}
+                                                                </p>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        {% if service.military_division %}
+                                                            <div>
+                                                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Division</span>
+                                                                <p class="text-sm text-cwg-black">
+                                                                    {{ service.military_division }}
+                                                                </p>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    {% if service.military_governance %}
+                                                        <div class="mt-2">
+                                                            <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs">
+                                                                {{ service.military_governance|title }}
+                                                            </span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if organizations %}
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Organizations</h2>
+                                <ul class="divide-y divide-cwg-black divide-opacity-10 border border-cwg-black border-opacity-10 rounded-lg">
+                                    {% for org in organizations %}
+                                        <li class="p-4">
+                                            <p class="text-cwg-black">{{ org.name }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {% if person.associated_graffiti_photo %}
+                            <div>
+                                <h2 class="text-xl font-semibold text-cwg-black mb-4">Associated Graffiti</h2>
+                                <div class="bg-cwg-black bg-opacity-5 p-4 rounded-lg">
+                                    <div class="flex flex-col md:flex-row items-start gap-6">
+                                        {% if person.associated_graffiti_photo.image %}
+                                            <div class="md:w-1/2">
+                                                <img src="{{ person.associated_graffiti_photo.image.url }}"
+                                                    alt="Graffiti associated with {{ person.first_name }} {{ person.last_name }}"
+                                                    class="w-full h-auto">
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="md:w-1/2">
+                                            <h3 class="font-medium text-cwg-black mb-2">{{ person.associated_graffiti_photo.identifier }}</h3>
+
+                                            {% if person.associated_graffiti_photo.description %}
+                                                <div class="prose text-sm text-cwg-black mb-4">
+                                                    {{ person.associated_graffiti_photo.description|safe }}
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="mt-4">
+                                                <a href="{% url 'graffiti:derived_image_detail' image_id=person.associated_graffiti_photo.id %}"
+                                                    class="btn-cwg-primary inline-flex items-center">
+                                                    View Full Details
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

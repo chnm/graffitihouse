@@ -8,6 +8,7 @@ urlpatterns = [
     path("graffiti/", include("graffiti.urls")),
     path("admin/", admin.site.urls),
     path("", include("pages.urls")),
+    path("people/", include("people.urls")),
     path("__reload__", include("django_browser_reload.urls")),
     path("prose/", include("prose.urls")),
     re_path(r"^taggit/", include("taggit_selectize.urls")),
@@ -15,3 +16,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

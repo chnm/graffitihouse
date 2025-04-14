@@ -1,3 +1,60 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom Civil War Graffiti theme styles */
+@layer base {
+  :root {
+    --color-cwg-red: #d72638;
+    --color-cwg-blue: #256eff;
+    --color-cwg-black: #2a2d34;
+    --color-cwg-white: #fdfffc;
+    --color-cwg-green: #7f9172;
+  }
+}
+
+@layer components {
+  /* Custom button styles */
+  .btn-cwg-primary {
+    @apply bg-cwg-blue text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-blue-dark transition-colors;
+  }
+
+  .btn-cwg-secondary {
+    @apply bg-cwg-green text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-green-dark transition-colors;
+  }
+
+  .btn-cwg-danger {
+    @apply bg-cwg-red text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-red-dark transition-colors;
+  }
+
+  /* Custom card styles */
+  .card-cwg {
+    @apply bg-cwg-white rounded-lg shadow-md overflow-hidden border border-gray-200;
+  }
+
+  .card-cwg-header {
+    @apply bg-cwg-blue text-cwg-white p-4;
+  }
+
+  /* Navbar styles */
+  .navbar-cwg {
+    @apply bg-cwg-black text-cwg-white;
+  }
+
+  .navbar-link-cwg {
+    @apply text-cwg-white hover:text-cwg-blue transition-colors;
+  }
+
+  /* Badge styles */
+  .badge-cwg-red {
+    @apply bg-cwg-red text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-cwg-blue {
+    @apply bg-cwg-blue text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-cwg-green {
+    @apply bg-cwg-green text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+  }
+}
