@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-{% load image_tags %}
 
 {% block title %}Civil War Graffiti Project{% endblock %}
 
@@ -131,7 +130,7 @@
                                     <div class="relative h-full">
                                         {% if first_image.image %}
                                             {% comment %}Use template tag to handle path issues{% endcomment %}
-                                            <img src="{% image_path first_image.image %}" alt="{{ first_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            <img src="{{ first_image.image.url }}" alt="{{ first_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                             {% comment %}Fallbacks if template tag doesn't work{% endcomment %}
                                             <noscript>
                                                 <!-- Alternative paths for potential debugging:
@@ -158,7 +157,7 @@
                                     <a href="{% url 'graffiti:overall_image' wall_id=second_image.id %}" class="group">
                                         <div class="relative h-full">
                                             {% if second_image.image %}
-                                                <img src="{% image_path second_image.image %}" alt="{{ second_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                                <img src="{{ second_image.image.url }}" alt="{{ second_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                             {% else %}
                                                 <div class="w-full h-full bg-cwg-blue-light flex items-center justify-center">
                                                     <span class="text-cwg-white">{{ second_image.name }}</span>
@@ -179,7 +178,7 @@
                                     <a href="{% url 'graffiti:overall_image' wall_id=third_image.id %}" class="group">
                                         <div class="relative h-full">
                                             {% if third_image.image %}
-                                                <img src="{% image_path third_image.image %}" alt="{{ third_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                                <img src="{{ third_image.image.url }}" alt="{{ third_image.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                             {% else %}
                                                 <div class="w-full h-full bg-cwg-blue-light flex items-center justify-center">
                                                     <span class="text-cwg-white">{{ third_image.name }}</span>
@@ -200,7 +199,7 @@
                                 <a href="{% url 'graffiti:derived_image_detail' image_id=photo.id %}" class="group">
                                     <div class="relative h-full">
                                         {% if photo.image %}
-                                            <img src="{% image_path photo.image %}" alt="{{ photo.identifier }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            <img src="{{ photo.image.url }}" alt="{{ photo.identifier }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         {% else %}
                                             <div class="w-full h-full bg-cwg-green-light flex items-center justify-center">
                                                 <span class="text-cwg-white">{{ photo.identifier }}</span>
