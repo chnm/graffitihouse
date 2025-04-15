@@ -11,6 +11,10 @@
     --color-cwg-white: #fdfffc;
     --color-cwg-green: #7f9172;
   }
+  
+  html {
+    font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+  }
 }
 
 @layer components {

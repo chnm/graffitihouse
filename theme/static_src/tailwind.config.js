@@ -61,6 +61,9 @@ module.exports = {
           "green-dark": "#66745b",
         },
       },
+      fontFamily: {
+        serif: ['Charter', 'Bitstream Charter', 'Sitka Text', 'Cambria', 'serif'],
+      },
     },
   },
   plugins: [
