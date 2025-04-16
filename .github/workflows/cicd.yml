@@ -20,8 +20,8 @@ jobs:
 
       django-context-root: "."
 
-      website-devl-fqdn: "dev.civilwargraffiti.org"
-      website-prod-fqdn: "dev.civilwargraffiti.org"
+      website-devl-fqdn: "civilwargraffiti.org"
+      website-prod-fqdn: "civilwargraffiti.org"
 
   deploy:
     uses: chnm/.github/.github/workflows/django--deploy.yml@main
@@ -29,5 +29,5 @@ jobs:
     if: github.ref == 'refs/heads/main'
     secrets: inherit
     with:
-      website-devl-fqdn: "dev.civilwargraffiti.org"
-      website-prod-fqdn: "dev.civilwargraffiti.org"
+      website-devl-fqdn: "civilwargraffiti.org"
+      website-prod-fqdn: "civilwargraffiti.org"
