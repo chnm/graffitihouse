@@ -176,18 +176,18 @@ files = [
 
 [[package]]
 name = "django"
-version = "5.1.8"
+version = "5.2.3"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "dev"]
 files = [
-    {file = "Django-5.1.8-py3-none-any.whl", hash = "sha256:11b28fa4b00e59d0def004e9ee012fefbb1065a5beb39ee838983fd24493ad4f"},
-    {file = "Django-5.1.8.tar.gz", hash = "sha256:42e92a1dd2810072bcc40a39a212b693f94406d0ba0749e68eb642f31dc770b4"},
+    {file = "django-5.2.3-py3-none-any.whl", hash = "sha256:c517a6334e0fd940066aa9467b29401b93c37cec2e61365d663b80922542069d"},
+    {file = "django-5.2.3.tar.gz", hash = "sha256:335213277666ab2c5cac44a792a6d2f3d58eb79a80c14b6b160cd4afc3b75684"},
 ]
 
 [package.dependencies]
-asgiref = ">=3.8.1,<4"
+asgiref = ">=3.8.1"
 sqlparse = ">=0.3.1"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
@@ -197,14 +197,14 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-admin-interface"
-version = "0.30.0"
+version = "0.30.1"
 description = "django's default admin interface with superpowers - customizable themes, popup windows replaced by modals and many other features."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "django_admin_interface-0.30.0-py3-none-any.whl", hash = "sha256:be448fee0db45267d525d45646e716c68e55ce58b610bc6937604e989f0c63ed"},
-    {file = "django_admin_interface-0.30.0.tar.gz", hash = "sha256:bf6a634f1211a852887a0f07847817b6b7e84ba7f39ba33c5f98909050338628"},
+    {file = "django_admin_interface-0.30.1-py3-none-any.whl", hash = "sha256:d79c188a06ede968e40ffbc5142bdf4a94ee8707248868173bdac39a34008924"},
+    {file = "django_admin_interface-0.30.1.tar.gz", hash = "sha256:55d9c80f6749e8854ba136828c06983bee6ff7b9c10b8887b84c53d301ecb215"},
 ]
 
 [package.dependencies]
@@ -256,14 +256,14 @@ files = [
 
 [[package]]
 name = "django-debug-toolbar"
-version = "5.1.0"
+version = "5.2.0"
 description = "A configurable set of panels that display various debug information about the current request/response."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_debug_toolbar-5.1.0-py3-none-any.whl", hash = "sha256:c0591e338ee9603bdfce5aebf8d18ca7341fdbb69595e2b0b34869be5857180e"},
-    {file = "django_debug_toolbar-5.1.0.tar.gz", hash = "sha256:8a3b9da4aeab8d384a366e20304bd939a451f0242523c5b7b402248ad474eed2"},
+    {file = "django_debug_toolbar-5.2.0-py3-none-any.whl", hash = "sha256:15627f4c2836a9099d795e271e38e8cf5204ccd79d5dbcd748f8a6c284dcd195"},
+    {file = "django_debug_toolbar-5.2.0.tar.gz", hash = "sha256:9e7f0145e1a1b7d78fcc3b53798686170a5b472d9cf085d88121ff823e900821"},
 ]
 
 [package.dependencies]
@@ -304,14 +304,14 @@ django = ">=4.2"
 
 [[package]]
 name = "django-import-export"
-version = "4.3.7"
+version = "4.3.8"
 description = "Django application and library for importing and exporting data with included admin integration."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_import_export-4.3.7-py3-none-any.whl", hash = "sha256:5514d09636e84e823a42cd5e79292f70f20d6d2feed117a145f5b64a5b44f168"},
-    {file = "django_import_export-4.3.7.tar.gz", hash = "sha256:bd3fe0aa15a2bce9de4be1a2f882e2c4539fdbfdfa16f2052c98dd7aec0f085c"},
+    {file = "django_import_export-4.3.8-py3-none-any.whl", hash = "sha256:e735db31b89cf6ff3bf7bb6ae205a7f175b5614d829893ebe39769ea7e94e443"},
+    {file = "django_import_export-4.3.8.tar.gz", hash = "sha256:1a79d851a95cad1fb0acdb668378bb0b5c9811bb8d70393d6bdd2158c1f53b00"},
 ]
 
 [package.dependencies]
@@ -322,24 +322,24 @@ tablib = ">=3.7.0"
 [package.extras]
 all = ["tablib[all]"]
 cli = ["tablib[cli]"]
-docs = ["openpyxl (==3.1.5)", "sphinx (==8.1.3)", "sphinx-rtd-theme (==3.0.1)"]
+docs = ["openpyxl (==3.1.5)", "psycopg[binary] (>=3.2.9)", "sphinx (==8.1.3)", "sphinx-rtd-theme (==3.0.1)"]
 ods = ["tablib[ods]"]
 pandas = ["tablib[pandas]"]
-tests = ["chardet (==5.2.0)", "coverage (==7.6.4)", "django-extensions (==3.2.3)", "memory-profiler (==0.61.0)", "mysqlclient (==2.2.5)", "psycopg2-binary (==2.9.10)", "pytz (==2024.2)", "setuptools-scm (==8.1.0)", "tablib[all] (>=3.7.0)"]
+tests = ["chardet (==5.2.0)", "coverage (==7.6.4)", "django-extensions (==3.2.3)", "memory-profiler (==0.61.0)", "mysqlclient (==2.2.5)", "psycopg[binary] (>=3.2.9)", "pytz (==2024.2)", "setuptools-scm (==8.1.0)", "tablib[all] (>=3.7.0)"]
 xls = ["tablib[xls]"]
 xlsx = ["tablib[xlsx]"]
 yaml = ["tablib[yaml]"]
 
 [[package]]
 name = "django-leaflet"
-version = "0.31.0"
+version = "0.32.0"
 description = "Use Leaflet in your django projects"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_leaflet-0.31.0-py3-none-any.whl", hash = "sha256:914d973a30730eafec4cd822e7107bbd71a6d2e0106b6e919fd9eea67bbcbc5c"},
-    {file = "django_leaflet-0.31.0.tar.gz", hash = "sha256:fb2b75f84aff60d4058659300f31a711554c65d128bade5fa8088637fb0751f7"},
+    {file = "django_leaflet-0.32.0-py3-none-any.whl", hash = "sha256:a17d8e6cc05dd98e8e543fbf198b81dabbf9f195c222e786d1686aeda91c1aa8"},
+    {file = "django_leaflet-0.32.0.tar.gz", hash = "sha256:013ccb06ee08071caec98a65dffd68ab3694dafce72caff34f3d78f35568ae25"},
 ]
 
 [package.dependencies]
@@ -350,18 +350,18 @@ docs = ["sphinx", "sphinx-autobuild"]
 
 [[package]]
 name = "django-multiselectfield"
-version = "0.1.13"
+version = "1.0.1"
 description = "Django multiple select field"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "django_multiselectfield-0.1.13-py3-none-any.whl", hash = "sha256:f146ef568c823a409f4021b98781666ec2debabfceca9176116d749dc39cb8b3"},
-    {file = "django_multiselectfield-0.1.13.tar.gz", hash = "sha256:437d72632f4c0ca416951917632529c3d1d42b62bb6c3c03e3396fa50265be94"},
+    {file = "django_multiselectfield-1.0.1-py3-none-any.whl", hash = "sha256:18dc14801f7eca844a48e21cba6d8ec35b9b581f2373bbb2cb75e6994518259a"},
+    {file = "django_multiselectfield-1.0.1.tar.gz", hash = "sha256:3f8b4fff3e07d4a91c8bb4b809bc35caeb22b41769b606f4c9edc53b8d72a667"},
 ]
 
 [package.dependencies]
-django = ">=1.4"
+django = ">=3.2"
 
 [[package]]
 name = "django-prose"
@@ -381,14 +381,14 @@ django = ">=3.2"
 
 [[package]]
 name = "django-simple-history"
-version = "3.8.0"
+version = "3.10.1"
 description = "Store model history and view/revert changes from admin site."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_simple_history-3.8.0-py3-none-any.whl", hash = "sha256:7f8bbdaa5b2c4c1c9a48c89a95ff3389eda6c82cf9de9b09ae99b558205d132f"},
-    {file = "django_simple_history-3.8.0.tar.gz", hash = "sha256:e70d70fb4cc2af60a50904f1420d5a6440d24efddceba3daeff8b02d269ebdf0"},
+    {file = "django_simple_history-3.10.1-py3-none-any.whl", hash = "sha256:e12c27abfcd7e801a9d274d94542549ce8c617b0b384ae69afb161b56cd02ba4"},
+    {file = "django_simple_history-3.10.1.tar.gz", hash = "sha256:040f0c2286bed730312aa15f0acee9e7e6f839c4bcd721693251aa7ec5b65d95"},
 ]
 
 [package.dependencies]
@@ -429,13 +429,13 @@ reload = ["django-browser-reload (>=1.18.0,<2.0.0)"]
 
 [[package]]
 name = "djhtml"
-version = "3.0.7"
+version = "3.0.8"
 description = "Django/Jinja template indenter"
 optional = false
 python-versions = "*"
 groups = ["dev"]
 files = [
-    {file = "djhtml-3.0.7.tar.gz", hash = "sha256:558c905b092a0c8afcbed27dea2f50aa6eb853a658b309e4e0f2bb378bdf6178"},
+    {file = "djhtml-3.0.8.tar.gz", hash = "sha256:ec3b4cf25f0959474c7793da1becba654ca9587689ce143955bcbc2638eeabce"},
 ]
 
 [package.extras]
@@ -892,14 +892,14 @@ dev = ["black", "flake8", "pre-commit"]
 
 [[package]]
 name = "python-dotenv"
-version = "1.1.0"
+version = "1.1.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d"},
-    {file = "python_dotenv-1.1.0.tar.gz", hash = "sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5"},
+    {file = "python_dotenv-1.1.1-py3-none-any.whl", hash = "sha256:31f23644fe2602f88ff55e1f5c79ba497e01224ee7737937930c448e4d0e24dc"},
+    {file = "python_dotenv-1.1.1.tar.gz", hash = "sha256:a8a6399716257f45be6a007360200409fce5cda2661e3dec71d23dc15f6189ab"},
 ]
 
 [package.extras]
@@ -1134,4 +1134,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "40ff4c31c495f324e29c1f2caf8f7df00d9d69ce2e074fe24aba929ec7e8a4f8"
+content-hash = "50c145c2a1947b7c2adc4ccee69fdaa5f465ef47ae63b6eed985095269df62e1"
