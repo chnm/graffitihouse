@@ -8,30 +8,15 @@
 # Set script to exit on any errors.
 set -e
 
-init() {
-  # Ensure that we're in a virtualenv.
-  python -c 'import sys; sys.prefix != sys.base_prefix' 2>/dev/null || (
-    echo 'Please activate your virtualenv before running this script.' &&
-    exit 1
-  )
-}
-
-# Test that Poetry is installed 
-if ! command -v poetry &> /dev/null
+# Test that uv is installed.
+if ! command -v uv &> /dev/null
 then
-    echo "Poetry could not be found"
-    echo "Please install poetry before running this script"
-    echo "https://python-poetry.org/docs/#installation"
-    exit
+    echo "uv could not be found"
+    echo "Please install uv before running this script"
+    echo "https://docs.astral.sh/uv/getting-started/installation/"
+    exit 1
 fi
 
-# Install project dependencies.
-install() {
-  echo 'Installing dependencies with Poetry...\n'
-
-  poetry install
-
-}
-
-init "$1"
-install
+# Install project dependencies. uv creates and manages the .venv automatically.
+echo "Installing dependencies with uv..."
+uv sync

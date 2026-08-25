@@ -3,8 +3,8 @@
   "version": "0.3.0",
   "description": "The web application for the Graffiti House project",
   "scripts": {
-    "serve": "poetry run python manage.py runserver",
-    "build": "poetry run python3 manage.py tailwind start",
+    "serve": "uv run python manage.py runserver",
+    "build": "uv run python3 manage.py tailwind start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
