@@ -20,8 +20,8 @@ services:
       - DB_USER=graffitihouse
       - DB_PASSWORD=password
     command: >
-        sh -c "poetry run python3 manage.py migrate &&
-               poetry run python3 manage.py runserver 0.0.0.0:8000"
+        sh -c "uv run manage.py migrate &&
+               uv run manage.py runserver 0.0.0.0:8000"
     depends_on:
       db:
         condition: service_healthy

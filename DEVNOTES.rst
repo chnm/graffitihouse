@@ -6,13 +6,13 @@ Setup and installation
 
 Initial setup and installation:
 
-- Install and activate Python 3.11.0. It's recommended to use `pyenv <https://github.com/pyenv/pyenv>`_ for this.
+- Install and activate Python 3.12. It's recommended to use `uv <https://docs.astral.sh/uv/>`_ (``uv python install``) or `pyenv <https://github.com/pyenv/pyenv>`_ for this.
 
 - Install required python dependencies::
 
 .. code-block:: bash
 
-    poetry install
+    uv sync
 
 - Use `Volta <https://volta.sh/>`_ for Node version management
 
@@ -27,7 +27,7 @@ Initial setup and installation:
 .. code-block:: bash
 
     % echo DEBUG=True >> .env
-    % echo DJANGO_SECRET_KEY=$(poetry run python -c "import secrets; print(secrets.token_urlsafe())") >> .env
+    % echo DJANGO_SECRET_KEY=$(uv run python -c "import secrets; print(secrets.token_urlsafe())") >> .env
 
 - Then, update your settings.py file.
 
