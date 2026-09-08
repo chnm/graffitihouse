@@ -11,7 +11,7 @@ from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
 from import_export.admin import ImportExportModelAdmin
@@ -26,25 +26,28 @@ admin.site.register(Archive)
 
 class CustomAdminFileWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
-        output = ['<div style="display: flex; flex-direction: column; gap: 10px;">']
-
         if name == "image" and value and hasattr(value, "url"):
-            output.append(
-                f"""<div>
-                      <a href="{value.url}" target="_blank">
-                        <img 
-                          src="{value.url}" alt="{value}" 
-                          width="500" height="500"
-                          style="object-fit: cover;"
-                        />
-                      </a>
-                    </div>"""
+            return format_html(
+                """<div style="display: flex; flex-direction: column; gap: 10px;">
+                      <div>
+                        <a href="{}" target="_blank">
+                          <img src="{}" alt="{}" width="500" height="500"
+                               style="object-fit: cover;" />
+                        </a>
+                      </div>
+                      <div>{}</div>
+                    </div>""",
+                value.url,
+                value.url,
+                value,
+                super().render(name, value, attrs, renderer),
             )
 
-        output.append(f"<div>{super().render(name, value, attrs, renderer)}</div>")
-        output.append("</div>")
-
-        return format_html("".join(output))
+        return format_html(
+            '<div style="display: flex; flex-direction: column; gap: 10px;">'
+            "<div>{}</div></div>",
+            super().render(name, value, attrs, renderer),
+        )
 
 
 @admin.register(GraffitiWall)
@@ -189,9 +192,13 @@ class GraffitiPhotoAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
-        # build hyperlink to the wall using its obj id
         return format_html(
-            f'<a style="text-decoration: underline;" href="/admin/graffiti/graffitiwall/{obj.graffiti_wall.id}/change/">{obj.graffiti_wall.name}</a>'
+            '<a style="text-decoration: underline;" href="{}">{}</a>',
+            reverse(
+                "admin:graffiti_graffitiwall_change",
+                args=[obj.graffiti_wall_id],
+            ),
+            obj.graffiti_wall.name,
         )
 
     # Add history view
