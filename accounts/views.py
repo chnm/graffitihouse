@@ -3,11 +3,11 @@ from django.shortcuts import redirect
 from django.views.generic import CreateView
 
 from .forms import ContributorSignUpForm, StudentSignUpForm, VolunteerSignUpForm
-from .models import User
+from .models import CustomUser
 
 
 class StudentSignUpView(CreateView):
-    model = User
+    model = CustomUser
     form_class = StudentSignUpForm
     template_name = "registration/signup.html"
 
@@ -22,7 +22,7 @@ class StudentSignUpView(CreateView):
 
 
 class ContributorSignUpView(CreateView):
-    model = User
+    model = CustomUser
     form_class = ContributorSignUpForm
     template_name = "registration/signup.html"
 
@@ -37,7 +37,7 @@ class ContributorSignUpView(CreateView):
 
 
 class VolunteerSignUpView(CreateView):
-    model = User
+    model = CustomUser
     form_class = VolunteerSignUpForm
     template_name = "registration/signup.html"
 

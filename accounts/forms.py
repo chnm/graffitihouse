@@ -1,18 +1,27 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.db import transaction 
+from django.db import transaction
 
-from accounts.models import Student, Contributor, Volunteer, CustomUser
+from accounts.models import Contributor, CustomUser, Student, Volunteer
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm):
         model = CustomUser
-        fields = ('username', 'email',)
+        fields = (
+            "username",
+            "email",
+        )
+
 
 class CustomUserChangeForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email',)
+        fields = (
+            "username",
+            "email",
+        )
+
 
 class StudentSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -21,10 +30,11 @@ class StudentSignUpForm(UserCreationForm):
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
-        user.is_student=True
+        user.is_student = True
         user.save()
-        student = Student.objects.create(user=user)
+        Student.objects.create(user=user)
         return user
+
 
 class ContributorSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -33,11 +43,12 @@ class ContributorSignUpForm(UserCreationForm):
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
-        user.is_student=True
+        user.is_contributor = True
         user.save()
-        contributor = Contributor.objects.create(user=user)
+        Contributor.objects.create(user=user)
         return user
-    
+
+
 class VolunteerSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = CustomUser
@@ -45,7 +56,7 @@ class VolunteerSignUpForm(UserCreationForm):
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
-        user.is_student=True
+        user.is_volunteer = True
         user.save()
-        volunteer = Volunteer.objects.create(user=user)
+        Volunteer.objects.create(user=user)
         return user
