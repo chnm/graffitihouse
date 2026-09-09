@@ -1,57 +1,36 @@
-FROM rust AS volta-build
-WORKDIR /src
-RUN git clone https://github.com/volta-cli/volta.git /src
-RUN cargo build
-RUN ls /src/target/debug
+FROM node:24-bookworm-slim AS frontend
 
-# Pull base image for Python 3.12
-FROM python:3.12
+WORKDIR /app/theme/static_src
+COPY theme/static_src/package.json theme/static_src/package-lock.json ./
+RUN npm ci
+COPY theme/static_src/ ./
+RUN mkdir -p /app/static/js
+RUN npm run build
 
-# Pull in the uv binary
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Set environment variables
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV UV_PROJECT_ENVIRONMENT=/venv
+FROM python:3.12-slim-trixie AS application
 
-# Set working directory
+RUN pip install --no-cache-dir uv==0.12.6
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_PROJECT_ENVIRONMENT=/venv
+
 WORKDIR /app
 
-# Copy project
-COPY . /app/
+# Install the locked production environment before copying application code so
+# dependency layers remain cached when only source files change.
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project
 
-# Install dependencies with uv
-RUN uv lock
+COPY . ./
+COPY --from=frontend /app/theme/static/css/dist/ ./theme/static/css/dist/
+COPY --from=frontend /app/static/js/alpine.min.js ./static/js/alpine.min.js
 
-# Copy over Volta binaries
-RUN mkdir -p /root/.volta/bin
-COPY --from=volta-build /src/target/debug/volta /root/.volta/bin
-COPY --from=volta-build /src/target/debug/volta-migrate /root/.volta/bin
-COPY --from=volta-build /src/target/debug/volta-shim /root/.volta/bin
+RUN uv run --no-sync python manage.py collectstatic --no-input
 
-# shell stuff for volta
-SHELL ["/bin/bash", "-c"]
-ENV BASH_ENV=~/.bashrc
-ENV VOLTA_HOME=/root/.volta
-ENV PATH=$VOLTA_HOME/bin:$PATH
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD python -c "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health/', timeout=4).status == 200 else 1)"
 
-RUN ln -s /root/.volta/bin/volta-shim /root/.volta/bin/node 
-RUN ln -s /root/.volta/bin/volta-shim /root/.volta/bin/npm 
-RUN ln -s /root/.volta/bin/volta-shim /root/.volta/bin/npx
-RUN ln -s /root/.volta/bin/volta-shim /root/.volta/bin/pnpm 
-RUN ln -s /root/.volta/bin/volta-shim /root/.volta/bin/yarn
-
-# triggers node installation
-RUN node -v && npm -v
-RUN npm install
-
-# generate front end assets
-RUN uv run python manage.py tailwind install
-RUN uv run python manage.py tailwind build
-RUN uv run python manage.py collectstatic --no-input
-
-# clean up
-RUN rm -rf /root/.volta
-RUN rm -rf /app/node_modules
+CMD ["uv", "run", "--no-sync", "python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -5,28 +5,43 @@ services:
   app:
     build: .
     image: "rrchnm/graffitihouse"
+    restart: unless-stopped
     ports:
       - 8000:8000
     volumes:
-      - dj-data:/app
+      - media-data:/app/mediafiles
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - DEBUG=True
+      - DEBUG=False
       - DJANGO_SECRET_KEY=thisisnotasecretkey
-      - DJANGO_ALLOWED_HOSTS=localhost
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
       - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=graffitihouse
       - DB_USER=graffitihouse
-      - DB_PASSWORD=password
+      - DB_PASS=password
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_READ_ONLY=${DATABASE_READ_ONLY:-False}
+      - DATABASE_ALLOW_MIGRATIONS=${DATABASE_ALLOW_MIGRATIONS:-}
+      - DB_APPLICATION_NAME=${DB_APPLICATION_NAME:-graffitihouse-local-docker}
+      - DB_SSLMODE=${DB_SSLMODE:-}
+      - DB_SSLROOTCERT=${DB_SSLROOTCERT:-}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-True}
     command: >
-        sh -c "uv run manage.py migrate &&
-               uv run manage.py runserver 0.0.0.0:8000"
+        sh -c "if [ \"$$RUN_MIGRATIONS\" = \"True\" ]; then
+                 uv run --no-sync python manage.py migrate;
+               fi &&
+               exec uv run --no-sync python manage.py runserver 0.0.0.0:8000"
     depends_on:
       db:
         condition: service_healthy
   db:
     image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5433:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
     environment:
@@ -42,4 +57,4 @@ services:
 
 volumes:
   pg-data:
-  dj-data:
+  media-data:

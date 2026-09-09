@@ -17,6 +17,7 @@ updates:
   - package-ecosystem: "npm"
     directories:
       - "/"
+      - "/theme/static_src"
     groups:
       all-npm-dependencies:
         patterns:
@@ -24,5 +25,23 @@ updates:
     schedule:
       interval: "monthly"
     target-branch: "main"
+    reviewers:
+      - "chnm/systems"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "chnm/systems"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "chnm/systems"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "monthly"
     reviewers:
       - "chnm/systems"

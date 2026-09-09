@@ -19,4 +19,4 @@ fi
 
 # Install project dependencies. uv creates and manages the .venv automatically.
 echo "Installing dependencies with uv..."
-uv sync
+uv sync --group dev --locked

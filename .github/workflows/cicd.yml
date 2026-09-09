@@ -10,7 +10,47 @@ on:
       - "!.github/**"
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      DEBUG: "False"
+      DJANGO_READ_DOT_ENV_FILE: "False"
+      DJANGO_SECRET_KEY: ci-only-secret-key-with-more-than-fifty-characters-for-django
+      DATABASE_URL: "sqlite:///:memory:"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: theme/static_src/package-lock.json
+      - name: Install dependencies
+        run: |
+          uv sync --group dev --locked
+          npm ci --prefix theme/static_src
+      - name: Check Django and migrations
+        run: |
+          uv run python manage.py check
+          uv run python manage.py makemigrations --check --dry-run
+      - name: Test
+        run: uv run python -m pytest
+      - name: Lint and format check
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run djhtml templates theme/templates
+          git diff --exit-code
+      - name: Build frontend assets
+        run: |
+          npm run build
+          git diff --exit-code -- static/js/alpine.min.js
+
   build-publish:
+    needs: test
     uses: chnm/.github/.github/workflows/django--build-publish.yml@main
     secrets: inherit
     with:
