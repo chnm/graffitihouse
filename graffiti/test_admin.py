@@ -51,3 +51,10 @@ class GraffitiAdminTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wall.image.url)
+
+    def test_derive_view_uses_unfold_admin_context(self):
+        response = self.client.get(reverse("admin:derive-graffiti", args=[self.wall.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["title"], "Derive graffiti photo")
+        self.assertContains(response, self.wall.image.url)

@@ -1,13 +1,18 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
+from unfold.admin import ModelAdmin
+from unfold.forms import AdminPasswordChangeForm
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 from .models import CustomUser
 
 
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(BaseUserAdmin, ModelAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
+    change_password_form = AdminPasswordChangeForm
     model = CustomUser
 
     list_display = (
@@ -58,4 +63,10 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.site_header = "Administration"
+
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class GroupAdmin(BaseGroupAdmin, ModelAdmin):
+    pass

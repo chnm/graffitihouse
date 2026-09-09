@@ -17,7 +17,6 @@ dependencies = [
     "django-environ>=0.14.0",
     "whitenoise>=6.12.0",
     "django-prose>=2.1.0",
-    "django-admin-interface>=0.32.0",
     "django-multiselectfield>=1.0.1",
     "django-import-export>=4.4.1",
     "geopy>=2.5.0",
@@ -29,6 +28,7 @@ dependencies = [
     # taggit-selectize imports `six` at runtime but does not declare it; pin it
     # explicitly so uv installs it (Poetry's old lock happened to include it).
     "six>=1.16.0",
+    "django-unfold>=0.105.0",
 ]
 
 [dependency-groups]

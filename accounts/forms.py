@@ -1,12 +1,13 @@
-from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
+from unfold.forms import UserChangeForm as UnfoldUserChangeForm
+from unfold.forms import UserCreationForm as UnfoldUserCreationForm
 
 from accounts.models import Contributor, CustomUser, Student, Volunteer
 
 
-class CustomUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm):
+class CustomUserCreationForm(UnfoldUserCreationForm):
+    class Meta(UnfoldUserCreationForm.Meta):
         model = CustomUser
         fields = (
             "username",
@@ -14,8 +15,8 @@ class CustomUserCreationForm(UserCreationForm):
         )
 
 
-class CustomUserChangeForm(forms.ModelForm):
-    class Meta:
+class CustomUserChangeForm(UnfoldUserChangeForm):
+    class Meta(UnfoldUserChangeForm.Meta):
         model = CustomUser
         fields = (
             "username",

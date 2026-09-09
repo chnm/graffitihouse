@@ -33,8 +33,9 @@ CSRF_TRUSTED_ORIGINS = env.list(
 
 # Application definition
 INSTALLED_APPS = [
-    "admin_interface",
-    "colorfield",
+    "unfold",
+    "unfold.contrib.import_export",
+    "unfold.contrib.simple_history",
     "django.contrib.admin",
     "prose",
     "taggit",
@@ -57,6 +58,17 @@ INSTALLED_APPS = [
     "accounts",
     "pages",
 ]
+
+UNFOLD = {
+    "SITE_TITLE": "Graffiti House administration",
+    "SITE_HEADER": "Graffiti House",
+    "SITE_SUBHEADER": "Civil War Graffiti Project",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "history_edu",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "BORDER_RADIUS": "6px",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
