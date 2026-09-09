@@ -1,0 +1,21 @@
+.gh-dashboard-stats,
+.gh-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .gh-dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .gh-dashboard-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .gh-dashboard-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+  }
+}

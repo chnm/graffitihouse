@@ -44,6 +44,38 @@ class GraffitiAdminTest(TestCase):
             reverse("admin:graffiti_graffitiwall_change", args=[self.wall.pk]),
         )
 
+    def test_admin_sidebar_contains_project_navigation(self):
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "admin/index.html")
+        self.assertContains(response, 'id="nav-sidebar"')
+        self.assertContains(response, "Project dashboard")
+        self.assertContains(response, "Wall documentation")
+        self.assertContains(response, "Research collections")
+        self.assertContains(response, "People and access")
+        groups = response.context["sidebar_navigation"]
+        self.assertEqual(
+            [group.get("title") for group in groups],
+            [None, "Wall documentation", "Research collections", "People and access"],
+        )
+        links = {
+            str(item["link"])
+            for group in groups
+            for item in group["items"]
+            if item["has_permission"]
+        }
+        self.assertIn(
+            reverse("admin:graffiti_graffitiwall_changelist"),
+            links,
+        )
+        self.assertIn(reverse("admin:people_person_changelist"), links)
+        self.assertIn(reverse("admin:accounts_customuser_changelist"), links)
+        self.assertEqual(
+            {stat["title"]: stat["value"] for stat in response.context["dashboard_stats"]},
+            {"Walls": 1, "Graffiti photos": 1, "People": 0, "Sources": 0},
+        )
+
     def test_wall_change_form_renders_image_widget(self):
         response = self.client.get(
             reverse("admin:graffiti_graffitiwall_change", args=[self.wall.pk])

@@ -1,6 +1,8 @@
 from pathlib import Path
 
 import environ
+from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -68,6 +70,124 @@ UNFOLD = {
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "BORDER_RADIUS": "6px",
+    "DASHBOARD_CALLBACK": "config.admin_dashboard.dashboard_callback",
+    "STYLES": [lambda request: static("admin/css/graffitihouse.css")],
+    "COMMAND": {
+        "search_models": True,
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+            {
+                "title": "Wall documentation",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Walls",
+                        "icon": "imagesmode",
+                        "link": reverse_lazy(
+                            "admin:graffiti_graffitiwall_changelist"
+                        ),
+                        "permission": lambda request: request.user.has_perm(
+                            "graffiti.view_graffitiwall"
+                        ),
+                    },
+                    {
+                        "title": "Graffiti photos",
+                        "icon": "photo_library",
+                        "link": reverse_lazy(
+                            "admin:graffiti_graffitiphoto_changelist"
+                        ),
+                        "permission": lambda request: request.user.has_perm(
+                            "graffiti.view_graffitiphoto"
+                        ),
+                    },
+                    {
+                        "title": "Locations",
+                        "icon": "location_on",
+                        "link": reverse_lazy("admin:graffiti_location_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "graffiti.view_location"
+                        ),
+                    },
+                    {
+                        "title": "Sites",
+                        "icon": "museum",
+                        "link": reverse_lazy("admin:graffiti_site_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "graffiti.view_site"
+                        ),
+                    },
+                ],
+            },
+            {
+                "title": "Research collections",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Ancillary sources",
+                        "icon": "description",
+                        "link": reverse_lazy(
+                            "admin:source_ancillarysource_changelist"
+                        ),
+                        "permission": lambda request: request.user.has_perm(
+                            "source.view_ancillarysource"
+                        ),
+                    },
+                    {
+                        "title": "Archives",
+                        "icon": "inventory_2",
+                        "link": reverse_lazy("admin:source_archive_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "source.view_archive"
+                        ),
+                    },
+                ],
+            },
+            {
+                "title": "People and access",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "People",
+                        "icon": "person",
+                        "link": reverse_lazy("admin:people_person_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "people.view_person"
+                        ),
+                    },
+                    {
+                        "title": "Users",
+                        "icon": "manage_accounts",
+                        "link": reverse_lazy(
+                            "admin:accounts_customuser_changelist"
+                        ),
+                        "permission": lambda request: request.user.has_perm(
+                            "accounts.view_customuser"
+                        ),
+                    },
+                    {
+                        "title": "Groups",
+                        "icon": "group_work",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "auth.view_group"
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
 }
 
 MIDDLEWARE = [
