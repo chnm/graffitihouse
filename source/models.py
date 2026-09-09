@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 

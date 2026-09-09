@@ -1,15 +1,13 @@
 import base64
 import json
-import os
 import traceback
-from io import BytesIO
 
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.files.base import ContentFile
 from django.db import models
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -63,9 +61,7 @@ class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 
     def get_derive_button(self, obj):
         return format_html(
-            '<a href="{}derive/" '
-            'style="text-decoration: underline;">'
-            "Derive Photo</a>",
+            '<a href="{}derive/" style="text-decoration: underline;">Derive Photo</a>',
             f"{obj.pk}/",
         )
 

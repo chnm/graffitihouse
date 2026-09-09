@@ -1,16 +1,16 @@
 import logging
 
-logger = logging.getLogger(__name__)
-
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from geopy.geocoders import Nominatim
 from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
+
+logger = logging.getLogger(__name__)
 
 
 class Location(models.Model):
@@ -154,8 +154,9 @@ class GraffitiWall(models.Model):
 
     def image_canvas(self):
         if self.image:
-            return mark_safe(
-                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
+            return format_html(
+                '<img src="{}" style="width:100px; height:100px;" />',
+                self.image.url,
             )
         else:
             return "No Image Found"
@@ -226,8 +227,9 @@ class GraffitiPhoto(models.Model):
 
     def image_canvas(self):
         if self.image:
-            return mark_safe(
-                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
+            return format_html(
+                '<img src="{}" style="width:100px; height:100px;" />',
+                self.image.url,
             )
         else:
             return "No Image Found"
