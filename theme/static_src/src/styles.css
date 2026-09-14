@@ -5,60 +5,82 @@
 /* Custom Civil War Graffiti theme styles */
 @layer base {
   :root {
-    --color-cwg-red: #d72638;
-    --color-cwg-blue: #256eff;
-    --color-cwg-black: #2a2d34;
-    --color-cwg-white: #fdfffc;
-    --color-cwg-green: #7f9172;
+    color-scheme: light;
+    --color-cwg-ink: #272a2b;
+    --color-cwg-paper: #fcf9f1;
+    --color-cwg-paper-dark: #f1ebdd;
+    --color-cwg-brick: #8f3f35;
+    --color-cwg-brass: #7a5626;
+    --color-cwg-sage: #596653;
   }
-  
+
   html {
     font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+    background: var(--color-cwg-paper);
+    color: var(--color-cwg-ink);
+  }
+
+  body {
+    @apply bg-cwg-paper text-cwg-ink antialiased;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-cwg-brass-light ring-offset-2 ring-offset-cwg-paper;
   }
 }
 
 @layer components {
-  /* Custom button styles */
   .btn-cwg-primary {
-    @apply bg-cwg-blue text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-blue-dark transition-colors;
+    @apply rounded-md bg-cwg-brick px-5 py-2.5 font-semibold text-cwg-paper shadow-sm transition-colors hover:bg-cwg-brick-dark;
   }
 
   .btn-cwg-secondary {
-    @apply bg-cwg-green text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-green-dark transition-colors;
+    @apply rounded-md border border-cwg-paper/50 bg-cwg-sage px-5 py-2.5 font-semibold text-cwg-paper shadow-sm transition-colors hover:bg-cwg-sage-dark;
   }
 
   .btn-cwg-danger {
-    @apply bg-cwg-red text-cwg-white px-4 py-2 rounded-md hover:bg-cwg-red-dark transition-colors;
+    @apply rounded-md bg-cwg-brick px-5 py-2.5 font-semibold text-cwg-paper shadow-sm transition-colors hover:bg-cwg-brick-dark;
   }
 
-  /* Custom card styles */
   .card-cwg {
-    @apply bg-cwg-white rounded-lg shadow-md overflow-hidden border border-gray-200;
+    @apply overflow-hidden rounded-lg border border-cwg-paper-dark bg-white shadow-sm;
   }
 
   .card-cwg-header {
-    @apply bg-cwg-blue text-cwg-white p-4;
+    @apply border-b border-cwg-paper-dark bg-cwg-ink p-4 text-cwg-paper;
   }
 
-  /* Navbar styles */
   .navbar-cwg {
-    @apply bg-cwg-black text-cwg-white;
+    @apply bg-cwg-ink text-cwg-paper;
   }
 
   .navbar-link-cwg {
-    @apply text-cwg-white hover:text-cwg-blue transition-colors;
+    @apply text-cwg-paper transition-colors hover:text-cwg-brass-light;
   }
 
-  /* Badge styles */
   .badge-cwg-red {
-    @apply bg-cwg-red text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+    @apply rounded-full bg-cwg-confederate px-2 py-1 text-xs font-semibold text-cwg-paper;
   }
 
   .badge-cwg-blue {
-    @apply bg-cwg-blue text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+    @apply rounded-full bg-cwg-union px-2 py-1 text-xs font-semibold text-cwg-paper;
   }
 
   .badge-cwg-green {
-    @apply bg-cwg-green text-cwg-white px-2 py-1 rounded-full text-xs font-semibold;
+    @apply rounded-full bg-cwg-sage px-2 py-1 text-xs font-semibold text-cwg-paper;
+  }
+
+  .form-cwg input:not([type="checkbox"]):not([type="radio"]),
+  .form-cwg select,
+  .form-cwg textarea {
+    @apply w-full rounded-md border-cwg-paper-dark bg-white text-cwg-ink shadow-sm focus:border-cwg-brass focus:ring-cwg-brass-light;
+  }
+
+  .form-cwg input[type="checkbox"] {
+    @apply rounded border-cwg-paper-dark text-cwg-brick focus:ring-cwg-brass-light;
   }
 }

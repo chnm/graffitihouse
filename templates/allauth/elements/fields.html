@@ -1,0 +1,15 @@
+{% for error in attrs.form.non_field_errors %}
+  <p class="text-sm text-cwg-brick">{{ error }}</p>
+{% endfor %}
+{% for field in attrs.form %}
+  <div class="space-y-1">
+    {% if field.field.widget.input_type == "checkbox" %}
+      <label class="flex items-center gap-2 text-sm text-cwg-ink">{{ field }} {{ field.label }}</label>
+    {% else %}
+      <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-cwg-ink">{{ field.label }}</label>
+      {{ field }}
+    {% endif %}
+    {% if field.help_text %}<p class="text-xs text-cwg-ink/60">{{ field.help_text|safe }}</p>{% endif %}
+    {% for error in field.errors %}<p class="text-sm text-cwg-brick">{{ error }}</p>{% endfor %}
+  </div>
+{% endfor %}

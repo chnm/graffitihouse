@@ -1,16 +1,19 @@
+import io
 import logging
-
-logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from geopy.geocoders import Nominatim
+from PIL import Image
 from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
+
+logger = logging.getLogger(__name__)
 
 
 class Location(models.Model):
@@ -135,14 +138,17 @@ class GraffitiWall(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
-    # When a user draws a selection of graffiti, a new canvas coordinate
-    # is added to the graffiti_has_part table
-    def add_canvas(self, canvas):
-        self.canvas = canvas
-        self.save()
-
     def __str__(self):
         return self.name
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
     def get_absolute_url(self):
         return reverse("detail", kwargs={"graffiti_id": self.id})
@@ -150,53 +156,19 @@ class GraffitiWall(models.Model):
     def description_as_markdown(self):
         return mark_safe(self.description)
 
-    description_as_markdown.allow_tags = True
 
-    def image_canvas(self):
-        if self.image:
-            return mark_safe(
-                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
-            )
-        else:
-            return "No Image Found"
-
-    image_canvas.short_description = "Image"
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "image": self.image.url,
-            "name": self.name,
-            "description": self.description,
-            "room": self.room,
-            "spatial_position": self.spatial_position,
-            "identifier": self.identifier,
-            "date_taken": self.date_taken,
-        }
-
-    def rollback(self, version):
-        history_entry = self.history.filter(id__lte=version).order_by("-id").first()
-        if history_entry:
-            data = history_entry.data
-            for key, value in data:
-                setattr(self, key, value)
-            self.save()
-        else:
-            raise ValueError("Invalid version for rollback.")
+class GraffitiType(models.TextChoices):
+    DRAWING = "drawing", "drawing"
+    IMAGE = "image", "image"
+    NAME = "name", "name"
+    POETRY = "poetry", "poetry"
+    UNIT = "unit", "unit"
+    OTHER_WRITING = "other writing", "other writing"
+    OTHER = "other", "other"
 
 
 class GraffitiPhoto(models.Model):
     """GraffitiPhoto refers to a specific piece of graffiti on an overall wall."""
-
-    GRAFFITI_TYPES = (
-        ("drawing", "drawing"),
-        ("image", "image"),
-        ("name", "name"),
-        ("poetry", "poetry"),
-        ("unit", "unit"),
-        ("other writing", "other writing"),
-        ("other", "other"),
-    )
 
     id = models.BigAutoField(primary_key=True)
     graffiti_wall = models.ForeignKey(
@@ -205,40 +177,87 @@ class GraffitiPhoto(models.Model):
         verbose_name="Graffiti wall",
         help_text="Select the graffiti wall this photo belongs to.",
     )
-    graffiti_type = models.CharField(null=True, max_length=100, choices=GRAFFITI_TYPES)
+    graffiti_type = models.CharField(
+        null=True, max_length=100, choices=GraffitiType.choices
+    )
     description = RichTextField(blank=True, null=True)
     image = models.ImageField(upload_to="images/derived/", null=True)
     identifier = models.CharField(
         max_length=100,
+        unique=True,
         help_text="An auto-generated unique identifier for the photo.",
     )
-    is_part_of = models.ManyToManyField(
-        GraffitiWall,
-        blank=True,
-        help_text="A related resource in which the described resource is physically or logically included.",
-        related_name="graffiti_is_part_of",
-    )
     tags = TaggableManager(blank=True)
-    coordinates = models.JSONField(null=True, blank=True)
+    # Crop rectangle in pixels of the wall's `image`.
+    x = models.PositiveIntegerField(null=True, blank=True)
+    y = models.PositiveIntegerField(null=True, blank=True)
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+    coordinates = models.JSONField(
+        null=True, blank=True, help_text="Raw metadata captured by the crop tool."
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
-    def image_canvas(self):
-        if self.image:
-            return mark_safe(
-                '<img src="%s" style="width:100px; height:100px;" />' % self.image.url
-            )
-        else:
-            return "No Image Found"
+    @property
+    def rectangle(self):
+        if None in (self.x, self.y, self.width, self.height):
+            return None
+        return (self.x, self.y, self.x + self.width, self.y + self.height)
 
-    image_canvas.short_description = "Image"
+    def derive_image(self):
+        """Crop this photo out of its wall image and store it in `image`.
 
-    def save(self, *args, **kwargs):
-        print("Saving with coordinates:", self.coordinates)
-        super().save(*args, **kwargs)
+        Uses the archival image when present, scaling the rectangle from the
+        web image's dimensions, so the derived crop is as sharp as the source.
+        """
+        rectangle = self.rectangle
+        if rectangle is None:
+            return
+        wall = self.graffiti_wall
+        scale = 1
+        if wall.archival_image:
+            scale = wall.archival_image.width / wall.image.width
+        with Image.open(wall.archival_image or wall.image) as source:
+            crop = source.crop(tuple(round(edge * scale) for edge in rectangle))
+            buffer = io.BytesIO()
+            crop.save(buffer, format="PNG")
+        self.image.save(
+            f"derived_{self.identifier}.png", ContentFile(buffer.getvalue()), save=False
+        )
 
     def __str__(self):
         graffiti_type = self.graffiti_type or "No type"
         identifier = self.identifier or "No ID"
         return f"{graffiti_type} - {identifier}"
+
+
+class MultispectralImage(models.Model):
+    """A multispectral capture of a wall, one image per band."""
+
+    graffiti_wall = models.ForeignKey(
+        GraffitiWall, on_delete=models.CASCADE, related_name="multispectral_images"
+    )
+    image = models.ImageField(upload_to="images/multispectral/")
+    band = models.CharField(
+        max_length=100,
+        help_text="Wavelength or band captured, e.g. 'IR 850nm' or 'UV'.",
+    )
+    captured_on = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.graffiti_wall} - {self.band}"

@@ -1,38 +1,45 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 
 from graffiti.models import GraffitiWall, Location, Site
 
 
+class DocumentType(models.TextChoices):
+    ARTWORK = "artwork", "Artwork"
+    DOCUMENT = "document", "Document"
+    DRAWING = "drawing", "Drawing"
+    GAME = "game", "Game"
+    IMAGE = "image", "Image"
+    LETTER = "letter", "Letter"
+    NEWSPRINT = "newsprint", "Newsprint"
+    PENSION_FILE = "pensionfile", "Pension File"
+    PHOTOGRAPH = "photograph", "Photograph"
+    POEM = "poem", "Poem"
+    SERVICE_RECORD = "servicerecord", "Service Record"
+    WALL = "wall", "Wall"
+    WIDOW_PENSION_FILE = "widowpensionfile", "Widow's Pension File"
+    OTHER = "other", "Other"
+
+
 class AncillarySource(models.Model):
     """
-    Ancellary sources include maps, deeds, service records, letters, and other primary
+    Ancillary sources include maps, deeds, service records, letters, and other primary
     documents related to a specific image. These are connected to specific
     metadata for individual object types. These can be associated with specific
     pieces of graffiti or people.
     """
 
-    DOCUMENT_TYPES = (
-        ("artwork", "Artwork"),
-        ("document", "Document"),
-        ("drawing", "Drawing"),
-        ("game", "Game"),
-        ("image", "Image"),
-        ("letter", "Letter"),
-        ("newsprint", "Newsprint"),
-        ("photograph", "Photograph"),
-        ("poem", "Poem"),
-        ("wall", "Wall"),
-        ("other", "Other"),
-    )
-
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="images/", null=True)
-    item_type = models.CharField(max_length=100, choices=DOCUMENT_TYPES)
+    item_type = models.CharField(
+        max_length=100,
+        choices=DocumentType.choices,
+        default=DocumentType.DOCUMENT,
+    )
     creator = models.CharField(
         max_length=100,
         null=True,
@@ -66,6 +73,14 @@ class AncillarySource(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     transcription = models.TextField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -95,17 +110,17 @@ class Archive(models.Model):
         return reverse("detail", kwargs={"archive_id": self.id})
 
 
-class DocumentPersonRole(models.Model):
-    ROLE_CHOICES = (
-        ("SENDER", "Sender"),
-        ("RECIPIENT", "Recipient"),
-        ("GRANTEE", "Grantee"),
-        ("GRANTOR", "Grantor"),
-    )
+class DocumentRole(models.TextChoices):
+    SENDER = "SENDER", "Sender"
+    RECIPIENT = "RECIPIENT", "Recipient"
+    GRANTEE = "GRANTEE", "Grantee"
+    GRANTOR = "GRANTOR", "Grantor"
 
+
+class DocumentPersonRole(models.Model):
     person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
     document = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
-    role = models.CharField(max_length=100, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=100, choices=DocumentRole.choices)
 
     history = HistoricalRecords()
 

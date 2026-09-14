@@ -2,108 +2,130 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="{% block meta_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
-        <meta name="keywords" content="{% block meta_keywords %}Civil War, graffiti, historical preservation, American history, soldiers, Graffiti House{% endblock %}" />
-        <meta name="author" content="RRCHNM" />
-        <meta property="og:title" content="{% block og_title %}{{ block.super }}{% endblock %}" />
-        <meta property="og:description" content="{% block og_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="{% block twitter_title %}{{ block.super }}{% endblock %}" />
-        <meta name="twitter:description" content="{% block twitter_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="{{ request.build_absolute_uri }}" />
-        <title>{% block title %}Graffiti House Project{% endblock title %}</title>
-        {% tailwind_css %}
-        <script src="{% static 'js/alpine.min.js' %}" defer></script>
-        {% block extra_head %}{% endblock %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{% block meta_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+    <meta name="keywords" content="{% block meta_keywords %}Civil War, graffiti, historical preservation, American history, soldiers, Graffiti House{% endblock %}" />
+    <meta name="author" content="RRCHNM" />
+    <meta property="og:title" content="{% block og_title %}{{ block.super }}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{% block twitter_title %}{{ block.super }}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}Documenting and preserving Civil War era graffiti left by soldiers during the American Civil War.{% endblock %}" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+    <title>{% block title %}Graffiti House Project{% endblock title %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'js/alpine.min.js' %}" defer></script>
+    {% block extra_head %}{% endblock %}
         <!-- Matomo -->
-        <script>
-          var _paq = window._paq = window._paq || [];
+    <script>
+      var _paq = window._paq = window._paq || [];
           /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-          _paq.push(['trackPageView']);
-          _paq.push(['enableLinkTracking']);
-          (function() {
-            var u="https://stats.rrchnm.org/";
-            _paq.push(['setTrackerUrl', u+'matomo.php']);
-            _paq.push(['setSiteId', '119']);
-            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-          })();
-        </script>
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="https://stats.rrchnm.org/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '119']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
         <!-- End Matomo Code -->
-    </head>
-    <body>
+  </head>
+  <body class="bg-cwg-paper text-cwg-ink">
         <!-- Top Navigation -->
-        <nav class="bg-cwg-black navbar-cwg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="text-cwg-white font-bold">Civil War Graffiti</div>
-                        </div>
-                        <div class="hidden md:block">
-                            <div class="ml-10 flex items-baseline space-x-4">
-                                <a
-                                    href="{% url 'home' %}"
-                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium" >
-                                    Home
-                                </a>
-                                <a href="{% url 'graffiti:walls_list' %}"
-                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
-                                >Graffiti</a>
-                                <a href="{% url 'people:people_list' %}"
-                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
-                                >People</a>
-                                <a href="{% url 'home' %}#about"
-                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
-                                >About</a>
-                                <a href="{% url 'home' %}#sites"
-                                    class="text-cwg-white hover:text-cwg-blue-light px-3 py-2 border-b-2 border-transparent hover:border-cwg-blue transition-colors duration-200 text-sm font-medium"
-                                >Sites</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <nav class="navbar-cwg border-b border-white/10" x-data="{ menuOpen: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <a href="{% url 'home' %}" class="font-bold tracking-wide text-cwg-paper hover:text-cwg-brass-light transition-colors">Civil War Graffiti</a>
             </div>
-        </nav>
+            <div class="hidden md:block">
+              <div class="ml-10 flex items-baseline space-x-4">
+                <a
+                  href="{% url 'home' %}"
+                  class="px-3 py-2 border-b-2 border-transparent text-cwg-paper hover:text-cwg-brass-light hover:border-cwg-brass-light transition-colors duration-200 text-sm font-medium" >
+                  Home
+                </a>
+                <a href="{% url 'graffiti:walls_list' %}"
+                   class="px-3 py-2 border-b-2 border-transparent text-cwg-paper hover:text-cwg-brass-light hover:border-cwg-brass-light transition-colors duration-200 text-sm font-medium"
+                >Graffiti</a>
+                <a href="{% url 'people:people_list' %}"
+                   class="px-3 py-2 border-b-2 border-transparent text-cwg-paper hover:text-cwg-brass-light hover:border-cwg-brass-light transition-colors duration-200 text-sm font-medium"
+                >People</a>
+                <a href="{% url 'home' %}#about"
+                   class="px-3 py-2 border-b-2 border-transparent text-cwg-paper hover:text-cwg-brass-light hover:border-cwg-brass-light transition-colors duration-200 text-sm font-medium"
+                >About</a>
+                <a href="{% url 'home' %}#sites"
+                   class="px-3 py-2 border-b-2 border-transparent text-cwg-paper hover:text-cwg-brass-light hover:border-cwg-brass-light transition-colors duration-200 text-sm font-medium"
+                >Sites</a>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-md border border-white/20 p-2 text-cwg-paper transition-colors hover:border-cwg-brass-light hover:text-cwg-brass-light md:hidden"
+            @click="menuOpen = !menuOpen"
+            :aria-expanded="menuOpen"
+            aria-controls="mobile-menu"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <svg x-show="!menuOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm1 4a1 1 0 100 2h12a1 1 0 100-2H4z" clip-rule="evenodd" />
+            </svg>
+            <svg x-cloak x-show="menuOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        <div id="mobile-menu" class="border-t border-white/10 pb-3 pt-2 md:hidden" x-cloak x-show="menuOpen" @click.outside="menuOpen = false">
+          <a href="{% url 'home' %}" class="block rounded px-3 py-2 text-cwg-paper hover:bg-white/5 hover:text-cwg-brass-light">Home</a>
+          <a href="{% url 'graffiti:walls_list' %}" class="block rounded px-3 py-2 text-cwg-paper hover:bg-white/5 hover:text-cwg-brass-light">Graffiti</a>
+          <a href="{% url 'people:people_list' %}" class="block rounded px-3 py-2 text-cwg-paper hover:bg-white/5 hover:text-cwg-brass-light">People</a>
+          <a href="{% url 'home' %}#about" class="block rounded px-3 py-2 text-cwg-paper hover:bg-white/5 hover:text-cwg-brass-light">About</a>
+          <a href="{% url 'home' %}#sites" class="block rounded px-3 py-2 text-cwg-paper hover:bg-white/5 hover:text-cwg-brass-light">Sites</a>
+        </div>
+      </div>
+    </nav>
 
-        <main>{% block content %} {% endblock %}</main>
+    <main>{% block main %}{% block content %} {% endblock %}{% endblock %}</main>
 
-        <footer class="bg-cwg-black">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="flex flex-col items-center space-y-4">
-                    <p class="text-cwg-white">
-                        <em>Civil War Graffiti</em> is generously funded in part by the <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://www.neh.gov/">National Endowment for the Humanities</a> and developed by the <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://rrchnm.org/">Roy Rosenzweig Center for History and New Media</a> at <a class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors" href="https://www.gmu.edu/">George Mason University</a>.
-                    </p>
+    <footer class="border-t-4 border-cwg-brass bg-cwg-ink">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col items-center space-y-4">
+          <p class="text-cwg-paper">
+            <em>Civil War Graffiti</em> is generously funded in part by the <a class="underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors" href="https://www.neh.gov/">National Endowment for the Humanities</a> and developed by the <a class="underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors" href="https://rrchnm.org/">Roy Rosenzweig Center for History and New Media</a> at <a class="underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors" href="https://www.gmu.edu/">George Mason University</a>.
+          </p>
 
                     <!-- Admin Login Section -->
-                    <div class="mt-4 text-center">
-                        {% if user.is_authenticated %}
-                            <div class="text-cwg-white text-sm">
-                                <span>Logged in as: <strong>{{ user.username }}</strong></span>
-                                <span class="mx-2">|</span>
-                                <a href="{% url 'admin:index' %}" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors">Admin Panel</a>
-                                <span class="mx-2">|</span>
-                                <form method="post" action="{% url 'admin:logout' %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm">Log Out</button>
-                                </form>
-                            </div>
-                        {% else %}
-                            <a href="{% url 'admin:login' %}" class="underline hover:no-underline text-cwg-blue-light hover:text-cwg-blue text-sm transition-colors">
-                                Admin Login
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </footer>
+          <div class="mt-4 text-center">
+            {% if user.is_authenticated %}
+              <div class="text-cwg-paper text-sm">
+                <span>Logged in as: <strong>{{ user.username }}</strong></span>
+                <span class="mx-2">|</span>
+                <a href="{% url 'admin:index' %}" class="underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors">Admin Panel</a>
+                <span class="mx-2">|</span>
+                <form method="post" action="{% url 'admin:logout' %}" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm">Log Out</button>
+                </form>
+              </div>
+            {% else %}
+              <a href="{% url 'admin:login' %}" class="text-sm underline decoration-cwg-brass-light underline-offset-4 hover:text-cwg-brass-light transition-colors">
+                Admin Login
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </footer>
 
-        {% block extra_js %}{% endblock %}
-    </body>
+    {% block extra_js %}{% endblock %}
+  </body>
 </html>

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{% block head_title %}{% endblock head_title %} · Graffiti House{% endblock title %}
+{% block main %}
+  <div class="mx-auto max-w-md px-4 py-16 sm:px-6">
+    {% for message in messages %}
+      <div class="mb-4 rounded-md border border-cwg-brass-light bg-cwg-paper-dark px-4 py-3 text-sm text-cwg-ink">{{ message }}</div>
+    {% endfor %}
+    <div class="card-cwg p-6 sm:p-8 space-y-4">
+      {% block content %}{% endblock content %}
+    </div>
+  </div>
+{% endblock main %}

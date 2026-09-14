@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
 
@@ -21,13 +21,11 @@ class Person(models.Model):
     date_of_death = models.DateField(
         blank=True, null=True, help_text="Enter the date as YYYY-MM-DD."
     )
-    associated_graffiti_photo = models.ForeignKey(
+    associated_graffiti_photos = models.ManyToManyField(
         GraffitiPhoto,
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
-        related_name="graffiti_associated_person",
-        verbose_name="Associated photo",
+        related_name="associated_people",
+        verbose_name="Associated photos",
     )
     tags = TaggableManager(blank=True)
 
@@ -37,6 +35,15 @@ class Person(models.Model):
 
     def __str__(self):
         return self.last_name
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
     def get_absolute_url(self):
         return reverse("people:person_detail", kwargs={"person_id": self.id})
@@ -70,29 +77,29 @@ class Organization(models.Model):
         return self.name
 
 
+class Governance(models.TextChoices):
+    UNION = "union", "Union"
+    CONFEDERACY = "confederacy", "Confederacy"
+
+
+class Branch(models.TextChoices):
+    ARMY = "army", "Army"
+    NAVY = "navy", "Navy"
+    CAVALRY = "cavalry", "Cavalry"
+    COAST_GUARD = "coastguard", "Coast Guard"
+
+
 class Service(models.Model):
-    GOV_CHOICES = (
-        ("union", "Union"),
-        ("confederacy", "Confederacy"),
-    )
-
-    BRANCH_CHOICES = (
-        ("army", "Army"),
-        ("navy", "Navy"),
-        ("cavalry", "Cavalry"),
-        ("coastguard", "Coast Guard"),
-    )
-
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
     military_rank = models.CharField(blank=True, max_length=255)
     military_unit = models.CharField(blank=True, max_length=255)
     military_branch = models.CharField(
-        blank=True, max_length=255, choices=BRANCH_CHOICES
+        blank=True, max_length=255, choices=Branch.choices
     )
     military_division = models.CharField(blank=True, max_length=255)
     military_governance = models.CharField(
-        blank=True, max_length=11, choices=GOV_CHOICES
+        blank=True, max_length=11, choices=Governance.choices
     )
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

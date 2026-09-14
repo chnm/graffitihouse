@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 
-from .models import Alias, Organization, Person, Service
+from .models import Person
 
 
 def people_list(request):
@@ -21,16 +21,12 @@ def person_detail(request, person_id):
     # Get the person or return 404
     person = get_object_or_404(Person, id=person_id)
 
-    # Get related information
-    aliases = Alias.objects.filter(person=person)
-    organizations = Organization.objects.filter(person=person)
-    service_records = Service.objects.filter(person=person)
-
     context = {
         "person": person,
-        "aliases": aliases,
-        "organizations": organizations,
-        "service_records": service_records,
+        "aliases": person.alias_set.all(),
+        "organizations": person.organization_set.all(),
+        "service_records": person.service_set.all(),
+        "associated_photos": person.associated_graffiti_photos.all(),
     }
 
     return render(request, "people/person_detail.html", context)

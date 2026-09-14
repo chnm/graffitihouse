@@ -1,82 +1,129 @@
-import base64
 import json
-import os
-import traceback
-from io import BytesIO
+import logging
 
 from django.contrib import admin
-from django.contrib.admin.widgets import AdminFileWidget
-from django.core.files.base import ContentFile
-from django.db import models
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.template.response import TemplateResponse
+from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
 from django.utils.html import format_html
-from django.views.decorators.csrf import csrf_exempt
-from import_export.admin import ImportExportModelAdmin
+from django.views.generic import TemplateView
+from import_export.admin import ImportExportMixin
 from simple_history.admin import SimpleHistoryAdmin
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
+from unfold.contrib.import_export.forms import ExportForm, ImportForm
+from unfold.views import UnfoldModelAdminViewMixin
 
-from graffiti.models import GraffitiPhoto, GraffitiWall, Location, Site
+from graffiti.models import (
+    GraffitiPhoto,
+    GraffitiType,
+    GraffitiWall,
+    Location,
+    MultispectralImage,
+    Site,
+)
 from people.models import Alias, Organization, Person, Service
 from source.models import AncillarySource, Archive, DocumentPersonRole
 
-admin.site.register(Archive)
+logger = logging.getLogger(__name__)
 
 
-class CustomAdminFileWidget(AdminFileWidget):
-    def render(self, name, value, attrs=None, renderer=None):
-        if name == "image" and value and hasattr(value, "url"):
-            return format_html(
-                """<div style="display: flex; flex-direction: column; gap: 10px;">
-                      <div>
-                        <a href="{}" target="_blank">
-                          <img src="{}" alt="{}" width="500" height="500"
-                               style="object-fit: cover;" />
-                        </a>
-                      </div>
-                      <div>{}</div>
-                    </div>""",
-                value.url,
-                value.url,
-                value,
-                super().render(name, value, attrs, renderer),
-            )
+class HistoryImportExportAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
 
-        return format_html(
-            '<div style="display: flex; flex-direction: column; gap: 10px;">'
-            "<div>{}</div></div>",
-            super().render(name, value, attrs, renderer),
+
+class OwnedAdminMixin:
+    """Record who created a row, and let creators delete their own rows.
+
+    Users without the model-level delete permission (e.g. Students) may still
+    delete rows they created themselves.
+    """
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def has_delete_permission(self, request, obj=None):
+        if super().has_delete_permission(request, obj):
+            return True
+        return (
+            obj is not None
+            and obj.created_by_id == request.user.id
+            and self.has_change_permission(request, obj)
         )
 
 
+@admin.register(Archive)
+class ArchiveAdmin(ModelAdmin):
+    pass
+
+
+class DeriveGraffitiView(UnfoldModelAdminViewMixin, TemplateView):
+    title = "Derive graffiti photo"
+    permission_required = ("graffiti.add_graffitiphoto",)
+    template_name = "admin/image_crop.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        graffiti_wall = get_object_or_404(GraffitiWall, id=self.kwargs["wall_id"])
+        derived_data = [
+            {"identifier": photo.identifier, "coords": photo.coordinates}
+            for photo in graffiti_wall.graffitiphoto_set.exclude(x=None)
+        ]
+        context.update(
+            {
+                "graffiti_wall": graffiti_wall,
+                "opts": self.model_admin.model._meta,
+                "graffiti_types": GraffitiType.choices,
+                "wall_image_url": graffiti_wall.image.url,
+                "derived_photos": json.dumps(derived_data),
+            }
+        )
+        return context
+
+
+class MultispectralImageInline(TabularInline):
+    model = MultispectralImage
+    extra = 0
+
+
+@admin.register(MultispectralImage)
+class MultispectralImageAdmin(HistoryImportExportAdmin):
+    list_display = ("graffiti_wall", "band", "captured_on")
+    list_filter = ("band",)
+    autocomplete_fields = ("graffiti_wall",)
+
+
 @admin.register(GraffitiWall)
-class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
+class GraffitiWallAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
+    search_fields = ("name", "identifier")
+    inlines = [MultispectralImageInline]
     list_display = (
         "name",
         "description_as_markdown",
         "get_derive_button",
         "created_at",
     )
-    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
-    actions = ["rollback_to_previous"]
 
     def get_derive_button(self, obj):
         return format_html(
-            '<a href="{}derive/" '
-            'style="text-decoration: underline;">'
-            "Derive Photo</a>",
-            f"{obj.pk}/",
+            '<a class="text-primary-600 dark:text-primary-500" href="{}">'
+            "Derive photo</a>",
+            reverse("admin:derive-graffiti", args=[obj.pk]),
         )
 
     get_derive_button.short_description = "Actions"
 
     def get_urls(self):
         urls = super().get_urls()
+        derive_view = self.admin_site.admin_view(
+            DeriveGraffitiView.as_view(model_admin=self)
+        )
         custom_urls = [
             path(
                 "<int:wall_id>/derive/",
-                self.admin_site.admin_view(self.derive_graffiti_view),
+                derive_view,
                 name="derive-graffiti",
             ),
             path(
@@ -87,78 +134,29 @@ class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
         ]
         return custom_urls + urls
 
-    def derive_graffiti_view(self, request, wall_id):
-        graffiti_wall = get_object_or_404(GraffitiWall, id=wall_id)
-        derived_photos = GraffitiPhoto.objects.filter(graffiti_wall=graffiti_wall)
-
-        # Prepare a simpler data structure
-        derived_data = []
-        for photo in derived_photos:
-            if photo.coordinates and "canvas" in photo.coordinates:
-                derived_data.append(
-                    {"identifier": photo.identifier, "coords": photo.coordinates}
-                )
-
-        context = {
-            "graffiti_wall": graffiti_wall,
-            "is_popup": "_popup" in request.GET,
-            "opts": self.model._meta,
-            "graffiti_types": GraffitiPhoto.GRAFFITI_TYPES,
-            "wall_image_url": graffiti_wall.image.url,
-            "derived_photos": json.dumps(derived_data),  # Pass to template as JSON
-        }
-        return TemplateResponse(request, "admin/image_crop.html", context)
-
-    @csrf_exempt
     def save_derived_graffiti(self, request):
         try:
-            data = json.loads(request.body)
-
-            # Log the received metadata
-            print("Received metadata:", json.dumps(data["metadata"], indent=2))
-
-            # Extract base64 image data
-            image_data = data["image"].split(",")[1]
-            image_binary = base64.b64decode(image_data)
-
-            # Create new GraffitiPhoto instance
+            coordinates = json.loads(request.body)["metadata"]["coordinates"]
+            metadata = coordinates["metadata"]
+            rectangle = coordinates["canvas"]
             graffiti_photo = GraffitiPhoto(
-                # Get wall_id from the nested structure
-                graffiti_wall_id=data["metadata"]["coordinates"]["metadata"]["wall_id"],
-                identifier=data["metadata"]["coordinates"]["metadata"]["identifier"],
-                graffiti_type=data["metadata"]["coordinates"]["metadata"][
-                    "graffiti_type"
-                ],
-                description=data["metadata"]["coordinates"]["metadata"]["description"],
-                coordinates=data["metadata"][
-                    "coordinates"
-                ],  # Store all coordinates metadata
+                graffiti_wall_id=metadata["wall_id"],
+                identifier=metadata["identifier"],
+                graffiti_type=metadata["graffiti_type"],
+                description=metadata["description"],
+                x=rectangle["x"],
+                y=rectangle["y"],
+                width=rectangle["width"],
+                height=rectangle["height"],
+                coordinates=coordinates,
+                created_by=request.user,
             )
-
-            # Save the image
-            image_name = f"derived_{graffiti_photo.identifier}.png"
-            graffiti_photo.image.save(image_name, ContentFile(image_binary), save=False)
-
-            # Save the instance first to get primary key
+            graffiti_photo.derive_image()
             graffiti_photo.save()
-
-            # Now that we have a primary key, we can add tags
-            if data["metadata"]["coordinates"]["metadata"].get("tags"):
-                graffiti_photo.tags.add(
-                    *data["metadata"]["coordinates"]["metadata"]["tags"]
-                )
-
-            # Handle is_part_of relationship
-            if data["metadata"]["coordinates"]["metadata"].get("is_part_of"):
-                graffiti_photo.is_part_of.add(
-                    data["metadata"]["coordinates"]["metadata"]["wall_id"]
-                )
-
+            graffiti_photo.tags.add(*metadata.get("tags", []))
             return JsonResponse({"success": True, "photo_id": graffiti_photo.id})
-
         except KeyError as e:
-            print("KeyError accessing metadata:", str(e))
-            print("Received data structure:", data)
+            logger.warning("Derived photo payload missing %s", e)
             return JsonResponse(
                 {
                     "success": False,
@@ -167,10 +165,8 @@ class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
                 },
                 status=400,
             )
-
         except Exception as e:
-            print("Error saving graffiti photo:", str(e))
-            print("Traceback:", traceback.format_exc())
+            logger.exception("Error saving derived graffiti photo")
             return JsonResponse(
                 {"success": False, "error": "Server error", "details": str(e)},
                 status=500,
@@ -180,16 +176,10 @@ class GraffitiWallAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
     history_list_display = ["changed_fields"]
 
 
-class GraffitiPhotoInline(admin.TabularInline):
-    model = Person
-    extra = 1
-
-
-class GraffitiPhotoAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
-    list_display = ("graffiti_type", "description", "get_associated_wall")
+class GraffitiPhotoAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
+    list_display = ("graffiti_type", "identifier", "description", "get_associated_wall")
+    search_fields = ("identifier",)
     readonly_fields = ("coordinates",)
-    inlines = [GraffitiPhotoInline]
-    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
         return format_html(
@@ -208,12 +198,12 @@ class GraffitiPhotoAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 admin.site.register(GraffitiPhoto, GraffitiPhotoAdmin)
 
 
-class SourcePersonRoleInline(admin.TabularInline):
+class SourcePersonRoleInline(TabularInline):
     model = DocumentPersonRole
     extra = 1
 
 
-class AncillarySourceAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
+class AncillarySourceAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     list_display = ("title", "date")
     inlines = [SourcePersonRoleInline]
     fieldsets = (
@@ -252,7 +242,7 @@ class AncillarySourceAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 admin.site.register(AncillarySource, AncillarySourceAdmin)
 
 
-class SiteAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
+class SiteAdmin(HistoryImportExportAdmin):
     list_display = ("name", "description")
 
     # Add history view
@@ -262,33 +252,36 @@ class SiteAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 admin.site.register(Site, SiteAdmin)
 
 
-class AliasInline(admin.StackedInline):
+class AliasInline(StackedInline):
     model = Alias
     extra = 1
 
 
-class ServiceInline(admin.StackedInline):
+class ServiceInline(StackedInline):
     model = Service
     extra = 1
 
 
-class OrganizationInline(admin.StackedInline):
+class OrganizationInline(StackedInline):
     model = Organization
     extra = 1
 
 
-class PersonAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
+class PersonAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     list_display = (
         "last_name",
         "first_name",
     )
     inlines = [AliasInline, ServiceInline]
+    autocomplete_fields = ("associated_graffiti_photos",)
 
 
 admin.site.register(Person, PersonAdmin)
 
 
-class LocationAdmin(ImportExportModelAdmin):
+class LocationAdmin(ImportExportMixin, ModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     list_display = ("place", "state")
 
 

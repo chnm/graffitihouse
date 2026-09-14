@@ -1,0 +1,90 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n %}
+
+{% block title %}Dashboard | {{ site_title }}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+    <div class="py-6">
+        <div class="mb-8">
+            <p class="font-semibold mb-2 text-primary-600 text-sm dark:text-primary-500">Civil War Graffiti Project</p>
+            <h1 class="font-semibold text-3xl text-font-important-light dark:text-font-important-dark">Project dashboard</h1>
+            <p class="mt-2 text-base-500 dark:text-base-400">Manage wall documentation, derived graffiti, people, and research sources.</p>
+        </div>
+
+        <div class="gap-4 gh-dashboard-stats mb-8">
+            {% for stat in dashboard_stats %}
+                <a class="bg-white border border-base-200 flex items-center gap-4 p-5 rounded-default shadow-xs transition hover:border-primary-500 dark:bg-base-900 dark:border-base-700" href="{{ stat.link }}">
+                    <span class="bg-primary-50 flex h-12 items-center justify-center rounded-default text-primary-600 w-12 dark:bg-primary-500/10 dark:text-primary-500">
+                        <span class="material-symbols-outlined">{{ stat.icon }}</span>
+                    </span>
+                    <span>
+                        <span class="block font-semibold text-2xl text-font-important-light dark:text-font-important-dark">{{ stat.value }}</span>
+                        <span class="block text-base-500 text-sm dark:text-base-400">{{ stat.title }}</span>
+                    </span>
+                </a>
+            {% empty %}
+                <p class="text-base-500 dark:text-base-400">No project records are available for your account.</p>
+            {% endfor %}
+        </div>
+
+        <div class="gap-6 gh-dashboard-layout">
+            <section class="bg-white border border-base-200 rounded-default shadow-xs dark:bg-base-900 dark:border-base-700">
+                <div class="border-b border-base-200 flex items-center justify-between p-5 dark:border-base-700">
+                    <div>
+                        <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">Recent wall documentation</h2>
+                        {% if site_count is not None %}<p class="mt-1 text-base-500 text-sm dark:text-base-400">Across {{ site_count }} site{{ site_count|pluralize }}</p>{% endif %}
+                    </div>
+                    <a class="font-medium text-primary-600 text-sm dark:text-primary-500" href="{% url 'admin:graffiti_graffitiwall_changelist' %}">View all</a>
+                </div>
+                <div class="divide-y divide-base-200 dark:divide-base-700">
+                    {% for wall in recent_walls %}
+                        <a class="flex items-center justify-between p-5 hover:bg-base-50 dark:hover:bg-base-800" href="{% url 'admin:graffiti_graffitiwall_change' wall.pk %}">
+                            <span>
+                                <span class="block font-medium text-font-important-light dark:text-font-important-dark">{{ wall.name }}</span>
+                                <span class="block mt-1 text-base-500 text-sm dark:text-base-400">{{ wall.site_id.name }} · {{ wall.room }}</span>
+                            </span>
+                            <span class="material-symbols-outlined text-base-400">chevron_right</span>
+                        </a>
+                    {% empty %}
+                        <p class="p-5 text-base-500 dark:text-base-400">No walls have been added yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <div class="flex flex-col gap-6">
+                <section class="bg-white border border-base-200 rounded-default shadow-xs dark:bg-base-900 dark:border-base-700">
+                    <div class="border-b border-base-200 p-5 dark:border-base-700">
+                        <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">Quick actions</h2>
+                    </div>
+                    <div class="flex flex-col p-3">
+                        {% for action in quick_actions %}
+                            <a class="flex items-center gap-3 p-3 rounded-default hover:bg-base-50 dark:hover:bg-base-800" href="{{ action.link }}">
+                                <span class="material-symbols-outlined text-primary-600 dark:text-primary-500">{{ action.icon }}</span>
+                                <span class="font-medium">{{ action.title }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="bg-white border border-base-200 rounded-default shadow-xs dark:bg-base-900 dark:border-base-700">
+                    <div class="border-b border-base-200 p-5 dark:border-base-700">
+                        <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">Recently derived graffiti</h2>
+                    </div>
+                    <div class="divide-y divide-base-200 dark:divide-base-700">
+                        {% for photo in recent_photos %}
+                            <a class="block p-4 hover:bg-base-50 dark:hover:bg-base-800" href="{% url 'admin:graffiti_graffitiphoto_change' photo.pk %}">
+                                <span class="block font-medium text-font-important-light dark:text-font-important-dark">{{ photo.identifier }}</span>
+                                <span class="block mt-1 text-base-500 text-sm dark:text-base-400">{{ photo.graffiti_wall.name }}</span>
+                            </a>
+                        {% empty %}
+                            <p class="p-5 text-base-500 dark:text-base-400">No graffiti photos have been derived yet.</p>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

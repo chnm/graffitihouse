@@ -1,35 +1,21 @@
 # Configuration file for the Sphinx documentation builder.
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
-import sys
+import tomllib
+from pathlib import Path
 
-import django
-
-sys.path.insert(0, os.path.abspath(".."))
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "graffitihouse.settings"
-django.setup()
-
-from graffitihouse import __version__
-
-# -- Project information -----------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_METADATA = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())[
+    "project"
+]
 
 project = "Graffiti House"
-copyright = "2023, Roy Rosenzweig Center for History and New Media"
+copyright = "2026, Roy Rosenzweig Center for History and New Media"
 author = "Roy Rosenzweig Center for History and New Media"
-description = "Django web application and other code for the Graffiti House project"
+description = "Django web application and code for the Graffiti House project"
 
+version = PROJECT_METADATA["version"]
+release = version
 
-# The short X.Y version.
-version = __version__
-# The full version, including alpha/beta/rc tags.
-release = __version__
-
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
@@ -39,34 +25,17 @@ extensions = [
     "sphinx.ext.githubpages",
 ]
 
-# Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-
-# -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
 html_theme = "alabaster"
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-
 html_theme_options = {
     "description": description,
     "github_user": "chnm",
-    "github_repo": "chnm",
+    "github_repo": "graffitihouse",
     "codecov_button": True,
 }
-
 html_sidebars = {
     "**": [
         "about.html",
@@ -77,22 +46,16 @@ html_sidebars = {
     ],
 }
 
-# Configure for intersphinx for Python standard library, Django,
-# and local dependencies with sphinx docs.
 intersphinx_mapping = {
-    "https://docs.python.org/3/": None,
-    "django": ("https://django.readthedocs.org/en/latest/", None),
-    "djiffy": ("https://princeton-cdh.github.io/djiffy/", None),
-    "viapy": ("https://viapy.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "django": ("https://docs.djangoproject.com/en/stable/", None),
 }
 
-
 coverage_ignore_pyobjects = [
-    # django auto-generated model methods
     "clean_fields",
     "get_deferred_fields",
     "get_(next|previous)_by_(created|last_modified|modified)",
     "refresh_from_db",
-    "get_.*_display",  # django auto-generated method for choice fields
-    "get_doc_relation_list",  # multiselectfield auto method
+    "get_.*_display",
+    "get_doc_relation_list",
 ]

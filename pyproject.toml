@@ -3,45 +3,69 @@ name = "graffitihouse"
 version = "0.1.0"
 description = "Web application for Graffiti House"
 authors = [
-    {name = "Jason Heppler", email = "jason.heppler@gmail.com"}
+    {name = "Jason Heppler", email = "jheppler@gmu.edu"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=5.1.8",
-    "django-extensions>=4.1",
-    "pillow>=11.2.1",
-    "django-tailwind>=4.0.1",
-    "django-browser-reload>=1.18.0",
-    "psycopg2>=2.9.5",
-    "python-dotenv>=1.1.0",
-    "django-environ>=0.12.0",
+    "django>=6.1",
+    "pillow>=12.3.0",
+    "django-tailwind>=4.5.0",
+    "psycopg2-binary>=2.9.12",
+    "django-environ>=0.14.0",
+    "whitenoise>=6.12.0",
     "django-prose>=2.1.0",
-    "django-admin-interface>=0.30.0",
-    "django-multiselectfield>=0.1.12",
-    "django-debug-toolbar>=5.1.0",
-    "django-import-export>=4.3.7",
-    "geopy>=2.4.1",
-    "django-dbml>=0.10.1",
+    "django-import-export>=4.4.1",
+    "geopy>=2.5.0",
     "django-taggit>=6.1.0",
     "taggit-selectize>=2.11.0",
-    "django-leaflet>=0.31.0",
-    "django-simple-history>=3.8.0",
+    "django-simple-history>=3.13.0",
     # taggit-selectize imports `six` at runtime but does not declare it; pin it
     # explicitly so uv installs it (Poetry's old lock happened to include it).
     "six>=1.16.0",
+    "django-unfold>=0.105.0",
+    "django-allauth>=65.19.3",
 ]
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
-    "djhtml>=3.0.6",
-    "pre-commit>=4.2.0",
-    "pytest-sugar>=1.0.0",
-    "pytest-django>=4.11.1",
-    "pylint-django>=2.5.3",
+    "black>=26.5.1",
+    "django-browser-reload>=1.21.0",
+    "django-debug-toolbar>=7.1.1",
+    "djhtml>=3.0.11",
+    "pre-commit>=4.6.2",
+    "pytest-cov>=7.0.0",
+    "pytest-django>=4.14.0",
+    "pytest-sugar>=1.1.1",
+    "pylint-django>=2.8.0",
+    "ruff>=0.16.4",
 ]
 
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py"]
+pythonpath = ["."]
+testpaths = ["accounts", "graffiti", "multispectral", "pages", "people", "source", "tests"]
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+source = ["accounts", "config", "graffiti", "pages", "people", "source"]
+omit = ["*/migrations/*", "*/apps.py", "config/asgi.py", "config/wsgi.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+extend-exclude = ["*/migrations/*.py"]
+
+[tool.ruff.lint]
+ignore = ["E501"]
+select = ["E", "F", "I", "UP"]
