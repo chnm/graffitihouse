@@ -97,7 +97,7 @@ class Site(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("detail", kwargs={"site_id": self.id})
+        return reverse("graffiti:site_detail", kwargs={"site_id": self.id})
 
 
 # Graffiti is a specific wall from a site.
@@ -151,7 +151,7 @@ class GraffitiWall(models.Model):
     )
 
     def get_absolute_url(self):
-        return reverse("detail", kwargs={"graffiti_id": self.id})
+        return reverse("graffiti:overall_image", kwargs={"wall_id": self.id})
 
     def description_as_markdown(self):
         return mark_safe(self.description)
