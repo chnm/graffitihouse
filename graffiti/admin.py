@@ -193,15 +193,10 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
     history_list_display = ["changed_fields"]
 
 
-class GraffitiPhotoInline(TabularInline):
-    model = Person
-    extra = 1
-
-
 class GraffitiPhotoAdmin(HistoryImportExportAdmin):
-    list_display = ("graffiti_type", "description", "get_associated_wall")
+    list_display = ("graffiti_type", "identifier", "description", "get_associated_wall")
+    search_fields = ("identifier",)
     readonly_fields = ("coordinates",)
-    inlines = [GraffitiPhotoInline]
     formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
@@ -296,6 +291,7 @@ class PersonAdmin(HistoryImportExportAdmin):
         "first_name",
     )
     inlines = [AliasInline, ServiceInline]
+    autocomplete_fields = ("associated_graffiti_photos",)
 
 
 admin.site.register(Person, PersonAdmin)

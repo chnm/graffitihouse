@@ -31,6 +31,7 @@ def person_detail(request, person_id):
         "aliases": aliases,
         "organizations": organizations,
         "service_records": service_records,
+        "associated_photos": person.associated_graffiti_photos.all(),
     }
 
     return render(request, "people/person_detail.html", context)

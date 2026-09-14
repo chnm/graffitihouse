@@ -20,13 +20,11 @@ class Person(models.Model):
     date_of_death = models.DateField(
         blank=True, null=True, help_text="Enter the date as YYYY-MM-DD."
     )
-    associated_graffiti_photo = models.ForeignKey(
+    associated_graffiti_photos = models.ManyToManyField(
         GraffitiPhoto,
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
-        related_name="graffiti_associated_person",
-        verbose_name="Associated photo",
+        related_name="associated_people",
+        verbose_name="Associated photos",
     )
     tags = TaggableManager(blank=True)
 
