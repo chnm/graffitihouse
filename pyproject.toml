@@ -9,10 +9,10 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=6.1",
+    "django>=6.1.1",
     "pillow>=12.3.0",
     "django-tailwind>=4.5.0",
-    "psycopg2-binary>=2.9.12",
+    "psycopg2-binary>=2.9.13",
     "django-environ>=0.14.0",
     "whitenoise>=6.12.0",
     "django-prose>=2.1.0",
@@ -23,7 +23,7 @@ dependencies = [
     "django-simple-history>=3.13.0",
     # taggit-selectize imports `six` at runtime but does not declare it; pin it
     # explicitly so uv installs it (Poetry's old lock happened to include it).
-    "six>=1.16.0",
+    "six>=1.17.0",
     "django-unfold>=0.105.0",
     "django-allauth>=65.19.3",
 ]
@@ -32,14 +32,14 @@ dependencies = [
 dev = [
     "black>=26.5.1",
     "django-browser-reload>=1.21.0",
-    "django-debug-toolbar>=7.1.1",
+    "django-debug-toolbar>=8.0.0",
     "djhtml>=3.0.11",
     "pre-commit>=4.6.2",
-    "pytest-cov>=7.0.0",
+    "pytest-cov>=7.1.0",
     "pytest-django>=4.14.0",
     "pytest-sugar>=1.1.1",
     "pylint-django>=2.8.0",
-    "ruff>=0.16.4",
+    "ruff>=0.16.7",
 ]
 
 [tool.uv]
