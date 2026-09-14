@@ -3,7 +3,6 @@ import logging
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from geopy.geocoders import Nominatim
 from prose.fields import RichTextField
@@ -135,12 +134,6 @@ class GraffitiWall(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
-    # When a user draws a selection of graffiti, a new canvas coordinate
-    # is added to the graffiti_has_part table
-    def add_canvas(self, canvas):
-        self.canvas = canvas
-        self.save()
-
     def __str__(self):
         return self.name
 
@@ -150,54 +143,19 @@ class GraffitiWall(models.Model):
     def description_as_markdown(self):
         return mark_safe(self.description)
 
-    description_as_markdown.allow_tags = True
 
-    def image_canvas(self):
-        if self.image:
-            return format_html(
-                '<img src="{}" style="width:100px; height:100px;" />',
-                self.image.url,
-            )
-        else:
-            return "No Image Found"
-
-    image_canvas.short_description = "Image"
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "image": self.image.url,
-            "name": self.name,
-            "description": self.description,
-            "room": self.room,
-            "spatial_position": self.spatial_position,
-            "identifier": self.identifier,
-            "date_taken": self.date_taken,
-        }
-
-    def rollback(self, version):
-        history_entry = self.history.filter(id__lte=version).order_by("-id").first()
-        if history_entry:
-            data = history_entry.data
-            for key, value in data:
-                setattr(self, key, value)
-            self.save()
-        else:
-            raise ValueError("Invalid version for rollback.")
+class GraffitiType(models.TextChoices):
+    DRAWING = "drawing", "drawing"
+    IMAGE = "image", "image"
+    NAME = "name", "name"
+    POETRY = "poetry", "poetry"
+    UNIT = "unit", "unit"
+    OTHER_WRITING = "other writing", "other writing"
+    OTHER = "other", "other"
 
 
 class GraffitiPhoto(models.Model):
     """GraffitiPhoto refers to a specific piece of graffiti on an overall wall."""
-
-    GRAFFITI_TYPES = (
-        ("drawing", "drawing"),
-        ("image", "image"),
-        ("name", "name"),
-        ("poetry", "poetry"),
-        ("unit", "unit"),
-        ("other writing", "other writing"),
-        ("other", "other"),
-    )
 
     id = models.BigAutoField(primary_key=True)
     graffiti_wall = models.ForeignKey(
@@ -206,7 +164,9 @@ class GraffitiPhoto(models.Model):
         verbose_name="Graffiti wall",
         help_text="Select the graffiti wall this photo belongs to.",
     )
-    graffiti_type = models.CharField(null=True, max_length=100, choices=GRAFFITI_TYPES)
+    graffiti_type = models.CharField(
+        null=True, max_length=100, choices=GraffitiType.choices
+    )
     description = RichTextField(blank=True, null=True)
     image = models.ImageField(upload_to="images/derived/", null=True)
     identifier = models.CharField(
@@ -224,21 +184,6 @@ class GraffitiPhoto(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
-
-    def image_canvas(self):
-        if self.image:
-            return format_html(
-                '<img src="{}" style="width:100px; height:100px;" />',
-                self.image.url,
-            )
-        else:
-            return "No Image Found"
-
-    image_canvas.short_description = "Image"
-
-    def save(self, *args, **kwargs):
-        print("Saving with coordinates:", self.coordinates)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         graffiti_type = self.graffiti_type or "No type"

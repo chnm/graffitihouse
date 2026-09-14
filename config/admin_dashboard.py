@@ -7,43 +7,46 @@ from source.models import AncillarySource
 
 def dashboard_callback(request, context):
     """Populate the Unfold admin index with project-level activity."""
-    stats = []
-    if request.user.has_perm("graffiti.view_graffitiwall"):
-        stats.append(
-            {
-                "title": "Walls",
-                "value": GraffitiWall.objects.count(),
-                "icon": "imagesmode",
-                "link": reverse("admin:graffiti_graffitiwall_changelist"),
-            }
-        )
-    if request.user.has_perm("graffiti.view_graffitiphoto"):
-        stats.append(
-            {
-                "title": "Graffiti photos",
-                "value": GraffitiPhoto.objects.count(),
-                "icon": "photo_library",
-                "link": reverse("admin:graffiti_graffitiphoto_changelist"),
-            }
-        )
-    if request.user.has_perm("people.view_person"):
-        stats.append(
-            {
-                "title": "People",
-                "value": Person.objects.count(),
-                "icon": "person",
-                "link": reverse("admin:people_person_changelist"),
-            }
-        )
-    if request.user.has_perm("source.view_ancillarysource"):
-        stats.append(
-            {
-                "title": "Sources",
-                "value": AncillarySource.objects.count(),
-                "icon": "description",
-                "link": reverse("admin:source_ancillarysource_changelist"),
-            }
-        )
+    stat_definitions = (
+        (
+            "graffiti.view_graffitiwall",
+            "Walls",
+            GraffitiWall,
+            "imagesmode",
+            "admin:graffiti_graffitiwall_changelist",
+        ),
+        (
+            "graffiti.view_graffitiphoto",
+            "Graffiti photos",
+            GraffitiPhoto,
+            "photo_library",
+            "admin:graffiti_graffitiphoto_changelist",
+        ),
+        (
+            "people.view_person",
+            "People",
+            Person,
+            "person",
+            "admin:people_person_changelist",
+        ),
+        (
+            "source.view_ancillarysource",
+            "Sources",
+            AncillarySource,
+            "description",
+            "admin:source_ancillarysource_changelist",
+        ),
+    )
+    stats = [
+        {
+            "title": title,
+            "value": model.objects.count(),
+            "icon": icon,
+            "link": reverse(url_name),
+        }
+        for permission, title, model, icon, url_name in stat_definitions
+        if request.user.has_perm(permission)
+    ]
 
     quick_actions = []
     action_definitions = (

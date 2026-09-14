@@ -29,9 +29,7 @@ def overall_image_view(request, wall_id):
             "image_url": image.image.url if image.image else "",
             "coordinates": coordinates,
             "detail_url": reverse("graffiti:derived_image_detail", args=[image.id]),
-            "tags": [tag.name for tag in image.tags.all()]
-            if image.tags.exists()
-            else [],
+            "tags": [tag.name for tag in image.tags.all()],
             "created_at": image.created_at.strftime("%B %d, %Y"),
             "updated_at": image.updated_at.strftime("%B %d, %Y"),
         }
@@ -39,7 +37,7 @@ def overall_image_view(request, wall_id):
     context = {
         "wall": wall,
         "derived_images": json.dumps(derived_images_data),
-        "derived_images_objects": derived_images,  # Add the actual QuerySet for Django template usage
+        "derived_images_objects": derived_images,
     }
     return render(request, "graffiti/wall_overview.html", context)
 

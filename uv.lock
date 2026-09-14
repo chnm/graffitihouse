@@ -245,15 +245,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-dbml"
-version = "0.11.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6f/9b/057ae22821703ee2a3e9da90c5ebdf79517bdb68220767f974f11bed25d4/django_dbml-0.11.0.tar.gz", hash = "sha256:2a66207b140e8c3e3e9461738c6e97a09c3a27c844f2b76179b9bf71d617398b", size = 9126, upload-time = "2026-03-30T16:40:58.118Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/5a/96d79efbc3c4796ed735a04a1fccf9da93c3b5850b986e6b1668f15b8196/django_dbml-0.11.0-py3-none-any.whl", hash = "sha256:7757791b82a77b06d8e386c7d3d77bc632bcb8645208dffada699cee444c9f58", size = 9482, upload-time = "2026-03-30T16:40:56.982Z" },
-]
-
-[[package]]
 name = "django-debug-toolbar"
 version = "7.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -299,30 +290,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/92/32/5b83cc46a70ac94c1d17144097bf8aee7d9bb401d0863652c8d5ce1d2e50/django_import_export-4.4.1.tar.gz", hash = "sha256:165dc7fdcd56a6356342eef3f88f3f3682b64b6f67e9a259a137e8b57aeff10c", size = 2238690, upload-time = "2026-05-05T12:42:44.295Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/91/d1/110aeb2acffea56d4222861b5678c2643f0bda00081e40d687077348bb7c/django_import_export-4.4.1-py3-none-any.whl", hash = "sha256:8be2782e505ae303ccb02070a1b4c528995922126fca9ee449eb28666835dd4b", size = 157691, upload-time = "2026-05-05T12:42:42.554Z" },
-]
-
-[[package]]
-name = "django-leaflet"
-version = "0.34.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/00/d5/6834b008016d93b38994ed79d588fa8092368eafbca726384bf5f27f8ba0/django_leaflet-0.34.0.tar.gz", hash = "sha256:8336e72a7bbff0b363054982f02ac1d7a3bcb2b2fa4bca326014dddeaeb7c515", size = 562474, upload-time = "2026-08-17T08:40:23.438Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/5f/80737f1508b35c76b45d5e7c190f94664d1abf9789b0ce99526e25fd154b/django_leaflet-0.34.0-py3-none-any.whl", hash = "sha256:367f74c63709c1b466b740e0e7bd50cdc0d76f08cab2d6566af1559818d79cc2", size = 577241, upload-time = "2026-08-17T08:40:21.808Z" },
-]
-
-[[package]]
-name = "django-multiselectfield"
-version = "1.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/04/9a/27060e8aa491ff2d286054df2e89df481a8dfe0e5e459fa36c0f48e3c10c/django_multiselectfield-1.0.1.tar.gz", hash = "sha256:3f8b4fff3e07d4a91c8bb4b809bc35caeb22b41769b606f4c9edc53b8d72a667", size = 22025, upload-time = "2025-06-12T14:41:21.599Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/10/23c0644cf67567bbe4e3a2eeeec0e9c79b701990c0e07c5ee4a4f8897f91/django_multiselectfield-1.0.1-py3-none-any.whl", hash = "sha256:18dc14801f7eca844a48e21cba6d8ec35b9b581f2373bbb2cb75e6994518259a", size = 20481, upload-time = "2025-06-12T14:41:20.107Z" },
 ]
 
 [[package]]
@@ -432,12 +399,9 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "django" },
-    { name = "django-dbml" },
     { name = "django-environ" },
     { name = "django-extensions" },
     { name = "django-import-export" },
-    { name = "django-leaflet" },
-    { name = "django-multiselectfield" },
     { name = "django-prose" },
     { name = "django-simple-history" },
     { name = "django-taggit" },
@@ -468,12 +432,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=6.1" },
-    { name = "django-dbml", specifier = ">=0.11.0" },
     { name = "django-environ", specifier = ">=0.14.0" },
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-import-export", specifier = ">=4.4.1" },
-    { name = "django-leaflet", specifier = ">=0.34.0" },
-    { name = "django-multiselectfield", specifier = ">=1.0.1" },
     { name = "django-prose", specifier = ">=2.1.0" },
     { name = "django-simple-history", specifier = ">=3.13.0" },
     { name = "django-taggit", specifier = ">=6.1.0" },

@@ -101,17 +101,17 @@ class Archive(models.Model):
         return reverse("detail", kwargs={"archive_id": self.id})
 
 
-class DocumentPersonRole(models.Model):
-    ROLE_CHOICES = (
-        ("SENDER", "Sender"),
-        ("RECIPIENT", "Recipient"),
-        ("GRANTEE", "Grantee"),
-        ("GRANTOR", "Grantor"),
-    )
+class DocumentRole(models.TextChoices):
+    SENDER = "SENDER", "Sender"
+    RECIPIENT = "RECIPIENT", "Recipient"
+    GRANTEE = "GRANTEE", "Grantee"
+    GRANTOR = "GRANTOR", "Grantor"
 
+
+class DocumentPersonRole(models.Model):
     person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
     document = models.ForeignKey(AncillarySource, on_delete=models.CASCADE)
-    role = models.CharField(max_length=100, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=100, choices=DocumentRole.choices)
 
     history = HistoricalRecords()
 

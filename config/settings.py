@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     "theme",
     "django.contrib.staticfiles",
     "django_extensions",
-    "django_dbml",
     "simple_history",
     # apps:
     "graffiti",
@@ -95,9 +94,7 @@ UNFOLD = {
                     {
                         "title": "Walls",
                         "icon": "imagesmode",
-                        "link": reverse_lazy(
-                            "admin:graffiti_graffitiwall_changelist"
-                        ),
+                        "link": reverse_lazy("admin:graffiti_graffitiwall_changelist"),
                         "permission": lambda request: request.user.has_perm(
                             "graffiti.view_graffitiwall"
                         ),
@@ -105,9 +102,7 @@ UNFOLD = {
                     {
                         "title": "Graffiti photos",
                         "icon": "photo_library",
-                        "link": reverse_lazy(
-                            "admin:graffiti_graffitiphoto_changelist"
-                        ),
+                        "link": reverse_lazy("admin:graffiti_graffitiphoto_changelist"),
                         "permission": lambda request: request.user.has_perm(
                             "graffiti.view_graffitiphoto"
                         ),
@@ -137,9 +132,7 @@ UNFOLD = {
                     {
                         "title": "Ancillary sources",
                         "icon": "description",
-                        "link": reverse_lazy(
-                            "admin:source_ancillarysource_changelist"
-                        ),
+                        "link": reverse_lazy("admin:source_ancillarysource_changelist"),
                         "permission": lambda request: request.user.has_perm(
                             "source.view_ancillarysource"
                         ),
@@ -169,9 +162,7 @@ UNFOLD = {
                     {
                         "title": "Users",
                         "icon": "manage_accounts",
-                        "link": reverse_lazy(
-                            "admin:accounts_customuser_changelist"
-                        ),
+                        "link": reverse_lazy("admin:accounts_customuser_changelist"),
                         "permission": lambda request: request.user.has_perm(
                             "accounts.view_customuser"
                         ),
@@ -268,9 +259,7 @@ DATABASE_ALLOW_MIGRATIONS = (
 
 default_database = DATABASES["default"]
 default_database["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
-default_database["CONN_HEALTH_CHECKS"] = env.bool(
-    "DB_CONN_HEALTH_CHECK", default=True
-)
+default_database["CONN_HEALTH_CHECKS"] = env.bool("DB_CONN_HEALTH_CHECK", default=True)
 
 if default_database["ENGINE"] == "django.db.backends.postgresql":
     database_options = default_database.setdefault("OPTIONS", {})

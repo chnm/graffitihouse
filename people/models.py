@@ -67,29 +67,29 @@ class Organization(models.Model):
         return self.name
 
 
+class Governance(models.TextChoices):
+    UNION = "union", "Union"
+    CONFEDERACY = "confederacy", "Confederacy"
+
+
+class Branch(models.TextChoices):
+    ARMY = "army", "Army"
+    NAVY = "navy", "Navy"
+    CAVALRY = "cavalry", "Cavalry"
+    COAST_GUARD = "coastguard", "Coast Guard"
+
+
 class Service(models.Model):
-    GOV_CHOICES = (
-        ("union", "Union"),
-        ("confederacy", "Confederacy"),
-    )
-
-    BRANCH_CHOICES = (
-        ("army", "Army"),
-        ("navy", "Navy"),
-        ("cavalry", "Cavalry"),
-        ("coastguard", "Coast Guard"),
-    )
-
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
     military_rank = models.CharField(blank=True, max_length=255)
     military_unit = models.CharField(blank=True, max_length=255)
     military_branch = models.CharField(
-        blank=True, max_length=255, choices=BRANCH_CHOICES
+        blank=True, max_length=255, choices=Branch.choices
     )
     military_division = models.CharField(blank=True, max_length=255)
     military_governance = models.CharField(
-        blank=True, max_length=11, choices=GOV_CHOICES
+        blank=True, max_length=11, choices=Governance.choices
     )
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

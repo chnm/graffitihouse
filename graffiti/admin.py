@@ -1,10 +1,9 @@
 import base64
 import json
-import traceback
+import logging
 
 from django.contrib import admin
 from django.core.files.base import ContentFile
-from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
@@ -15,11 +14,12 @@ from simple_history.admin import SimpleHistoryAdmin
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.contrib.import_export.forms import ExportForm, ImportForm
 from unfold.views import UnfoldModelAdminViewMixin
-from unfold.widgets import UnfoldAdminFileFieldWidget
 
-from graffiti.models import GraffitiPhoto, GraffitiWall, Location, Site
+from graffiti.models import GraffitiPhoto, GraffitiType, GraffitiWall, Location, Site
 from people.models import Alias, Organization, Person, Service
 from source.models import AncillarySource, Archive, DocumentPersonRole
+
+logger = logging.getLogger(__name__)
 
 
 class HistoryImportExportAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
@@ -30,32 +30,6 @@ class HistoryImportExportAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin
 @admin.register(Archive)
 class ArchiveAdmin(ModelAdmin):
     pass
-
-
-class CustomAdminFileWidget(UnfoldAdminFileFieldWidget):
-    def render(self, name, value, attrs=None, renderer=None):
-        if name == "image" and value and hasattr(value, "url"):
-            return format_html(
-                """<div style="display: flex; flex-direction: column; gap: 10px;">
-                      <div>
-                        <a href="{}" target="_blank">
-                          <img src="{}" alt="{}" width="500" height="500"
-                               style="object-fit: cover;" />
-                        </a>
-                      </div>
-                      <div>{}</div>
-                    </div>""",
-                value.url,
-                value.url,
-                value,
-                super().render(name, value, attrs, renderer),
-            )
-
-        return format_html(
-            '<div style="display: flex; flex-direction: column; gap: 10px;">'
-            "<div>{}</div></div>",
-            super().render(name, value, attrs, renderer),
-        )
 
 
 class DeriveGraffitiView(UnfoldModelAdminViewMixin, TemplateView):
@@ -76,7 +50,7 @@ class DeriveGraffitiView(UnfoldModelAdminViewMixin, TemplateView):
             {
                 "graffiti_wall": graffiti_wall,
                 "opts": self.model_admin.model._meta,
-                "graffiti_types": GraffitiPhoto.GRAFFITI_TYPES,
+                "graffiti_types": GraffitiType.choices,
                 "wall_image_url": graffiti_wall.image.url,
                 "derived_photos": json.dumps(derived_data),
             }
@@ -92,8 +66,6 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
         "get_derive_button",
         "created_at",
     )
-    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
-    actions = ["rollback_to_previous"]
 
     def get_derive_button(self, obj):
         return format_html(
@@ -126,9 +98,6 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
     def save_derived_graffiti(self, request):
         try:
             data = json.loads(request.body)
-
-            # Log the received metadata
-            print("Received metadata:", json.dumps(data["metadata"], indent=2))
 
             # Extract base64 image data
             image_data = data["image"].split(",")[1]
@@ -170,8 +139,7 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
             return JsonResponse({"success": True, "photo_id": graffiti_photo.id})
 
         except KeyError as e:
-            print("KeyError accessing metadata:", str(e))
-            print("Received data structure:", data)
+            logger.warning("Derived photo payload missing %s", e)
             return JsonResponse(
                 {
                     "success": False,
@@ -182,8 +150,7 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
             )
 
         except Exception as e:
-            print("Error saving graffiti photo:", str(e))
-            print("Traceback:", traceback.format_exc())
+            logger.exception("Error saving derived graffiti photo")
             return JsonResponse(
                 {"success": False, "error": "Server error", "details": str(e)},
                 status=500,
@@ -197,7 +164,6 @@ class GraffitiPhotoAdmin(HistoryImportExportAdmin):
     list_display = ("graffiti_type", "identifier", "description", "get_associated_wall")
     search_fields = ("identifier",)
     readonly_fields = ("coordinates",)
-    formfield_overrides = {models.ImageField: {"widget": CustomAdminFileWidget}}
 
     def get_associated_wall(self, obj):
         return format_html(

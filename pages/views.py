@@ -21,9 +21,7 @@ class HomePageView(TemplateView):
                 "type": "Wall",
                 "url": reverse("graffiti:overall_image", args=[wall.pk]),
             }
-            for wall in GraffitiWall.objects.exclude(image="")
-            .filter(image__isnull=False)
-            .order_by("?")[:3]
+            for wall in GraffitiWall.objects.exclude(image="").order_by("?")[:3]
         ]
         masonry_images.extend(
             {
@@ -32,9 +30,7 @@ class HomePageView(TemplateView):
                 "type": "Graffiti",
                 "url": reverse("graffiti:derived_image_detail", args=[photo.pk]),
             }
-            for photo in GraffitiPhoto.objects.exclude(image="")
-            .filter(image__isnull=False)
-            .order_by("?")[:3]
+            for photo in GraffitiPhoto.objects.exclude(image="").order_by("?")[:3]
         )
         random.shuffle(masonry_images)
         context["masonry_images"] = masonry_images[:3]

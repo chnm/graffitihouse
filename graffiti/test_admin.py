@@ -72,7 +72,10 @@ class GraffitiAdminTest(TestCase):
         self.assertIn(reverse("admin:people_person_changelist"), links)
         self.assertIn(reverse("admin:accounts_customuser_changelist"), links)
         self.assertEqual(
-            {stat["title"]: stat["value"] for stat in response.context["dashboard_stats"]},
+            {
+                stat["title"]: stat["value"]
+                for stat in response.context["dashboard_stats"]
+            },
             {"Walls": 1, "Graffiti photos": 1, "People": 0, "Sources": 0},
         )
 
@@ -85,7 +88,9 @@ class GraffitiAdminTest(TestCase):
         self.assertContains(response, self.wall.image.url)
 
     def test_derive_view_uses_unfold_admin_context(self):
-        response = self.client.get(reverse("admin:derive-graffiti", args=[self.wall.pk]))
+        response = self.client.get(
+            reverse("admin:derive-graffiti", args=[self.wall.pk])
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["title"], "Derive graffiti photo")
