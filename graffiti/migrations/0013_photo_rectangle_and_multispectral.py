@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 def copy_rectangles(apps, schema_editor):
     GraffitiPhoto = apps.get_model("graffiti", "GraffitiPhoto")
-    for photo in GraffitiPhoto.objects.exclude(coordinates=None):
+    for photo in GraffitiPhoto.objects.filter(coordinates__isnull=False):
         canvas = (photo.coordinates or {}).get("canvas") or {}
         if all(key in canvas for key in ("x", "y", "width", "height")):
             photo.x, photo.y = canvas["x"], canvas["y"]

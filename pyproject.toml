@@ -26,6 +26,7 @@ dependencies = [
     # explicitly so uv installs it (Poetry's old lock happened to include it).
     "six>=1.16.0",
     "django-unfold>=0.105.0",
+    "django-allauth>=65.19.3",
 ]
 
 [dependency-groups]

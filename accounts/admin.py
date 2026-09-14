@@ -15,15 +15,12 @@ class CustomUserAdmin(BaseUserAdmin, ModelAdmin):
     change_password_form = AdminPasswordChangeForm
     model = CustomUser
 
-    list_display = (
-        "username",
-        "email",
-        "is_staff",
-        "is_active",
-        "is_student",
-        "is_volunteer",
-        "is_contributor",
-    )
+    list_display = ("username", "email", "is_staff", "is_active", "role_names")
+    list_filter = ("is_staff", "is_active", "groups")
+
+    @admin.display(description="Roles")
+    def role_names(self, obj):
+        return ", ".join(group.name for group in obj.groups.all())
 
     fieldsets = (
         (None, {"fields": ("username", "password")}),
@@ -40,7 +37,6 @@ class CustomUserAdmin(BaseUserAdmin, ModelAdmin):
                 )
             },
         ),
-        ("User type", {"fields": ("is_student", "is_volunteer", "is_contributor")}),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 

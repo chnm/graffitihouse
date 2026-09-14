@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "simple_history",
+    "allauth",
+    "allauth.account",
     # apps:
     "graffiti",
     "people",
@@ -191,6 +193,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
@@ -282,6 +285,47 @@ if default_database["ENGINE"] == "django.db.backends.postgresql":
         )
 
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+# Authentication (django-allauth)
+# ------------------------------------------------------------------------------
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+ACCOUNT_ADAPTER = "accounts.adapter.InviteOnlyAccountAdapter"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*"]
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+ACCOUNT_LOGIN_BY_CODE_SUPPORTS_RESEND = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGOUT_ON_GET = False
+LOGIN_REDIRECT_URL = "/admin/"
+LOGOUT_REDIRECT_URL = "/"
+
+# Email. Login codes and password resets go through this backend.
+# Examples: consolemail:// (default, prints to the terminal),
+# smtp+tls://user:pass@smtp.example.org:587
+_email = env.email_url("EMAIL_URL", default="consolemail://")
+_email_options = {
+    "EMAIL_HOST": "host",
+    "EMAIL_PORT": "port",
+    "EMAIL_HOST_USER": "username",
+    "EMAIL_HOST_PASSWORD": "password",
+    "EMAIL_USE_TLS": "use_tls",
+    "EMAIL_USE_SSL": "use_ssl",
+    "EMAIL_FILE_PATH": "file_path",
+}
+MAILERS = {
+    "default": {
+        "BACKEND": _email["EMAIL_BACKEND"],
+        "OPTIONS": {
+            name: _email[key]
+            for key, name in _email_options.items()
+            if _email.get(key) not in ("", None)
+        },
+    }
+}
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="graffitihouse@localhost")
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]

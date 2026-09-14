@@ -32,6 +32,28 @@ class HistoryImportExportAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin
     export_form_class = ExportForm
 
 
+class OwnedAdminMixin:
+    """Record who created a row, and let creators delete their own rows.
+
+    Users without the model-level delete permission (e.g. Students) may still
+    delete rows they created themselves.
+    """
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def has_delete_permission(self, request, obj=None):
+        if super().has_delete_permission(request, obj):
+            return True
+        return (
+            obj is not None
+            and obj.created_by_id == request.user.id
+            and self.has_change_permission(request, obj)
+        )
+
+
 @admin.register(Archive)
 class ArchiveAdmin(ModelAdmin):
     pass
@@ -74,7 +96,7 @@ class MultispectralImageAdmin(HistoryImportExportAdmin):
 
 
 @admin.register(GraffitiWall)
-class GraffitiWallAdmin(HistoryImportExportAdmin):
+class GraffitiWallAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     search_fields = ("name", "identifier")
     inlines = [MultispectralImageInline]
     list_display = (
@@ -127,6 +149,7 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
                 width=rectangle["width"],
                 height=rectangle["height"],
                 coordinates=coordinates,
+                created_by=request.user,
             )
             graffiti_photo.derive_image()
             graffiti_photo.save()
@@ -153,7 +176,7 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
     history_list_display = ["changed_fields"]
 
 
-class GraffitiPhotoAdmin(HistoryImportExportAdmin):
+class GraffitiPhotoAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     list_display = ("graffiti_type", "identifier", "description", "get_associated_wall")
     search_fields = ("identifier",)
     readonly_fields = ("coordinates",)
@@ -180,7 +203,7 @@ class SourcePersonRoleInline(TabularInline):
     extra = 1
 
 
-class AncillarySourceAdmin(HistoryImportExportAdmin):
+class AncillarySourceAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     list_display = ("title", "date")
     inlines = [SourcePersonRoleInline]
     fieldsets = (
@@ -244,7 +267,7 @@ class OrganizationInline(StackedInline):
     extra = 1
 
 
-class PersonAdmin(HistoryImportExportAdmin):
+class PersonAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
     list_display = (
         "last_name",
         "first_name",

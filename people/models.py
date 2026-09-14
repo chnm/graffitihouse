@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
@@ -34,6 +35,15 @@ class Person(models.Model):
 
     def __str__(self):
         return self.last_name
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
     def get_absolute_url(self):
         return reverse("people:person_detail", kwargs={"person_id": self.id})

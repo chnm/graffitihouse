@@ -1,6 +1,7 @@
 import io
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models
@@ -140,6 +141,15 @@ class GraffitiWall(models.Model):
     def __str__(self):
         return self.name
 
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
     def get_absolute_url(self):
         return reverse("detail", kwargs={"graffiti_id": self.id})
 
@@ -185,6 +195,14 @@ class GraffitiPhoto(models.Model):
     height = models.PositiveIntegerField(null=True, blank=True)
     coordinates = models.JSONField(
         null=True, blank=True, help_text="Raw metadata captured by the crop tool."
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
