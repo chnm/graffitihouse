@@ -1,10 +1,13 @@
+import io
 import logging
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from geopy.geocoders import Nominatim
+from PIL import Image
 from prose.fields import RichTextField
 from simple_history.models import HistoricalRecords
 from taggit_selectize.managers import TaggableManager
@@ -171,21 +174,72 @@ class GraffitiPhoto(models.Model):
     image = models.ImageField(upload_to="images/derived/", null=True)
     identifier = models.CharField(
         max_length=100,
+        unique=True,
         help_text="An auto-generated unique identifier for the photo.",
     )
-    is_part_of = models.ManyToManyField(
-        GraffitiWall,
-        blank=True,
-        help_text="A related resource in which the described resource is physically or logically included.",
-        related_name="graffiti_is_part_of",
-    )
     tags = TaggableManager(blank=True)
-    coordinates = models.JSONField(null=True, blank=True)
+    # Crop rectangle in pixels of the wall's `image`.
+    x = models.PositiveIntegerField(null=True, blank=True)
+    y = models.PositiveIntegerField(null=True, blank=True)
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+    coordinates = models.JSONField(
+        null=True, blank=True, help_text="Raw metadata captured by the crop tool."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
+
+    @property
+    def rectangle(self):
+        if None in (self.x, self.y, self.width, self.height):
+            return None
+        return (self.x, self.y, self.x + self.width, self.y + self.height)
+
+    def derive_image(self):
+        """Crop this photo out of its wall image and store it in `image`.
+
+        Uses the archival image when present, scaling the rectangle from the
+        web image's dimensions, so the derived crop is as sharp as the source.
+        """
+        rectangle = self.rectangle
+        if rectangle is None:
+            return
+        wall = self.graffiti_wall
+        scale = 1
+        if wall.archival_image:
+            scale = wall.archival_image.width / wall.image.width
+        with Image.open(wall.archival_image or wall.image) as source:
+            crop = source.crop(tuple(round(edge * scale) for edge in rectangle))
+            buffer = io.BytesIO()
+            crop.save(buffer, format="PNG")
+        self.image.save(
+            f"derived_{self.identifier}.png", ContentFile(buffer.getvalue()), save=False
+        )
 
     def __str__(self):
         graffiti_type = self.graffiti_type or "No type"
         identifier = self.identifier or "No ID"
         return f"{graffiti_type} - {identifier}"
+
+
+class MultispectralImage(models.Model):
+    """A multispectral capture of a wall, one image per band."""
+
+    graffiti_wall = models.ForeignKey(
+        GraffitiWall, on_delete=models.CASCADE, related_name="multispectral_images"
+    )
+    image = models.ImageField(upload_to="images/multispectral/")
+    band = models.CharField(
+        max_length=100,
+        help_text="Wavelength or band captured, e.g. 'IR 850nm' or 'UV'.",
+    )
+    captured_on = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.graffiti_wall} - {self.band}"

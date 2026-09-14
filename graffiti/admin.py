@@ -1,9 +1,7 @@
-import base64
 import json
 import logging
 
 from django.contrib import admin
-from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
@@ -15,7 +13,14 @@ from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.contrib.import_export.forms import ExportForm, ImportForm
 from unfold.views import UnfoldModelAdminViewMixin
 
-from graffiti.models import GraffitiPhoto, GraffitiType, GraffitiWall, Location, Site
+from graffiti.models import (
+    GraffitiPhoto,
+    GraffitiType,
+    GraffitiWall,
+    Location,
+    MultispectralImage,
+    Site,
+)
 from people.models import Alias, Organization, Person, Service
 from source.models import AncillarySource, Archive, DocumentPersonRole
 
@@ -40,11 +45,9 @@ class DeriveGraffitiView(UnfoldModelAdminViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         graffiti_wall = get_object_or_404(GraffitiWall, id=self.kwargs["wall_id"])
-        derived_photos = GraffitiPhoto.objects.filter(graffiti_wall=graffiti_wall)
         derived_data = [
             {"identifier": photo.identifier, "coords": photo.coordinates}
-            for photo in derived_photos
-            if photo.coordinates and "canvas" in photo.coordinates
+            for photo in graffiti_wall.graffitiphoto_set.exclude(x=None)
         ]
         context.update(
             {
@@ -58,8 +61,22 @@ class DeriveGraffitiView(UnfoldModelAdminViewMixin, TemplateView):
         return context
 
 
+class MultispectralImageInline(TabularInline):
+    model = MultispectralImage
+    extra = 0
+
+
+@admin.register(MultispectralImage)
+class MultispectralImageAdmin(HistoryImportExportAdmin):
+    list_display = ("graffiti_wall", "band", "captured_on")
+    list_filter = ("band",)
+    autocomplete_fields = ("graffiti_wall",)
+
+
 @admin.register(GraffitiWall)
 class GraffitiWallAdmin(HistoryImportExportAdmin):
+    search_fields = ("name", "identifier")
+    inlines = [MultispectralImageInline]
     list_display = (
         "name",
         "description_as_markdown",
@@ -97,47 +114,24 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
 
     def save_derived_graffiti(self, request):
         try:
-            data = json.loads(request.body)
-
-            # Extract base64 image data
-            image_data = data["image"].split(",")[1]
-            image_binary = base64.b64decode(image_data)
-
-            # Create new GraffitiPhoto instance
+            coordinates = json.loads(request.body)["metadata"]["coordinates"]
+            metadata = coordinates["metadata"]
+            rectangle = coordinates["canvas"]
             graffiti_photo = GraffitiPhoto(
-                # Get wall_id from the nested structure
-                graffiti_wall_id=data["metadata"]["coordinates"]["metadata"]["wall_id"],
-                identifier=data["metadata"]["coordinates"]["metadata"]["identifier"],
-                graffiti_type=data["metadata"]["coordinates"]["metadata"][
-                    "graffiti_type"
-                ],
-                description=data["metadata"]["coordinates"]["metadata"]["description"],
-                coordinates=data["metadata"][
-                    "coordinates"
-                ],  # Store all coordinates metadata
+                graffiti_wall_id=metadata["wall_id"],
+                identifier=metadata["identifier"],
+                graffiti_type=metadata["graffiti_type"],
+                description=metadata["description"],
+                x=rectangle["x"],
+                y=rectangle["y"],
+                width=rectangle["width"],
+                height=rectangle["height"],
+                coordinates=coordinates,
             )
-
-            # Save the image
-            image_name = f"derived_{graffiti_photo.identifier}.png"
-            graffiti_photo.image.save(image_name, ContentFile(image_binary), save=False)
-
-            # Save the instance first to get primary key
+            graffiti_photo.derive_image()
             graffiti_photo.save()
-
-            # Now that we have a primary key, we can add tags
-            if data["metadata"]["coordinates"]["metadata"].get("tags"):
-                graffiti_photo.tags.add(
-                    *data["metadata"]["coordinates"]["metadata"]["tags"]
-                )
-
-            # Handle is_part_of relationship
-            if data["metadata"]["coordinates"]["metadata"].get("is_part_of"):
-                graffiti_photo.is_part_of.add(
-                    data["metadata"]["coordinates"]["metadata"]["wall_id"]
-                )
-
+            graffiti_photo.tags.add(*metadata.get("tags", []))
             return JsonResponse({"success": True, "photo_id": graffiti_photo.id})
-
         except KeyError as e:
             logger.warning("Derived photo payload missing %s", e)
             return JsonResponse(
@@ -148,7 +142,6 @@ class GraffitiWallAdmin(HistoryImportExportAdmin):
                 },
                 status=400,
             )
-
         except Exception as e:
             logger.exception("Error saving derived graffiti photo")
             return JsonResponse(

@@ -172,13 +172,6 @@
             <input type="text" id="tags" placeholder="Comma-separated tags">
           </div>
 
-          <div class="control-group">
-            <label>
-              <input type="checkbox" id="isPartOf" checked>
-              Is part of this wall
-            </label>
-          </div>
-
           <div class="button-row">
             <button type="button" onclick="saveDerivedGraffiti()" class="button">Save graffiti photo</button>
             <button type="button" onclick="returnToList()" class="button button-secondary">Return to wall list</button>
@@ -201,7 +194,6 @@
         document.getElementById('graffitiType').value = '';
         document.getElementById('description').value = '';
         document.getElementById('tags').value = '';
-        document.getElementById('isPartOf').checked = true;  // Reset to default checked state
       }
       img.onload = function() {
                 // Initialize map with custom CRS
@@ -383,25 +375,6 @@
                         // Get current timestamp
             const now = new Date();
 
-                        // Create temporary canvas for the cropped image
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = currentRect.canvas.width;
-            tempCanvas.height = currentRect.canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-
-            tempCtx.drawImage(
-              img,
-              currentRect.canvas.x,
-              currentRect.canvas.y,
-              currentRect.canvas.width,
-              currentRect.canvas.height,
-              0,
-              0,
-              currentRect.canvas.width,
-              currentRect.canvas.height
-            );
-
-                        // Split the metadata and image data into separate parts
             const metadata = {
                             // Spatial and measurement data
               coordinates: {
@@ -451,7 +424,6 @@
                   tags: document.getElementById('tags').value ?
                   document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag) :
                   [],
-                  is_part_of: document.getElementById('isPartOf').checked,
                   wall_id: {{ graffiti_wall.id }},
                   parentId: {{ graffiti_wall.id }},
                   derivationType: 'rectangular-selection'
@@ -462,10 +434,7 @@
             };
 
                         // Update the payload structure
-            const payload = {
-              metadata: metadata,
-              image: tempCanvas.toDataURL('image/png')
-            };
+            const payload = { metadata: metadata };
 
                         // Log the metadata (without image data) for debugging
             console.log('Metadata being sent:', metadata);
