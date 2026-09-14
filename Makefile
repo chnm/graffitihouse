@@ -36,9 +36,6 @@ collectstatic:
 superuser:
 	uv run python manage.py createsuperuser
 
-graph-illustrate:
-	uv run python manage.py graph_models -a -g -o models.png
-
 help:
 	@echo "Graffiti House development commands"
 	@echo "  preview           Start the Django development server"
@@ -53,6 +50,5 @@ help:
 	@echo "  show-migrations   Show migration status"
 	@echo "  collectstatic     Collect production static files"
 	@echo "  superuser         Create an administrative user"
-	@echo "  graph-illustrate  Render a model graph"
 
-.PHONY: preview check shell test test-coverage tailwind build-css mm migrate show-migrations collectstatic superuser graph-illustrate help
+.PHONY: preview check shell test test-coverage tailwind build-css mm migrate show-migrations collectstatic superuser help

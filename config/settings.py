@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "tailwind",
     "theme",
     "django.contrib.staticfiles",
-    "django_extensions",
     "simple_history",
     "allauth",
     "allauth.account",
