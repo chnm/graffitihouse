@@ -162,3 +162,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+
+# Project static images are tracked; only uploaded media is ignored.
+!static/images/
