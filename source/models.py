@@ -6,32 +6,39 @@ from taggit_selectize.managers import TaggableManager
 from graffiti.models import GraffitiWall, Location, Site
 
 
+class DocumentType(models.TextChoices):
+    ARTWORK = "artwork", "Artwork"
+    DOCUMENT = "document", "Document"
+    DRAWING = "drawing", "Drawing"
+    GAME = "game", "Game"
+    IMAGE = "image", "Image"
+    LETTER = "letter", "Letter"
+    NEWSPRINT = "newsprint", "Newsprint"
+    PENSION_FILE = "pensionfile", "Pension File"
+    PHOTOGRAPH = "photograph", "Photograph"
+    POEM = "poem", "Poem"
+    SERVICE_RECORD = "servicerecord", "Service Record"
+    WALL = "wall", "Wall"
+    WIDOW_PENSION_FILE = "widowpensionfile", "Widow's Pension File"
+    OTHER = "other", "Other"
+
+
 class AncillarySource(models.Model):
     """
-    Ancellary sources include maps, deeds, service records, letters, and other primary
+    Ancillary sources include maps, deeds, service records, letters, and other primary
     documents related to a specific image. These are connected to specific
     metadata for individual object types. These can be associated with specific
     pieces of graffiti or people.
     """
 
-    DOCUMENT_TYPES = (
-        ("artwork", "Artwork"),
-        ("document", "Document"),
-        ("drawing", "Drawing"),
-        ("game", "Game"),
-        ("image", "Image"),
-        ("letter", "Letter"),
-        ("newsprint", "Newsprint"),
-        ("photograph", "Photograph"),
-        ("poem", "Poem"),
-        ("wall", "Wall"),
-        ("other", "Other"),
-    )
-
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="images/", null=True)
-    item_type = models.CharField(max_length=100, choices=DOCUMENT_TYPES)
+    item_type = models.CharField(
+        max_length=100,
+        choices=DocumentType.choices,
+        default=DocumentType.DOCUMENT,
+    )
     creator = models.CharField(
         max_length=100,
         null=True,
