@@ -14,50 +14,36 @@
       transform: translateY(-5px);
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
-
-        /* Hero section parallax effect */
-    .parallax-hero {
-      background-attachment: fixed;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
   </style>
 {% endblock %}
 
 {% block content %}
     <!-- Hero Section -->
-  <div class="relative overflow-hidden">
-        <!-- Hero image with parallax effect -->
-    <div class="parallax-hero absolute inset-0 w-full h-full" style="background-image: url('{% static 'images/hero-graffiti.jpg' %}');">
-    </div>
+  <section class="relative h-[80vh] min-h-[520px] overflow-hidden bg-cwg-ink-dark">
+    <img
+      src="{% static 'images/hero-graffiti.jpg' %}"
+      alt="A whitewashed plaster wall at the Graffiti House covered in pencil signatures left by Civil War soldiers, including the name George W. Bell."
+      class="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
+      fetchpriority="high"
+    >
+    <div class="pointer-events-none absolute inset-0 shadow-[inset_0_0_140px_40px_rgba(25,28,29,0.35)]"></div>
 
-        <!-- Overlay to darken the image -->
-    <div class="absolute inset-0 bg-cwg-ink opacity-75"></div>
-
-        <!-- Hero content -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-48">
-      <h1 class="text-4xl font-extrabold text-cwg-paper sm:text-5xl lg:text-7xl mb-8 tracking-tight">
-        Preserving Civil War Graffiti
-      </h1>
-      <p class="text-lg text-cwg-paper text-opacity-90 max-w-2xl mb-8">
-        Documenting and preserving historical graffiti left by soldiers during the American Civil War,
-        providing unique insights into the lived experiences of those who fought.
-      </p>
-      <div class="mt-10 space-x-4">
-        <a href="{% url 'graffiti:walls_list' %}" class="btn-cwg-primary inline-flex items-center">
-          Explore Graffiti
-          <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </a>
-        <a href="{% url 'people:people_list' %}" class="btn-cwg-secondary inline-flex items-center">
-          People
-        </a>
+    <div class="absolute bottom-0 left-0 w-full sm:bottom-10 sm:left-8 sm:w-auto sm:max-w-md lg:left-14">
+      <div class="border-t border-cwg-brass bg-cwg-paper/[0.92] px-6 py-7 sm:border sm:px-8 sm:py-8">
+        <p class="mb-3 text-sm uppercase tracking-[0.2em] text-cwg-brass-dark">A digital archive</p>
+        <h1 class="mb-4 text-4xl font-bold leading-[1.05] tracking-tight text-cwg-ink-dark sm:text-5xl">
+          Names on<br>the wall
+        </h1>
+        <p class="mb-6 max-w-sm leading-relaxed text-cwg-ink-light">
+          Soldiers wrote their names in pencil on plaster walls across Virginia. This is the record of who they were.
+        </p>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <a href="{% url 'graffiti:walls_list' %}" class="btn-cwg-primary">Explore Graffiti</a>
+          <a href="{% url 'people:people_list' %}" class="border-b border-cwg-brass pb-0.5 text-cwg-ink-dark transition-colors hover:border-cwg-brass-dark hover:text-cwg-brick">Meet the soldiers</a>
+        </div>
       </div>
     </div>
-
-  </div>
+  </section>
 
     <!-- About Section -->
   <section id="about" class="py-16 bg-cwg-paper">
