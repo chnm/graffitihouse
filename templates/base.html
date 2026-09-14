@@ -94,7 +94,7 @@
       </div>
     </nav>
 
-    <main>{% block content %} {% endblock %}</main>
+    <main>{% block main %}{% block content %} {% endblock %}{% endblock %}</main>
 
     <footer class="border-t-4 border-cwg-brass bg-cwg-ink">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

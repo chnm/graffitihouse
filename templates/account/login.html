@@ -1,0 +1,27 @@
+{% extends "account/base_entrance.html" %}
+{% load i18n allauth account %}
+{% block head_title %}{% trans "Sign In" %}{% endblock head_title %}
+{% block content %}
+  {% element h1 %}{% trans "Sign In" %}{% endelement %}
+  {% element p %}
+    {% blocktranslate %}Accounts are created by the project team. Use the email address you were invited with and we will send you a one-time sign-in code.{% endblocktranslate %}
+  {% endelement %}
+  {% element button href=request_login_code_url tags="prominent,login" %}
+    {% trans "Send me a sign-in code" %}
+  {% endelement %}
+  {% element hr %}{% endelement %}
+  {% element p %}{% trans "Or sign in with your password." %}{% endelement %}
+  {% url 'account_login' as login_url %}
+  {% url 'account_reset_password' as reset_url %}
+  {% element form form=form method="post" action=login_url tags="entrance,login" %}
+    {% slot body %}
+      {% csrf_token %}
+      {% element fields form=form unlabeled=True %}{% endelement %}
+      {{ redirect_field }}
+    {% endslot %}
+    {% slot actions %}
+      {% element button type="submit" tags="prominent,login,outline" %}{% trans "Sign In" %}{% endelement %}
+      {% element button href=reset_url tags="link" %}{% trans "Forgot your password?" %}{% endelement %}
+    {% endslot %}
+  {% endelement %}
+{% endblock content %}

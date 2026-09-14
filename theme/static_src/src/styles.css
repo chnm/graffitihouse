@@ -73,4 +73,14 @@
   .badge-cwg-green {
     @apply rounded-full bg-cwg-sage px-2 py-1 text-xs font-semibold text-cwg-paper;
   }
+
+  .form-cwg input:not([type="checkbox"]):not([type="radio"]),
+  .form-cwg select,
+  .form-cwg textarea {
+    @apply w-full rounded-md border-cwg-paper-dark bg-white text-cwg-ink shadow-sm focus:border-cwg-brass focus:ring-cwg-brass-light;
+  }
+
+  .form-cwg input[type="checkbox"] {
+    @apply rounded border-cwg-paper-dark text-cwg-brick focus:ring-cwg-brass-light;
+  }
 }
