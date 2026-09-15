@@ -5,8 +5,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image
 from django.urls import reverse
+from PIL import Image
 
 from graffiti.models import GraffitiWall, Site
 
