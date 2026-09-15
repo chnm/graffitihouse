@@ -3,7 +3,9 @@ FROM node:24-bookworm-slim AS frontend
 WORKDIR /app/theme/static_src
 COPY theme/static_src/package.json theme/static_src/package-lock.json ./
 RUN npm ci
-COPY theme/static_src/ ./
+# Tailwind's content globs scan templates across the whole repo, so the full
+# tree has to be present or every utility class gets purged from the build.
+COPY . /app/
 RUN mkdir -p /app/static/js
 RUN npm run build
 
