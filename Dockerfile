@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim AS frontend
+FROM node:26-bookworm-slim AS frontend
 
 WORKDIR /app/theme/static_src
 COPY theme/static_src/package.json theme/static_src/package-lock.json ./
