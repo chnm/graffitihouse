@@ -1,3 +1,4 @@
+from importlib.util import find_spec
 from pathlib import Path
 
 import environ
@@ -198,7 +199,10 @@ MIDDLEWARE = [
 
 # Development tools
 # ------------------------------------------------------------------------------
-if DEBUG:
+# Dev tools live in the `dev` dependency group, which the production image
+# does not install, so only enable them when they are actually importable.
+DEV_TOOLS = DEBUG and find_spec("debug_toolbar") is not None
+if DEV_TOOLS:
     INSTALLED_APPS += ["debug_toolbar", "django_browser_reload"]
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
