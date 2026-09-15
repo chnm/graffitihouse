@@ -23,9 +23,8 @@ def list_walls_view(request):
 def site_detail_view(request, site_id):
     """One site: its description, then every wall grouped by room."""
     site = get_object_or_404(Site.objects.select_related("location"), id=site_id)
-    walls = (
-        site.graffitiwall_set.annotate(photo_count=Count("graffitiphoto"))
-        .order_by("room", "spatial_position", "name")
+    walls = site.graffitiwall_set.annotate(photo_count=Count("graffitiphoto")).order_by(
+        "room", "spatial_position", "name"
     )
     return render(request, "graffiti/site_detail.html", {"site": site, "walls": walls})
 
