@@ -33,7 +33,7 @@ class HomePageMasonryTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["masonry_images"]), 3)
-        self.assertContains(response, "object-cover", count=3)
+        self.assertContains(response, 'loading="lazy"', count=3)
         self.assertNotContains(response, "Field records")
 
     def test_homepage_has_an_empty_state_when_no_images_exist(self):

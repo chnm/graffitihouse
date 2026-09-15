@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
@@ -7,10 +8,25 @@ from .models import GraffitiPhoto, GraffitiWall, Site
 
 
 def list_walls_view(request):
-    """View to list all sites and their walls"""
-    sites = Site.objects.all().prefetch_related("graffitiwall_set")
-    context = {"sites": sites}
+    """Index of sites with wall and graffiti counts."""
+    sites = Site.objects.select_related("location").annotate(
+        wall_count=Count("graffitiwall", distinct=True),
+        photo_count=Count("graffitiwall__graffitiphoto", distinct=True),
+    )
+    context = {
+        "sites": [s for s in sites if s.wall_count],
+        "pending_sites": [s for s in sites if not s.wall_count],
+    }
     return render(request, "graffiti/walls_list.html", context)
+
+
+def site_detail_view(request, site_id):
+    """One site: its description, then every wall grouped by room."""
+    site = get_object_or_404(Site.objects.select_related("location"), id=site_id)
+    walls = site.graffitiwall_set.annotate(photo_count=Count("graffitiphoto")).order_by(
+        "room", "spatial_position", "name"
+    )
+    return render(request, "graffiti/site_detail.html", {"site": site, "walls": walls})
 
 
 def overall_image_view(request, wall_id):
