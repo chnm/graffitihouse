@@ -27,3 +27,12 @@ class LoginTests(TestCase):
             reverse("account_login") + "?next=/admin/",
             fetch_redirect_response=False,
         )
+
+    def test_login_with_username_or_email_and_password(self):
+        get_user_model().objects.create_user("jane", "jane@example.org", "pw-123456")
+        for login in ("jane", "jane@example.org"):
+            self.client.logout()
+            response = self.client.post(
+                reverse("account_login"), {"login": login, "password": "pw-123456"}
+            )
+            self.assertRedirects(response, "/admin/", fetch_redirect_response=False)
