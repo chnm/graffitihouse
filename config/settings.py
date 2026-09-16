@@ -296,8 +296,9 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 ACCOUNT_ADAPTER = "accounts.adapter.InviteOnlyAccountAdapter"
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*"]
+ACCOUNT_LOGIN_METHODS = {"email", "username"}
+# Signup is closed (see adapter); password1 here keeps the password field on the login form.
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*"]
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 ACCOUNT_LOGIN_BY_CODE_SUPPORTS_RESEND = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
