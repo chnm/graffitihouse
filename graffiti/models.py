@@ -227,7 +227,11 @@ class GraffitiPhoto(models.Model):
         scale = 1
         if wall.archival_image:
             scale = wall.archival_image.width / wall.image.width
-        with Image.open(wall.archival_image or wall.image) as source:
+        # Reading `.width` above closes the file, so reopen it explicitly.
+        with (
+            (wall.archival_image or wall.image).open("rb") as file,
+            Image.open(file) as source,
+        ):
             crop = source.crop(tuple(round(edge * scale) for edge in rectangle))
             buffer = io.BytesIO()
             crop.save(buffer, format="PNG")
