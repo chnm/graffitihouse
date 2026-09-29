@@ -2400,11 +2400,18 @@ b {
   box-shadow: var(--shadow-sm);
 }
 
-/* Portrait or initials; sizes the shared .avatar up a step */
+/* Portrait or initials on the shared .avatar, a step larger once there is
+   room. Portraits are usually taller than wide, so keep the face in frame. */
 .team-card__photo {
-  width: 6rem;
-  height: 6rem;
-  font-size: var(--text-2xl);
+  object-position: 50% 25%;
+}
+
+@media (min-width: 640px) {
+  .team-card__photo {
+    width: 6rem;
+    height: 6rem;
+    font-size: var(--text-2xl);
+  }
 }
 
 .team-card__body {
