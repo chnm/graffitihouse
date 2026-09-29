@@ -178,6 +178,8 @@ class WallSerializer(serializers.ModelSerializer):
             "date_taken",
             "description",
             "image",
+            "image_width",
+            "image_height",
             "archival_image",
             "tags",
             "photo_count",

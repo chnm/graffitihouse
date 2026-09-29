@@ -141,7 +141,8 @@ Conventions:
   matching its label in the admin.
 - Images are absolute URLs, or `null` when there is no file.
 - A photo's `crop` is its rectangle (`x`, `y`, `width`, `height`) in pixels of
-  its wall's `image`.
+  its wall's `image`, whose size is the wall's `image_width` and `image_height`
+  (null if the image file couldn't be read).
 - Wall and photo `description` fields are sanitized HTML. Site descriptions are
   plain text, and person descriptions may contain HTML.
 
