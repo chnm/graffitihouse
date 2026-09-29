@@ -644,18 +644,42 @@ b {
   color: var(--color-brass-dark);
 }
 
-/* Small underlined variant used above page titles */
-.back-link--ruled {
-  gap: 0;
-  padding-bottom: 0.125rem;
-  border-bottom: 1px solid var(--color-brass-light);
+/* Where a site, wall or graffiti page sits: Sites > site > wall > graffiti */
+.breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) 0;
   font-size: var(--text-sm);
   line-height: 1.25rem;
-  color: var(--color-brass-dark);
+  color: var(--color-text-muted);
 }
 
-.back-link--ruled:hover {
+.breadcrumbs li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.breadcrumbs li + li::before {
+  content: "\203A";
+  margin-inline: var(--space-2);
+  color: var(--color-brass-light);
+}
+
+.breadcrumbs a {
+  color: var(--color-brass-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--color-brass-light);
+  text-underline-offset: 3px;
+  transition: color var(--transition);
+}
+
+.breadcrumbs a:hover {
   color: var(--color-brick);
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--color-ink);
 }
 
 /* Small uppercase label above a title */
@@ -1661,7 +1685,7 @@ b {
   padding-block: var(--space-12) var(--space-16);
 }
 
-.detail-page .back-link {
+.detail-page .breadcrumbs {
   margin-bottom: var(--space-8);
 }
 

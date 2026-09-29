@@ -4,7 +4,12 @@
 
 {% block content %}
   <header class="container site-hero">
-    <a href="{% url 'graffiti:walls_list' %}" class="back-link back-link--ruled">&larr; All sites</a>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol class="breadcrumbs__list">
+        <li><a href="{% url 'graffiti:walls_list' %}">Sites</a></li>
+        <li aria-current="page">{{ site.name }}</li>
+      </ol>
+    </nav>
     <div class="site-hero__grid">
       <div class="site-hero__text">
         {% if site.location %}

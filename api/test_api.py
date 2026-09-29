@@ -170,7 +170,7 @@ def test_internal_fields_are_never_exposed(client, data, basename):
 def test_site_detail_nests_location_and_counts(client, data):
     body = client.get(detail_url("site", data["site"].pk)).json()
 
-    assert body["html_url"] == f"http://testserver/graffiti/site/{data['site'].pk}/"
+    assert body["html_url"] == f"http://testserver/sites/{data['site'].pk}/"
     assert body["location"]["place"] == "Graffiti House"
     assert body["location"]["latitude"] == 38.4956
     assert body["image"] is None
@@ -185,7 +185,7 @@ def test_wall_detail_links_site_and_absolute_images(client, data):
 
     assert body["site"] == data["site"].pk
     assert body["site_url"] == f"http://testserver/api/v1/sites/{data['site'].pk}/"
-    assert body["html_url"] == f"http://testserver/graffiti/wall/{wall.pk}/"
+    assert body["html_url"] == f"http://testserver/walls/{wall.pk}/"
     assert body["image"] == "http://testserver/media/images/wall.jpg"
     assert body["archival_image"] is None
     assert body["tags"] == ["charcoal"]
@@ -203,7 +203,7 @@ def test_photo_detail_includes_crop_type_label_and_people(client, data):
     assert body["graffiti_type_display"] == "name"
     assert body["description"] == "<p>Capt J. Marshall</p>"
     assert body["crop"] == {"x": 10, "y": 20, "width": 30, "height": 40}
-    assert body["html_url"].endswith(f"/graffiti/derived-image/{photo.pk}/")
+    assert body["html_url"].endswith(f"/graffiti/{photo.pk}/")
     assert body["people"] == [
         {"id": person.pk, "url": f"http://testserver/api/v1/people/{person.pk}/"}
     ]
@@ -330,7 +330,7 @@ def test_schema_generates_without_warnings():
 @pytest.mark.django_db
 def test_cors_allows_any_origin_for_api_reads_only(client):
     api = client.get("/api/v1/", headers={"Origin": "https://viz.example.org"})
-    site = client.get("/graffiti/", headers={"Origin": "https://viz.example.org"})
+    site = client.get("/sites/", headers={"Origin": "https://viz.example.org"})
 
     assert api["Access-Control-Allow-Origin"] == "*"
     assert "Access-Control-Allow-Credentials" not in api

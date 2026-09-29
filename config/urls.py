@@ -7,7 +7,7 @@ from django.views.generic import RedirectView
 from .views import health_check
 
 urlpatterns = [
-    path("graffiti/", include("graffiti.urls")),
+    path("", include("graffiti.urls")),
     path(
         "admin/login/",
         RedirectView.as_view(pattern_name="account_login", query_string=True),
