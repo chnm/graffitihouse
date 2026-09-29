@@ -7,6 +7,8 @@ dumpdata.json
 dumpdata2.json
 graffiti.json
 static-data/
+.claude/ 
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -310,9 +310,7 @@ LOGOUT_REDIRECT_URL = "/"
 # Email. Login codes and password resets go through this backend.
 # Examples: consolemail:// (default, prints to the terminal),
 # smtp+tls://user:pass@smtp.example.org:587
-_email = env.email_url_config(
-    env("EMAIL_URL", default="").strip() or "consolemail://"
-)
+_email = env.email_url_config(env("EMAIL_URL", default="").strip() or "consolemail://")
 _email_options = {
     "EMAIL_HOST": "host",
     "EMAIL_PORT": "port",
