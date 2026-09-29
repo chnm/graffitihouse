@@ -26,8 +26,9 @@
      9. Wall and graffiti detail pages, photo modal
     10. People
     11. Accounts and forms
-    12. Error pages
-    13. Utilities
+    12. Data & API page
+    13. Error pages
+    14. Utilities
    ========================================================================== */
 
 /* 1. Tokens
@@ -911,6 +912,57 @@ b {
 
 .prose img {
   margin-block: 2em;
+}
+
+.prose code {
+  padding: 0.1em 0.3em;
+  border-radius: var(--radius-sm);
+  background: var(--color-tint);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  overflow-wrap: anywhere;
+}
+
+.prose pre {
+  margin-block: 1.25em;
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  overflow-x: auto;
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  color: inherit;
+  overflow-wrap: normal;
+}
+
+.prose table {
+  width: 100%;
+  margin-block: 1.5em;
+  border-collapse: collapse;
+  font-size: 0.9375em;
+}
+
+.prose th,
+.prose td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  font-weight: 600;
+  color: var(--color-ink-dark);
+}
+
+.prose th:first-child,
+.prose td:first-child {
+  padding-left: 0;
+  white-space: nowrap;
 }
 
 .prose--small {
@@ -2279,7 +2331,29 @@ b {
   accent-color: var(--color-brick);
 }
 
-/* 12. Error pages
+/* 12. Data & API page
+   -------------------------------------------------------------------------- */
+
+.data-page {
+  padding-block: var(--space-12) var(--space-16);
+}
+
+.data-page__header {
+  margin-bottom: var(--space-10);
+}
+
+.data-page__header .page-title {
+  margin-block: var(--space-2) var(--space-4);
+}
+
+/* A citation to copy, not a pull quote: upright and selectable as one block */
+.prose .data-page__citation {
+  font-style: normal;
+  font-weight: 400;
+  user-select: all;
+}
+
+/* 13. Error pages
    -------------------------------------------------------------------------- */
 
 .error-banner {
@@ -2305,7 +2379,7 @@ b {
   }
 }
 
-/* 13. Utilities
+/* 14. Utilities
    -------------------------------------------------------------------------- */
 
 .visually-hidden {

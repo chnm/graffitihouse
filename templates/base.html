@@ -102,6 +102,7 @@
         <div class="container site-footer__bottom-inner">
           <p>&copy; {% now "Y" %} Roy Rosenzweig Center for History and New Media, George Mason University</p>
           <ul class="site-footer__links">
+            <li><a href="{% url 'data' %}">Data &amp; API</a></li>
             <li><a href="https://rrchnm.org/accessibility/">Accessibility</a></li>
             <li><a href="mailto:chnm@gmu.edu">Contact us</a></li>
             {% if user.is_authenticated %}

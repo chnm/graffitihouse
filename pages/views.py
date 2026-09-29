@@ -1,5 +1,6 @@
 import random
 
+from django.db.models import Count
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -40,6 +41,23 @@ class HomePageView(TemplateView):
 
 def about(request):
     return render(request, "about.html")
+
+
+def data(request):
+    """Explain the public API and how to cite and reuse the data."""
+    api_root = request.build_absolute_uri(reverse("api:api-root"))
+    # Use a documented site in the examples so every example link returns data.
+    example_site = (
+        Site.objects.annotate(wall_count=Count("graffitiwall"))
+        .filter(wall_count__gt=0)
+        .order_by("-wall_count")
+        .first()
+    )
+    return render(
+        request,
+        "data.html",
+        {"api_root": api_root, "example_site": example_site},
+    )
 
 
 def museum(request):

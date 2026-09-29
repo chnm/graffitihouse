@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Data &amp; API - Civil War Graffiti Project{% endblock %}
+
+{% block content %}
+  <article class="container container--narrow data-page">
+    <header class="data-page__header">
+      <p class="eyebrow">For researchers and developers</p>
+      <h1 class="page-title">Data &amp; API</h1>
+      <p class="lede">
+        Everything published on this site is also available as structured data through a free, read-only API. Use it to search the documented graffiti, map the sites, or build your own visualizations.
+      </p>
+    </header>
+
+    <div class="prose">
+      <h2>What's available</h2>
+      <p>
+        The API is at <a href="{{ api_root }}"><code>{{ api_root }}</code></a>. It needs no account or key; open any of these links in a browser to explore.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Endpoint</th>
+            <th scope="col">What it holds</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="{{ api_root }}sites/"><code>sites/</code></a></td>
+            <td>Buildings with documented graffiti, with their location and counts of walls and photographs.</td>
+          </tr>
+          <tr>
+            <td><a href="{{ api_root }}locations/"><code>locations/</code></a></td>
+            <td>Addresses and latitude/longitude for each site.</td>
+          </tr>
+          <tr>
+            <td><a href="{{ api_root }}walls/"><code>walls/</code></a></td>
+            <td>Photographed walls: room, position, date photographed, description, and image links.</td>
+          </tr>
+          <tr>
+            <td><a href="{{ api_root }}photos/"><code>photos/</code></a></td>
+            <td>Individual pieces of graffiti cropped from a wall: type, description, image, where on the wall it appears, and the people it names.</td>
+          </tr>
+          <tr>
+            <td><a href="{{ api_root }}people/"><code>people/</code></a></td>
+            <td>People identified in the graffiti, with aliases and military service: rank, unit, branch, and Union or Confederate service.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Every record includes its <code>id</code>, its API address (<code>url</code>), and a link to its page on this site (<code>html_url</code>). Add <code>{id}/</code> to any endpoint for a single record, such as <a href="{{ api_root }}walls/"><code>walls/{id}/</code></a>.
+      </p>
+
+      <h2>Examples</h2>
+      <ul>
+        {% if example_site %}
+          <li><a href="{{ api_root }}walls/?site={{ example_site.id }}">Every wall at {{ example_site.name }}</a>: <code>walls/?site={{ example_site.id }}</code></li>
+        {% endif %}
+        <li><a href="{{ api_root }}photos/?graffiti_type=name">Graffiti that records a name</a>: <code>photos/?graffiti_type=name</code></li>
+        <li><a href="{{ api_root }}people/?governance=union">People who served the Union</a>: <code>people/?governance=union</code></li>
+        <li><a href="{{ api_root }}people/?rank=captain">People who held the rank of captain</a>: <code>people/?rank=captain</code></li>
+        <li><a href="{{ api_root }}sites/?search=church">Sites matching &ldquo;church&rdquo;</a>: <code>sites/?search=church</code></li>
+      </ul>
+      <p>From a script or the command line, request JSON directly:</p>
+      <pre><code>curl "{{ api_root }}people/?rank=captain"</code></pre>
+
+      <h2>Things to know</h2>
+      <ul>
+        <li><strong>Pages of results.</strong> Lists return 50 records at a time, with <code>count</code>, <code>next</code>, and <code>previous</code> for paging. Ask for up to 500 at once with <code>?page_size=500</code>.</li>
+        <li><strong>Filtering, searching, and sorting.</strong> Most endpoints accept filters like the examples above, <code>?search=</code> for text, and <code>?ordering=</code> to sort (prefix a field with <code>-</code> for descending). The <a href="{% url 'api:docs' %}">interactive reference</a> lists every option.</li>
+        <li><strong>Descriptions are HTML.</strong> Wall and photograph descriptions contain formatting markup such as paragraphs and line breaks.</li>
+        <li><strong>Choice values come with labels.</strong> Fields such as <code>military_rank</code> hold a stable value (<code>2nd_lieutenant</code>) alongside a readable label (<code>military_rank_display</code>: &ldquo;2nd Lieutenant&rdquo;).</li>
+        <li><strong>Crop positions.</strong> A photograph's <code>crop</code> gives its rectangle in pixels of its wall's image, for placing graffiti on the wall.</li>
+        <li><strong>Fair use of the service.</strong> Requests are limited to 120 per minute. If you need the whole dataset, page through it with a large <code>page_size</code> rather than requesting records one at a time.</li>
+        <li><strong>Read-only.</strong> The API publishes what this site shows. Internal project notes are never included.</li>
+      </ul>
+
+      <h2>Reference</h2>
+      <p>
+        The <a href="{% url 'api:docs' %}">interactive API reference</a> documents every endpoint, field, and filter, and lets you try requests. The machine-readable <a href="{% url 'api:schema' %}">OpenAPI schema</a> can generate client code.
+      </p>
+
+      <h2>Citing and reusing the data</h2>
+      <p>
+        The data is available under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International license (CC BY 4.0)</a>. You may share and adapt it for any purpose, including commercially, as long as you give credit. Please cite it as:
+      </p>
+      <blockquote class="data-page__citation">
+        Civil War Graffiti Project, Roy Rosenzweig Center for History and New Media, George Mason University. {{ request.scheme }}://{{ request.get_host }}{% url 'data' %}. Accessed {% now "F j, Y" %}.
+      </blockquote>
+      <p>
+        Questions, corrections, or a project built on this data? Contact us at <a href="mailto:chnm@gmu.edu">chnm@gmu.edu</a>.
+      </p>
+    </div>
+  </article>
+{% endblock %}

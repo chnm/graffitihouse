@@ -101,3 +101,51 @@ admin ships its own styles and does not load this stylesheet.
 ```sh
 curl -fsSL -o static/js/alpine.min.js https://cdn.jsdelivr.net/npm/alpinejs@<version>/dist/cdn.min.js
 ```
+
+## Public API
+
+The project's public data is available as read-only JSON at `/api/v1/`. No
+account or key is needed; only `GET` (plus `HEAD` and `OPTIONS`) is allowed.
+
+- `/api/v1/` lists the endpoints; open it in a browser for a browsable view.
+- `/api/v1/docs/` is interactive documentation (Swagger UI), and
+  `/api/v1/schema/` is the OpenAPI 3 schema (`?format=json` for JSON).
+
+| Endpoint | Contents | Filters |
+| --- | --- | --- |
+| `/api/v1/sites/` | Sites, with their location nested, wall and photo counts | `location`, `state`, `tag` |
+| `/api/v1/locations/` | Places, with latitude and longitude | `state`, `city` |
+| `/api/v1/walls/` | Photographed walls | `site`, `room`, `date_taken_after`, `date_taken_before`, `tag` |
+| `/api/v1/photos/` | Graffiti photos cropped from walls | `wall`, `site`, `graffiti_type`, `person`, `tag` |
+| `/api/v1/people/` | People, with aliases, organizations, service records, and photos | `governance`, `rank`, `military_branch`, `army_branch`, `photo`, `tag` |
+
+Each endpoint also has a detail view (`/api/v1/walls/<id>/`), accepts
+`?search=` (names, identifiers, and similar text fields), and accepts
+`?ordering=` with a field name, prefixed by `-` to reverse it. Example:
+`/api/v1/walls/?site=4&ordering=-date_taken`.
+
+Lists are paginated: responses have `count`, `next`, `previous`, and
+`results`. Pages hold 50 objects by default; `?page_size=` raises that to at
+most 500.
+
+Conventions:
+
+- Every object has an `id` and its API `url`; objects with a page on the
+  website also have `html_url`. Related objects appear as an id plus a
+  `_url` field (`"site": 4, "site_url": "..."`) or as a list of
+  `{"id", "url"}` references.
+- Choice fields give the stored value and a label, for example
+  `"military_rank": "2nd_lieutenant"` and
+  `"military_rank_display": "2nd Lieutenant"`. Both are `null` when unset.
+- Service records call the stored `military_division` field `army_branch`,
+  matching its label in the admin.
+- Images are absolute URLs, or `null` when there is no file.
+- A photo's `crop` is its rectangle (`x`, `y`, `width`, `height`) in pixels of
+  its wall's `image`.
+- Wall and photo `description` fields are sanitized HTML. Site descriptions are
+  plain text, and person descriptions may contain HTML.
+
+Internal notes, record history, and ancillary sources are not published.
+Anonymous clients are rate limited (`API_THROTTLE_RATE`, default
+`120/minute`). Browsers on other sites may read the API through CORS; set
+`API_CORS_ALLOWED_ORIGINS` to restrict which origins.
