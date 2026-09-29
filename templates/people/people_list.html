@@ -112,7 +112,7 @@
                         {% for service in person.service_set.all %}
                           {% if forloop.first %}
                             <p class="mt-1">
-                              {% if service.military_rank %}{{ service.military_rank }}{% endif %}
+                              {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
                               {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
                               {% if service.military_governance %}
                                 <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">
@@ -176,7 +176,7 @@
                         {% for service in person.service_set.all %}
                           {% if forloop.first %}
                             <p class="mt-1">
-                              {% if service.military_rank %}{{ service.military_rank }}{% endif %}
+                              {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
                               {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
                               {% if service.military_governance %}
                                 <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">

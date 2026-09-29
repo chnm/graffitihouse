@@ -158,7 +158,6 @@ class GraffitiWall(models.Model):
 
 
 class GraffitiType(models.TextChoices):
-    DRAWING = "drawing", "drawing"
     IMAGE = "image", "image"
     NAME = "name", "name"
     POETRY = "poetry", "poetry"

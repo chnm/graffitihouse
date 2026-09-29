@@ -91,7 +91,7 @@
                         <div class="flex flex-col">
                           <div class="flex justify-between">
                             <h3 class="font-medium text-cwg-black">
-                              {% if service.military_rank %}{{ service.military_rank }}{% endif %}
+                              {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
                               {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
                             </h3>
 
@@ -113,16 +113,16 @@
                               <div>
                                 <span class="text-xs text-cwg-black text-opacity-50 uppercase">Branch</span>
                                 <p class="text-sm text-cwg-black">
-                                  {{ service.military_branch }}
+                                  {{ service.get_military_branch_display }}
                                 </p>
                               </div>
                             {% endif %}
 
                             {% if service.military_division %}
                               <div>
-                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Division</span>
+                                <span class="text-xs text-cwg-black text-opacity-50 uppercase">Army branch</span>
                                 <p class="text-sm text-cwg-black">
-                                  {{ service.military_division }}
+                                  {{ service.get_military_division_display }}
                                 </p>
                               </div>
                             {% endif %}

@@ -1,3 +1,4 @@
+import html
 import json
 import logging
 
@@ -5,7 +6,8 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, linebreaks, strip_tags
+from django.utils.text import Truncator
 from django.views.generic import TemplateView
 from import_export.admin import ImportExportMixin
 from simple_history.admin import SimpleHistoryAdmin
@@ -25,6 +27,12 @@ from people.models import Alias, Organization, Person, Service
 from source.models import AncillarySource, Archive, DocumentPersonRole
 
 logger = logging.getLogger(__name__)
+
+
+def text_to_html(text):
+    """Escape plain text and turn its line breaks into paragraphs and <br>s."""
+    text = (text or "").strip()
+    return linebreaks(text, autoescape=True) if text else ""
 
 
 class HistoryImportExportAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
@@ -143,7 +151,9 @@ class GraffitiWallAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
                 graffiti_wall_id=metadata["wall_id"],
                 identifier=metadata["identifier"],
                 graffiti_type=metadata["graffiti_type"],
-                description=metadata["description"],
+                # The crop tool sends plain text; store HTML like the rich-text
+                # editor does so every description renders the same way.
+                description=text_to_html(metadata["description"]),
                 x=rectangle["x"],
                 y=rectangle["y"],
                 width=rectangle["width"],
@@ -177,9 +187,19 @@ class GraffitiWallAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
 
 
 class GraffitiPhotoAdmin(OwnedAdminMixin, HistoryImportExportAdmin):
-    list_display = ("graffiti_type", "identifier", "description", "get_associated_wall")
+    list_display = (
+        "graffiti_type",
+        "identifier",
+        "get_description",
+        "get_associated_wall",
+    )
     search_fields = ("identifier",)
     readonly_fields = ("coordinates",)
+
+    @admin.display(description="Description")
+    def get_description(self, obj):
+        text = html.unescape(strip_tags(obj.description or "")).strip()
+        return Truncator(" ".join(text.split())).chars(120)
 
     def get_associated_wall(self, obj):
         return format_html(

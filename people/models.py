@@ -85,19 +85,44 @@ class Governance(models.TextChoices):
 class Branch(models.TextChoices):
     ARMY = "army", "Army"
     NAVY = "navy", "Navy"
-    CAVALRY = "cavalry", "Cavalry"
     COAST_GUARD = "coastguard", "Coast Guard"
+
+
+class Rank(models.TextChoices):
+    PRIVATE = "private", "Private"
+    CORPORAL = "corporal", "Corporal"
+    SERGEANT = "sergeant", "Sergeant"
+    SECOND_LIEUTENANT = "2nd_lieutenant", "2nd Lieutenant"
+    FIRST_LIEUTENANT = "1st_lieutenant", "1st Lieutenant"
+    LIEUTENANT = "lieutenant", "Lieutenant"
+    CAPTAIN = "captain", "Captain"
+    MAJOR = "major", "Major"
+    LIEUTENANT_COLONEL = "lieutenant_colonel", "Lieutenant Colonel"
+    COLONEL = "colonel", "Colonel"
+    BRIGADIER_GENERAL = "brigadier_general", "Brigadier General"
+
+
+class ArmyBranch(models.TextChoices):
+    INFANTRY = "infantry", "Infantry"
+    CAVALRY = "cavalry", "Cavalry"
+    ARTILLERY = "artillery", "Artillery"
+    ENGINEERS = "engineers", "Engineers"
+    SIGNAL_CORPS = "signal_corps", "Signal Corps"
+    BAND = "band", "Band"
 
 
 class Service(models.Model):
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, default=None)
-    military_rank = models.CharField(blank=True, max_length=255)
+    military_rank = models.CharField(blank=True, max_length=255, choices=Rank.choices)
     military_unit = models.CharField(blank=True, max_length=255)
     military_branch = models.CharField(
         blank=True, max_length=255, choices=Branch.choices
     )
-    military_division = models.CharField(blank=True, max_length=255)
+    # Kept as `military_division` in the database; shown as "Army branch".
+    military_division = models.CharField(
+        "Army branch", blank=True, max_length=255, choices=ArmyBranch.choices
+    )
     military_governance = models.CharField(
         blank=True, max_length=11, choices=Governance.choices
     )
