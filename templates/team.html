@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Team - Civil War Graffiti Project{% endblock %}
+
+{% block content %}
+  <div class="container team-page">
+    <header class="team-page__header">
+      <p class="eyebrow">Who we are</p>
+      <h1 class="page-title">Team</h1>
+      <p class="lede">
+        The Civil War Graffiti Project is the work of historians, developers, students, and partners who document, transcribe, and research the marks soldiers and civilians left on these walls.
+      </p>
+    </header>
+
+    {% if groups %}
+      <div class="stack team-groups">
+        {% for label, members in groups %}
+          <section class="team-group" aria-labelledby="team-group-{{ forloop.counter }}">
+            <h2 id="team-group-{{ forloop.counter }}" class="team-group__heading">{{ label }}</h2>
+
+            <ul class="card-grid team-grid" role="list">
+              {% for member in members %}
+                <li class="team-card">
+                  {% if member.photo %}
+                    <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="avatar team-card__photo" width="96" height="96" loading="lazy">
+                  {% else %}
+                    <span class="avatar team-card__photo" aria-hidden="true">{{ member.initials }}</span>
+                  {% endif %}
+
+                  <div class="team-card__body">
+                    <h3 class="team-card__name">{{ member.name }}</h3>
+                    {% if member.role %}
+                      <p class="team-card__role">{{ member.role }}</p>
+                    {% endif %}
+                    {% if member.affiliation %}
+                      <p class="team-card__affiliation">{{ member.affiliation }}</p>
+                    {% endif %}
+                    {% if member.bio %}
+                      <p class="team-card__bio">{{ member.bio }}</p>
+                    {% endif %}
+                    {% if member.website %}
+                      <a href="{{ member.website }}" class="team-card__link">Website<span class="visually-hidden"> of {{ member.name }}</span></a>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-note team-page__empty">
+        We're still putting this page together. Check back soon to meet the people behind the project.
+      </p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -27,8 +27,9 @@
     10. People
     11. Accounts and forms
     12. Data & API page
-    13. Error pages
-    14. Utilities
+    13. Team page
+    14. Error pages
+    15. Utilities
    ========================================================================== */
 
 /* 1. Tokens
@@ -2353,7 +2354,110 @@ b {
   user-select: all;
 }
 
-/* 13. Error pages
+/* 13. Team page
+   -------------------------------------------------------------------------- */
+
+.team-page {
+  padding-block: var(--space-12) var(--space-16);
+}
+
+.team-page__header {
+  max-width: 48rem;
+  margin-bottom: var(--space-10);
+}
+
+.team-page__header .page-title {
+  margin-block: var(--space-2) var(--space-4);
+}
+
+.team-groups {
+  --stack-space: var(--space-12);
+}
+
+.team-group__heading {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-rule);
+  font-size: var(--text-2xl);
+  line-height: 2rem;
+  font-weight: 700;
+}
+
+.team-grid {
+  gap: var(--space-6);
+}
+
+/* Same card surface as the people cards, but not a link: no hover lift */
+.team-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-6);
+  border: 1px solid var(--color-paper-dark);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Portrait or initials; sizes the shared .avatar up a step */
+.team-card__photo {
+  width: 6rem;
+  height: 6rem;
+  font-size: var(--text-2xl);
+}
+
+.team-card__body {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.team-card__name {
+  font-size: var(--text-lg);
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: var(--color-ink-dark);
+}
+
+.team-card__role {
+  margin-top: var(--space-1);
+  font-weight: 500;
+  color: var(--color-brass-dark);
+}
+
+.team-card__affiliation {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: 1.25rem;
+  color: var(--color-text-muted);
+}
+
+.team-card__bio {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.5rem;
+  color: var(--color-text-soft);
+}
+
+.team-card__link {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  color: var(--color-brass-dark);
+}
+
+.team-card__link:hover {
+  color: var(--color-brick);
+}
+
+.team-page__empty {
+  max-width: 48rem;
+}
+
+/* 14. Error pages
    -------------------------------------------------------------------------- */
 
 .error-banner {
@@ -2379,7 +2483,7 @@ b {
   }
 }
 
-/* 14. Utilities
+/* 15. Utilities
    -------------------------------------------------------------------------- */
 
 .visually-hidden {

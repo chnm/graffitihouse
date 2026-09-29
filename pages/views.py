@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from graffiti.models import GraffitiPhoto, GraffitiWall, Site
+from pages.models import TeamGroup, TeamMember
 
 
 class HomePageView(TemplateView):
@@ -39,10 +40,6 @@ class HomePageView(TemplateView):
         return context
 
 
-def about(request):
-    return render(request, "about.html")
-
-
 def data(request):
     """Explain the public API and how to cite and reuse the data."""
     api_root = request.build_absolute_uri(reverse("api:api-root"))
@@ -60,8 +57,18 @@ def data(request):
     )
 
 
-def museum(request):
-    return render(request, "museum.html")
+def team(request):
+    """List active project staff and collaborators, grouped in display order."""
+    members = TeamMember.objects.filter(is_active=True)
+    groups = [
+        (label, [member for member in members if member.group == value])
+        for value, label in TeamGroup.choices
+    ]
+    return render(
+        request,
+        "team.html",
+        {"groups": [(label, people) for label, people in groups if people]},
+    )
 
 
 def handler404(request, exception):
