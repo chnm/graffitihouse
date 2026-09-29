@@ -70,7 +70,7 @@
         <li><strong>Filtering, searching, and sorting.</strong> Most endpoints accept filters like the examples above, <code>?search=</code> for text, and <code>?ordering=</code> to sort (prefix a field with <code>-</code> for descending). The <a href="{% url 'api:docs' %}">interactive reference</a> lists every option.</li>
         <li><strong>Descriptions are HTML.</strong> Wall and photograph descriptions contain formatting markup such as paragraphs and line breaks.</li>
         <li><strong>Choice values come with labels.</strong> Fields such as <code>military_rank</code> hold a stable value (<code>2nd_lieutenant</code>) alongside a readable label (<code>military_rank_display</code>: &ldquo;2nd Lieutenant&rdquo;).</li>
-        <li><strong>Crop positions.</strong> A photograph's <code>crop</code> gives its rectangle in pixels of its wall's image, for placing graffiti on the wall.</li>
+        <li><strong>Crop positions.</strong> A photograph's <code>crop</code> gives its rectangle in pixels of its wall's image, for placing graffiti on the wall. Each wall's <code>image_width</code> and <code>image_height</code> give that image's size.</li>
         <li><strong>Fair use of the service.</strong> Requests are limited to 120 per minute. If you need the whole dataset, page through it with a large <code>page_size</code> rather than requesting records one at a time.</li>
         <li><strong>Read-only.</strong> The API publishes what this site shows. Internal project notes are never included.</li>
       </ul>

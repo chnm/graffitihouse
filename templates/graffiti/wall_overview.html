@@ -55,7 +55,20 @@
               <h2 class="panel__title">Graffiti Wall Map</h2>
             </div>
             <div class="wall-map">
-              <div id="map" class="wall-map__canvas"></div>
+              {% if image_available %}
+                <div id="map" class="wall-map__canvas"></div>
+              {% endif %}
+              <div id="map-unavailable" class="wall-map__unavailable"{% if image_available %} hidden{% endif %}>
+                <p>The image of this wall is unavailable right now.</p>
+                {% if derived_images_objects %}
+                  <p>Graffiti documented on this wall:</p>
+                  <ul class="wall-map__graffiti-list">
+                    {% for photo in derived_images_objects %}
+                      <li><a href="{% url 'graffiti:derived_image_detail' image_id=photo.id %}">{{ photo.identifier }}</a>{% if photo.graffiti_type %} ({{ photo.graffiti_type }}){% endif %}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
             </div>
           </section>
 
@@ -70,7 +83,7 @@
                 documented graffiti items on this wall
               </span>
             </div>
-            <span class="callout__hint">Click highlighted areas to view details</span>
+            <span id="map-hint" class="callout__hint"{% if not image_available %} hidden{% endif %}>Click highlighted areas to view details</span>
           </div>
         </div>
 
@@ -271,6 +284,8 @@
 
         // Initialize the map after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function() {
+      // No viewer when the wall image's size is unknown (e.g. its file is missing).
+      if (!document.getElementById('map')) return;
       console.log('DOM loaded, initializing map');
 
             // Initialize the map
@@ -281,8 +296,8 @@
       });
 
             // Get the image dimensions
-      var imageWidth = {{ wall.image.width }};
-      var imageHeight = {{ wall.image.height }};
+      var imageWidth = {{ wall.image_width }};
+      var imageHeight = {{ wall.image_height }};
       console.log('Image dimensions:', imageWidth, 'x', imageHeight);
 
             // Create bounds for the image
@@ -291,7 +306,14 @@
       var bounds = new L.LatLngBounds(southWest, northEast);
 
             // Add the image overlay
-      L.imageOverlay('{{ wall.image.url }}', bounds).addTo(map);
+      var overlay = L.imageOverlay('{{ wall.image.url }}', bounds).addTo(map);
+      // If the file has gone missing since its size was stored, say so instead
+      // of showing an empty viewer.
+      overlay.on('error', function() {
+        document.getElementById('map').hidden = true;
+        document.getElementById('map-unavailable').hidden = false;
+        document.getElementById('map-hint').hidden = true;
+      });
       map.fitBounds(bounds);
 
             // Add rectangles for the derived images

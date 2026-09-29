@@ -32,6 +32,12 @@ def site_detail_view(request, site_id):
 def overall_image_view(request, wall_id):
     """View for a specific wall with its derived images"""
     wall = get_object_or_404(GraffitiWall, id=wall_id)
+    # Walls saved before image sizes were stored, or whose file was missing at
+    # the time, get one more try; save the size without an edit-history entry.
+    if wall.image and not wall.has_image_dimensions and wall.read_image_dimensions():
+        GraffitiWall.objects.filter(pk=wall.pk).update(
+            image_width=wall.image_width, image_height=wall.image_height
+        )
     derived_images = GraffitiPhoto.objects.filter(graffiti_wall=wall)
     derived_images_data = []
     for image in derived_images:
@@ -52,6 +58,7 @@ def overall_image_view(request, wall_id):
         derived_images_data.append(image_data)
     context = {
         "wall": wall,
+        "image_available": wall.has_image_dimensions,
         "derived_images": json.dumps(derived_images_data),
         "derived_images_objects": derived_images,
     }

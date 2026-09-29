@@ -106,6 +106,12 @@ class GraffitiWall(models.Model):
     name = models.CharField(max_length=100)
     description = RichTextField(blank=True, null=True)
     image = models.ImageField(upload_to="images/")
+    # The web image's size in pixels, stored so pages and the API never have to
+    # open the file to learn it. Filled in on save; empty if the file can't be
+    # read. (Not ImageField's width_field/height_field: those re-read the file
+    # whenever a wall with empty values is loaded, which fails if it's missing.)
+    image_width = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    image_height = models.PositiveIntegerField(null=True, blank=True, editable=False)
     archival_image = models.ImageField(
         blank=True,
         null=True,
@@ -149,6 +155,46 @@ class GraffitiWall(models.Model):
         on_delete=models.SET_NULL,
         related_name="+",
     )
+
+    @classmethod
+    def from_db(cls, *args, **kwargs):
+        instance = super().from_db(*args, **kwargs)
+        # Remember the stored image so save() can tell when it changes.
+        if "image" in instance.__dict__:
+            instance._loaded_image_name = instance.image.name
+        return instance
+
+    def save(self, *args, **kwargs):
+        if not self.image:
+            self.image_width = self.image_height = None
+        elif (
+            self.image.name != getattr(self, "_loaded_image_name", None)
+            or not self.image._committed
+            or not self.has_image_dimensions
+        ):
+            self.read_image_dimensions()
+        super().save(*args, **kwargs)
+        self._loaded_image_name = self.image.name
+
+    @property
+    def has_image_dimensions(self):
+        return bool(self.image_width and self.image_height)
+
+    def read_image_dimensions(self):
+        """Read the web image's size from its file into image_width/height.
+
+        Returns whether it succeeded. A missing or unreadable file leaves the
+        size empty and logs a warning rather than raising.
+        """
+        try:
+            width, height = self.image.width, self.image.height
+        except (OSError, ValueError) as error:
+            logger.warning(
+                "Can't read image for wall %s (%s): %s", self.pk, self.image.name, error
+            )
+            width = height = None
+        self.image_width, self.image_height = width, height
+        return self.has_image_dimensions
 
     def get_absolute_url(self):
         return reverse("graffiti:overall_image", kwargs={"wall_id": self.id})
