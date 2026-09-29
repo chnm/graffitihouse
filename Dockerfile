@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie AS application
+FROM python:3.14-slim-trixie AS application
 
 RUN pip install --no-cache-dir uv==0.12.6
 
