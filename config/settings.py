@@ -34,6 +34,12 @@ CSRF_TRUSTED_ORIGINS = env.list(
     "DJANGO_CSRF_TRUSTED_ORIGINS", default=["http://localhost"]
 )
 
+# Production runs behind a proxy (Caddy) that terminates HTTPS and sets
+# X-Forwarded-Proto. Trusting it makes absolute URLs, such as the API's links,
+# use https. Only enable this when every request comes through such a proxy.
+if env.bool("DJANGO_BEHIND_HTTPS_PROXY", default=True):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Application definition
 INSTALLED_APPS = [
     "unfold",
