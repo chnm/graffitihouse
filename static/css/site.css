@@ -380,32 +380,69 @@ b {
   }
 }
 
+/* Footer: laid out like rrchnm.org's. A main band with the partner logos,
+   credit and social links beside the contact address, then a bottom bar with
+   the copyright and small links. */
 .site-footer {
   border-top: 4px solid var(--color-brass);
   background: var(--color-ink);
+  color: rgb(252 249 241 / 0.8);
+  font-size: var(--text-sm);
+  line-height: 1.625;
+}
+
+.site-footer a,
+.site-footer__logout button {
+  color: inherit;
+  transition: color var(--transition), opacity var(--transition);
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible,
+.site-footer__logout button:hover,
+.site-footer__logout button:focus-visible {
   color: var(--color-paper);
 }
 
-.site-footer__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
-  padding-block: var(--space-10) var(--space-8);
+.site-footer__main {
+  display: grid;
+  gap: var(--space-12);
+  padding-block: var(--space-16);
 }
 
-/* Partner logos: light-on-dark artwork, dimmed until hovered or focused */
+@media (min-width: 768px) {
+  .site-footer__main {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-footer__main {
+    padding-block: var(--space-20);
+  }
+}
+
 .site-footer__logos {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
+@media (min-width: 640px) {
+  .site-footer__logos {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-6);
+  }
+}
+
+/* Partner logos: light-on-dark artwork, dimmed until hovered or focused */
 .site-footer__logo-link {
   display: block;
-  opacity: 0.85;
-  transition: opacity var(--transition);
+  flex-shrink: 0;
+  opacity: 0.8;
 }
 
 .site-footer__logo-link:hover,
@@ -425,32 +462,61 @@ b {
   height: 80px;
 }
 
+.site-footer__credit {
+  max-width: 36rem;
+  margin-bottom: var(--space-6);
+}
+
+/* Links inside running text stay underlined so they read as links */
+.site-footer__credit a {
+  text-decoration: underline;
+  text-decoration-color: var(--color-brass-light);
+  text-underline-offset: 4px;
+}
+
+.site-footer__social {
+  --cluster-space: var(--space-4);
+}
+
+.site-footer__social a {
+  display: block;
+}
+
+.site-footer__contact {
+  font-style: normal;
+}
+
 @media (min-width: 768px) {
-  .site-footer__logos {
-    flex-direction: row;
-    gap: var(--space-12);
+  .site-footer__contact {
+    margin-left: auto;
   }
 }
 
-.site-footer__credit {
-  max-width: 48rem;
-  text-align: center;
+.site-footer__bottom {
+  border-top: 1px solid rgb(252 249 241 / 0.1);
+}
+
+.site-footer__bottom-inner {
+  padding-block: var(--space-6) var(--space-10);
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 640px) {
+  .site-footer__bottom-inner {
+    padding-bottom: var(--space-6);
+  }
 }
 
 .site-footer__links {
-  --cluster-space: var(--space-2) var(--space-6);
-  justify-content: center;
-  font-size: var(--text-sm);
-  line-height: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--space-1);
 }
 
-.site-footer__account {
-  text-align: center;
-  font-size: var(--text-sm);
-  line-height: 1.25rem;
-}
-
-.site-footer__separator {
+/* Middle-dot separators between the bottom-bar links */
+.site-footer__links li + li::before {
+  content: "\00B7";
   margin-inline: var(--space-2);
 }
 
@@ -458,26 +524,9 @@ b {
   display: inline;
 }
 
-.site-footer__credit a,
-.site-footer__links a,
-.site-footer__account a,
-.site-footer__logout button {
-  text-decoration: underline;
-  text-decoration-color: var(--color-brass-light);
-  text-underline-offset: 4px;
-  transition: color var(--transition);
-}
-
-.site-footer__credit a:hover,
-.site-footer__links a:hover,
-.site-footer__account a:hover,
-.site-footer__logout button:hover {
-  color: var(--color-brass-light);
-}
-
 .site-footer__logout button {
   padding: 0;
-  font-size: var(--text-sm);
+  font-size: inherit;
 }
 
 /* 6. Shared components
