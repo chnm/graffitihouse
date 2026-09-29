@@ -23,7 +23,7 @@ class HomePageMasonryTests(TestCase):
             )
             GraffitiPhoto.objects.create(
                 graffiti_wall=wall,
-                graffiti_type="drawing",
+                graffiti_type="image",
                 image=f"images/derived/graffiti-{index}.jpg",
                 identifier=f"graffiti-{index}",
             )

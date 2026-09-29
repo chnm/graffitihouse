@@ -28,7 +28,7 @@ class GraffitiAdminTest(TestCase):
         )
         GraffitiPhoto.objects.create(
             graffiti_wall=cls.wall,
-            graffiti_type="drawing",
+            graffiti_type="image",
             identifier="photo-1",
         )
 
