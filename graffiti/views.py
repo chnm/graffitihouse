@@ -31,7 +31,7 @@ def site_detail_view(request, site_id):
 
 def overall_image_view(request, wall_id):
     """View for a specific wall with its derived images"""
-    wall = get_object_or_404(GraffitiWall, id=wall_id)
+    wall = get_object_or_404(GraffitiWall.objects.select_related("site_id"), id=wall_id)
     derived_images = GraffitiPhoto.objects.filter(graffiti_wall=wall)
     derived_images_data = []
     for image in derived_images:
@@ -60,6 +60,8 @@ def overall_image_view(request, wall_id):
 
 def derived_image_detail_view(request, image_id):
     """View for a specific derived image"""
-    derived_image = get_object_or_404(GraffitiPhoto, id=image_id)
+    derived_image = get_object_or_404(
+        GraffitiPhoto.objects.select_related("graffiti_wall__site_id"), id=image_id
+    )
     context = {"derived_image": derived_image}
     return render(request, "graffiti/derived_image_detail.html", context)

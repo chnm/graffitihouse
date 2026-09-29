@@ -44,10 +44,9 @@
             <a href="{% url 'home' %}" class="site-header__brand">Civil War Graffiti</a>
             <nav class="site-nav" aria-label="Main">
               <a href="{% url 'home' %}" class="site-nav__link">Home</a>
-              <a href="{% url 'graffiti:walls_list' %}" class="site-nav__link">Graffiti</a>
+              <a href="{% url 'graffiti:walls_list' %}" class="site-nav__link">Sites</a>
               <a href="{% url 'people:people_list' %}" class="site-nav__link">People</a>
               <a href="{% url 'home' %}#about" class="site-nav__link">About</a>
-              <a href="{% url 'home' %}#sites" class="site-nav__link">Sites</a>
             </nav>
           </div>
           <button
@@ -69,10 +68,9 @@
         </div>
         <nav id="mobile-menu" class="mobile-nav" aria-label="Main" x-cloak x-show="menuOpen" @click.outside="menuOpen = false">
           <a href="{% url 'home' %}" class="mobile-nav__link">Home</a>
-          <a href="{% url 'graffiti:walls_list' %}" class="mobile-nav__link">Graffiti</a>
+          <a href="{% url 'graffiti:walls_list' %}" class="mobile-nav__link">Sites</a>
           <a href="{% url 'people:people_list' %}" class="mobile-nav__link">People</a>
           <a href="{% url 'home' %}#about" class="mobile-nav__link">About</a>
-          <a href="{% url 'home' %}#sites" class="mobile-nav__link">Sites</a>
         </nav>
       </div>
     </header>

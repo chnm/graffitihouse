@@ -6,12 +6,14 @@
 {% block content %}
   <div class="detail-page">
     <div class="container">
-      <a href="{% url 'graffiti:overall_image' wall_id=derived_image.graffiti_wall.id %}" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Wall
-      </a>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol class="breadcrumbs__list">
+          <li><a href="{% url 'graffiti:walls_list' %}">Sites</a></li>
+          <li><a href="{% url 'graffiti:site_detail' site_id=derived_image.graffiti_wall.site_id_id %}">{{ derived_image.graffiti_wall.site_id.name }}</a></li>
+          <li><a href="{% url 'graffiti:overall_image' wall_id=derived_image.graffiti_wall_id %}">{{ derived_image.graffiti_wall.name }}</a></li>
+          <li aria-current="page">{{ derived_image.identifier }}</li>
+        </ol>
+      </nav>
 
             <!-- Header with graffiti information -->
       <header class="detail-header">

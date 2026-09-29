@@ -10,12 +10,13 @@
 {% block content %}
   <div id="app" class="detail-page">
     <div class="container">
-      <a href="{% url 'graffiti:site_detail' site_id=wall.site_id_id %}" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to {{ wall.site_id.name }}
-      </a>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol class="breadcrumbs__list">
+          <li><a href="{% url 'graffiti:walls_list' %}">Sites</a></li>
+          <li><a href="{% url 'graffiti:site_detail' site_id=wall.site_id_id %}">{{ wall.site_id.name }}</a></li>
+          <li aria-current="page">{{ wall.name }}</li>
+        </ol>
+      </nav>
 
             <!-- Header with site information -->
       <header class="detail-header">
