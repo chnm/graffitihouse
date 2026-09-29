@@ -26,6 +26,11 @@ dependencies = [
     "six>=1.16.0",
     "django-unfold>=0.105.0",
     "django-allauth>=65.19.3",
+    "djangorestframework>=3.18.1",
+    "drf-spectacular>=0.30.0",
+    "drf-spectacular-sidecar>=2026.9.1",
+    "django-filter>=26.1",
+    "django-cors-headers>=4.9.0",
 ]
 
 [dependency-groups]
@@ -49,12 +54,12 @@ package = false
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["tests.py", "test_*.py"]
 pythonpath = ["."]
-testpaths = ["accounts", "graffiti", "multispectral", "pages", "people", "source", "tests"]
+testpaths = ["accounts", "api", "graffiti", "multispectral", "pages", "people", "source", "tests"]
 
 [tool.coverage.run]
 branch = true
 relative_files = true
-source = ["accounts", "config", "graffiti", "pages", "people", "source"]
+source = ["accounts", "api", "config", "graffiti", "pages", "people", "source"]
 omit = ["*/migrations/*", "*/apps.py", "config/asgi.py", "config/wsgi.py"]
 
 [tool.coverage.report]

@@ -54,12 +54,18 @@ INSTALLED_APPS = [
     "simple_history",
     "allauth",
     "allauth.account",
+    "rest_framework",
+    "django_filters",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+    "corsheaders",
     # apps:
     "graffiti",
     "people",
     "source",
     "accounts",
     "pages",
+    "api",
 ]
 
 UNFOLD = {
@@ -186,6 +192,7 @@ UNFOLD = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -352,6 +359,63 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 TAGGIT_TAGS_FROM_STRING = "taggit_selectize.utils.parse_tags"
 TAGGIT_STRING_FROM_TAGS = "taggit_selectize.utils.join_tags"
+
+# Public API (Django REST Framework)
+# ------------------------------------------------------------------------------
+# The API at /api/v1/ is public and read-only. Authentication is switched off so
+# every caller, staff included, gets the same anonymous, throttled responses.
+num_proxies = env("API_NUM_PROXIES", default="").strip()
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "api.pagination.StandardPagination",
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.AnonRateThrottle"],
+    # A DRF rate such as 120/minute or 5000/day. Counts live in the default
+    # cache, which is per process unless CACHES points at a shared backend.
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env("API_THROTTLE_RATE", default="120/minute"),
+    },
+    # Trusted reverse proxies in front of the app, so throttling keys on the
+    # client address in X-Forwarded-For rather than the proxy's. Blank = unset.
+    "NUM_PROXIES": int(num_proxies) if num_proxies else None,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Latitude and longitude as JSON numbers rather than strings.
+    "COERCE_DECIMAL_TO_STRING": False,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Civil War Graffiti Project API",
+    "DESCRIPTION": (
+        "Public, read-only data from the Civil War Graffiti Project: sites, "
+        "locations, walls, graffiti photos, and people. `description` fields on "
+        "walls and photos are sanitized HTML."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": r"/api/v1",
+    # Serve Swagger UI from our own static files instead of a third-party CDN.
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+}
+
+# CORS: let visualizations hosted elsewhere read the API. Limited to /api/ and
+# to safe methods, never with credentials. Leave API_CORS_ALLOWED_ORIGINS blank
+# to allow any origin, or list origins to restrict it.
+CORS_URLS_REGEX = r"^/api/.*$"
+CORS_ALLOW_METHODS = ["GET", "HEAD", "OPTIONS"]
+CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOWED_ORIGINS = env.list("API_CORS_ALLOWED_ORIGINS", default=[])
+CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
