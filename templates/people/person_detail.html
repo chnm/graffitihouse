@@ -83,8 +83,7 @@
                 <li class="service">
                   <div class="service__header">
                     <h3 class="service__title">
-                      {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
-                      {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
+                      {% if service.military_rank %}{{ service.get_military_rank_display }}{% if service.military_unit %}, {% endif %}{% endif %}{{ service.military_unit }}
                     </h3>
 
                     {% if service.start_date or service.end_date %}

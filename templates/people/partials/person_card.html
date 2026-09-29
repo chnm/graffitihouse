@@ -26,8 +26,7 @@
       {% for service in person.service_set.all %}
         {% if forloop.first %}
           <p>
-            {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
-            {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
+            {% if service.military_rank %}{{ service.get_military_rank_display }}{% if service.military_unit %}, {% endif %}{% endif %}{{ service.military_unit }}
             {% if service.military_governance %}
               <span class="badge badge--{% if service.military_governance == 'union' %}union{% else %}confederate{% endif %}">
                 {{ service.military_governance|title }}
