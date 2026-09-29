@@ -172,6 +172,14 @@ UNFOLD = {
                         ),
                     },
                     {
+                        "title": "Team",
+                        "icon": "groups",
+                        "link": reverse_lazy("admin:pages_teammember_changelist"),
+                        "permission": lambda request: request.user.has_perm(
+                            "pages.view_teammember"
+                        ),
+                    },
+                    {
                         "title": "Users",
                         "icon": "manage_accounts",
                         "link": reverse_lazy("admin:accounts_customuser_changelist"),
