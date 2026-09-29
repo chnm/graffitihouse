@@ -390,13 +390,58 @@ b {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
-  padding-block: var(--space-8);
+  gap: var(--space-6);
+  padding-block: var(--space-10) var(--space-8);
+}
+
+/* Partner logos: light-on-dark artwork, dimmed until hovered or focused */
+.site-footer__logos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.site-footer__logo-link {
+  display: block;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+
+.site-footer__logo-link:hover,
+.site-footer__logo-link:focus-visible {
+  opacity: 1;
+}
+
+.site-footer__logo {
+  width: auto;
+}
+
+.site-footer__logo--rrchnm {
+  height: 48px;
+}
+
+.site-footer__logo--gmu {
+  height: 80px;
+}
+
+@media (min-width: 768px) {
+  .site-footer__logos {
+    flex-direction: row;
+    gap: var(--space-12);
+  }
 }
 
 .site-footer__credit {
   max-width: 48rem;
   text-align: center;
+}
+
+.site-footer__links {
+  --cluster-space: var(--space-2) var(--space-6);
+  justify-content: center;
+  font-size: var(--text-sm);
+  line-height: 1.25rem;
 }
 
 .site-footer__account {
@@ -414,6 +459,7 @@ b {
 }
 
 .site-footer__credit a,
+.site-footer__links a,
 .site-footer__account a,
 .site-footer__logout button {
   text-decoration: underline;
@@ -423,6 +469,7 @@ b {
 }
 
 .site-footer__credit a:hover,
+.site-footer__links a:hover,
 .site-footer__account a:hover,
 .site-footer__logout button:hover {
   color: var(--color-brass-light);

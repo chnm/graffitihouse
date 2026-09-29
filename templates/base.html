@@ -81,9 +81,23 @@
 
     <footer class="site-footer">
       <div class="container site-footer__inner">
+        <div class="site-footer__logos">
+          <a href="https://rrchnm.org/" class="site-footer__logo-link">
+            <img src="{% static 'images/logos/rrchnm-logo.png' %}" alt="Roy Rosenzweig Center for History and New Media" width="800" height="148" class="site-footer__logo site-footer__logo--rrchnm" decoding="async">
+          </a>
+          <a href="https://historyarthistory.gmu.edu/" class="site-footer__logo-link">
+            <img src="{% static 'images/logos/gmu-logo-light.png' %}" alt="George Mason University Department of History and Art History" width="900" height="251" class="site-footer__logo site-footer__logo--gmu" decoding="async">
+          </a>
+        </div>
+
         <p class="site-footer__credit">
           <em>Civil War Graffiti</em> is generously funded in part by the <a href="https://www.neh.gov/">National Endowment for the Humanities</a> and developed by the <a href="https://rrchnm.org/">Roy Rosenzweig Center for History and New Media</a> at <a href="https://www.gmu.edu/">George Mason University</a>.
         </p>
+
+        <ul class="cluster site-footer__links">
+          <li><a href="https://rrchnm.org/accessibility/">Accessibility</a></li>
+          <li>Contact us: <a href="mailto:chnm@gmu.edu">chnm@gmu.edu</a></li>
+        </ul>
 
         <div class="site-footer__account">
           {% if user.is_authenticated %}
