@@ -3,58 +3,56 @@
 {% block title %}Graffiti Sites{% endblock %}
 
 {% block content %}
-  <div class="bg-cwg-paper">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <header class="max-w-2xl mb-14">
-        <p class="mb-3 text-sm uppercase tracking-[0.2em] text-cwg-brass-dark">The sites</p>
-        <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-cwg-ink-dark mb-4">Where the walls are</h1>
-        <p class="text-lg text-cwg-ink-light">
-          Each site is a building whose plaster still carries the names soldiers wrote on it.
-          Choose a site to walk its rooms wall by wall.
-        </p>
-      </header>
+  <div class="container page-section">
+    <header class="page-intro">
+      <p class="eyebrow eyebrow--wide">The sites</p>
+      <h1 class="page-title">Where the walls are</h1>
+      <p class="lede">
+        Each site is a building whose plaster still carries the names soldiers wrote on it.
+        Choose a site to walk its rooms wall by wall.
+      </p>
+    </header>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
-        {% for site in sites %}
-          <a href="{% url 'graffiti:site_detail' site_id=site.id %}" class="group block">
-            <div class="aspect-[3/2] overflow-hidden bg-cwg-ink border border-cwg-paper-dark">
-              {% if site.image %}
-                <img src="{{ site.image.url }}" alt="{{ site.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy">
-              {% endif %}
-            </div>
-            <div class="pt-4">
-              {% if site.location %}
-                <p class="text-sm uppercase tracking-widest text-cwg-brass-dark">{{ site.location.city|default:site.location.place }}{% if site.location.state %}, {{ site.location.state }}{% endif %}</p>
-              {% endif %}
-              <h2 class="mt-1 text-2xl font-bold text-cwg-ink-dark group-hover:text-cwg-brick transition-colors">{{ site.name }}</h2>
-              {% if site.description %}
-                <p class="mt-2 text-cwg-ink-light">{{ site.description|truncatewords:28 }}</p>
-              {% endif %}
-              <p class="mt-3 text-sm text-cwg-ink/70">
-                {{ site.wall_count }} wall{{ site.wall_count|pluralize }} &middot; {{ site.photo_count }} graffiti
-              </p>
-            </div>
-          </a>
-        {% empty %}
-          <p class="text-cwg-ink/70">No sites have been documented yet.</p>
-        {% endfor %}
-      </div>
-
-      {% if pending_sites %}
-        <section class="mt-20 border-t border-cwg-paper-dark pt-8">
-          <h2 class="text-sm uppercase tracking-[0.2em] text-cwg-brass-dark mb-4">Documentation in progress</h2>
-          <ul class="divide-y divide-cwg-paper-dark">
-            {% for site in pending_sites %}
-              <li class="py-3 flex flex-wrap items-baseline gap-x-4">
-                <span class="font-semibold text-cwg-ink">{{ site.name }}</span>
-                {% if site.location %}
-                  <span class="text-sm text-cwg-ink/60">{{ site.location.city|default:site.location.place }}{% if site.location.state %}, {{ site.location.state }}{% endif %}</span>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        </section>
-      {% endif %}
+    <div class="site-grid">
+      {% for site in sites %}
+        <a href="{% url 'graffiti:site_detail' site_id=site.id %}" class="tile">
+          <div class="tile__media">
+            {% if site.image %}
+              <img src="{{ site.image.url }}" alt="{{ site.name }}" class="tile__image" loading="lazy">
+            {% endif %}
+          </div>
+          <div class="site-tile__body">
+            {% if site.location %}
+              <p class="eyebrow">{{ site.location.city|default:site.location.place }}{% if site.location.state %}, {{ site.location.state }}{% endif %}</p>
+            {% endif %}
+            <h2 class="tile__title site-tile__title">{{ site.name }}</h2>
+            {% if site.description %}
+              <p class="site-tile__text">{{ site.description|truncatewords:28 }}</p>
+            {% endif %}
+            <p class="site-tile__stats">
+              {{ site.wall_count }} wall{{ site.wall_count|pluralize }} &middot; {{ site.photo_count }} graffiti
+            </p>
+          </div>
+        </a>
+      {% empty %}
+        <p class="empty-note">No sites have been documented yet.</p>
+      {% endfor %}
     </div>
+
+    {% if pending_sites %}
+      <section class="pending-sites">
+        <h2 class="eyebrow eyebrow--wide">Documentation in progress</h2>
+        <ul class="pending-sites__list">
+          {% for site in pending_sites %}
+            <li class="pending-sites__item">
+              <span class="pending-sites__name">{{ site.name }}</span>
+              {% if site.location %}
+                <span class="pending-sites__place">{{ site.location.city|default:site.location.place }}{% if site.location.state %}, {{ site.location.state }}{% endif %}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
   </div>
 {% endblock %}

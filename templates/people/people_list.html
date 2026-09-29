@@ -3,204 +3,53 @@
 
 {% block title %}People - Civil War Graffiti Project{% endblock %}
 
-{% block extra_head %}
-  <style>
-    .person-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .person-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 6px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    .letter-index-item {
-      display: inline-block;
-      width: 2rem;
-      height: 2rem;
-      line-height: 2rem;
-      text-align: center;
-      margin: 0.25rem;
-      border-radius: 0.25rem;
-      font-weight: 600;
-    }
-
-    .letter-index-item.active {
-      background-color: var(--cwg-blue, #256EFF);
-      color: var(--cwg-white, #FDFFFC);
-    }
-
-    .letter-index-item:hover:not(.active) {
-      background-color: var(--cwg-black, #2A2D34);
-      background-opacity: 0.1;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-            <!-- Header -->
-      <div class="mb-10">
-        <h1 class="text-3xl font-bold text-cwg-black mb-4">People</h1>
-        <p class="text-cwg-black text-opacity-70 max-w-3xl">
-          Explore the individuals associated with Civil War graffiti. This archive includes soldiers, civilians, and others who left their mark or were mentioned in the historical record.
-        </p>
-      </div>
+  <div class="container people-page">
+      <!-- Header -->
+    <header class="people-header">
+      <h1 class="people-header__title">People</h1>
+      <p class="people-header__text">
+        Explore the individuals associated with Civil War graffiti. This archive includes soldiers, civilians, and others who left their mark or were mentioned in the historical record.
+      </p>
+    </header>
 
-            <!-- Alphabet filter -->
-      <div class="mb-8">
-        <div class="flex flex-wrap justify-center bg-cwg-black bg-opacity-5 rounded-lg p-4">
-          <div id="letter-index" class="flex flex-wrap justify-center">
-            {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-              <a href="#letter-{{ letter }}" class="letter-index-item hover:text-white">{{ letter }}</a>
+      <!-- Alphabet filter -->
+    <nav id="letter-index" class="letter-index" aria-label="Jump to surname initial">
+      {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+        <a href="#letter-{{ letter }}" class="letter-index__link">{{ letter }}</a>
+      {% endfor %}
+    </nav>
+
+      <!-- Count indicator -->
+    <p class="people-count">
+      <span class="badge badge--large">{{ total_count }} people identified from wall graffiti</span>
+    </p>
+
+      <!-- People grouped by last name initial -->
+    <div class="stack letter-groups">
+      {% for letter, group in letter_groups %}
+        <section id="letter-{{ letter }}" class="letter-group">
+          <h2 class="letter-group__heading">{{ letter }}</h2>
+
+          <div class="card-grid person-grid">
+            {% for person in group %}
+              {% include "people/partials/person_card.html" %}
             {% endfor %}
           </div>
-        </div>
-      </div>
+        </section>
+      {% endfor %}
 
-            <!-- Count indicator -->
-      <div class="text-center mb-8">
-        <span class="badge-cwg-blue inline-block text-sm px-3 py-1 rounded-full">
-          {{ total_count }} people identified from wall graffiti
-        </span>
-      </div>
+      {% if other_people %}
+        <section id="other" class="letter-group">
+          <h2 class="letter-group__heading">Other</h2>
 
-            <!-- People grouped by last name initial -->
-      <div class="space-y-12">
-        {% regroup people by last_name|slice:":1"|upper as by_letter %}
-
-        {% for letter_group in by_letter %}
-          <div id="letter-{{ letter_group.grouper }}" class="scroll-mt-24">
-            <h2 class="text-2xl font-bold text-cwg-black mb-6 pb-2 border-b border-cwg-black border-opacity-10">
-              {{ letter_group.grouper }}
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {% for person in letter_group.list %}
-                <a href="{{ person.get_absolute_url }}" class="person-card block card-cwg p-6">
-                  <div class="flex items-start">
-                    {% if person.image %}
-                      <div class="flex-shrink-0 mr-4">
-                        <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}"
-                             class="w-16 h-16 object-cover rounded-full border-2 border-cwg-white shadow">
-                      </div>
-                    {% else %}
-                      <div class="flex-shrink-0 mr-4 w-16 h-16 bg-cwg-blue bg-opacity-10 rounded-full border-2 border-cwg-white shadow flex items-center justify-center">
-                        <span class="text-cwg-blue text-lg">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
-                      </div>
-                    {% endif %}
-
-                    <div class="flex-1">
-                      <h3 class="text-lg font-semibold text-cwg-black hover:text-cwg-blue transition-colors">
-                        {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
-                      </h3>
-
-                      <div class="mt-1 text-sm text-cwg-black text-opacity-60">
-                        {% if person.date_of_birth or person.date_of_death %}
-                          <p>
-                            {% if person.date_of_birth %}
-                              b. {{ person.date_of_birth|date:"Y" }}
-                            {% endif %}
-                            {% if person.date_of_death %}
-                              {% if person.date_of_birth %} - {% endif %}
-                              d. {{ person.date_of_death|date:"Y" }}
-                            {% endif %}
-                          </p>
-                        {% endif %}
-
-                        {% for service in person.service_set.all %}
-                          {% if forloop.first %}
-                            <p class="mt-1">
-                              {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
-                              {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
-                              {% if service.military_governance %}
-                                <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">
-                                  {{ service.military_governance|title }}
-                                </span>
-                              {% endif %}
-                            </p>
-                          {% endif %}
-                        {% endfor %}
-                      </div>
-                    </div>
-
-                    <div class="ml-2 text-cwg-blue">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </a>
-              {% endfor %}
-            </div>
-          </div>
-        {% endfor %}
-
-                <!-- Handle names that don't start with a letter -->
-        <div id="other" class="scroll-mt-24">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for person in people %}
-              {% if not person.last_name|first|upper in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                <a href="{{ person.get_absolute_url }}" class="person-card block bg-white rounded-lg shadow hover:shadow-md p-6">
-                  <div class="flex items-start">
-                    {% if person.image %}
-                      <div class="flex-shrink-0 mr-4">
-                        <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}"
-                             class="w-16 h-16 object-cover rounded-full">
-                      </div>
-                    {% else %}
-                      <div class="flex-shrink-0 mr-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span class="text-gray-500 text-lg">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
-                      </div>
-                    {% endif %}
-
-                    <div class="flex-1">
-                      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
-                        {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
-                      </h3>
-
-                      <div class="mt-1 text-sm text-cwg-black text-opacity-60">
-                        {% if person.date_of_birth or person.date_of_death %}
-                          <p>
-                            {% if person.date_of_birth %}
-                              b. {{ person.date_of_birth|date:"Y" }}
-                            {% endif %}
-                            {% if person.date_of_death %}
-                              {% if person.date_of_birth %} - {% endif %}
-                              d. {{ person.date_of_death|date:"Y" }}
-                            {% endif %}
-                          </p>
-                        {% endif %}
-
-                        {% for service in person.service_set.all %}
-                          {% if forloop.first %}
-                            <p class="mt-1">
-                              {% if service.military_rank %}{{ service.get_military_rank_display }}{% endif %}
-                              {% if service.military_unit %}, {{ service.military_unit }}{% endif %}
-                              {% if service.military_governance %}
-                                <span class="badge-cwg-{% if service.military_governance == 'union' %}blue{% else %}red{% endif %} text-xs ml-1">
-                                  {{ service.military_governance|title }}
-                                </span>
-                              {% endif %}
-                            </p>
-                          {% endif %}
-                        {% endfor %}
-                      </div>
-                    </div>
-
-                    <div class="ml-2 text-cwg-blue">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </a>
-              {% endif %}
+          <div class="card-grid person-grid">
+            {% for person in other_people %}
+              {% include "people/partials/person_card.html" %}
             {% endfor %}
           </div>
-        </div>
-      </div>
+        </section>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
@@ -211,12 +60,12 @@
             // Function to highlight the current letter in the index
       function highlightCurrentLetter() {
         const scrollPosition = window.scrollY;
-        const letterSections = document.querySelectorAll('[id^="letter-"], #other');
-        const letterLinks = document.querySelectorAll('.letter-index-item');
+        const letterSections = document.querySelectorAll('[id^="letter-"]:not(#letter-index), #other');
+        const letterLinks = document.querySelectorAll('.letter-index__link');
 
-                // Remove all active classes
+                // Remove all active states
         letterLinks.forEach(link => {
-          link.classList.remove('active');
+          link.classList.remove('is-active');
         });
 
                 // Find the current section and highlight it
@@ -229,7 +78,7 @@
             const correspondingLink = document.querySelector(`a[href="#${sectionId}"]`);
 
             if (correspondingLink) {
-              correspondingLink.classList.add('active');
+              correspondingLink.classList.add('is-active');
             }
 
             break;
@@ -248,11 +97,7 @@
       const letterIndexTop = letterIndex.offsetTop;
 
       window.addEventListener('scroll', function() {
-        if (window.scrollY > letterIndexTop) {
-          letterIndex.parentElement.classList.add('sticky', 'top-0', 'z-10', 'shadow-md');
-        } else {
-          letterIndex.parentElement.classList.remove('sticky', 'top-0', 'z-10', 'shadow-md');
-        }
+        letterIndex.classList.toggle('is-stuck', window.scrollY > letterIndexTop);
       });
     });
   </script>

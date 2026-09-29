@@ -14,14 +14,6 @@ Initial setup and installation:
 
     uv sync
 
-- Use `Volta <https://volta.sh/>`_ for Node version management
-
-- Install required Javascript dependencies::
-
-.. code-block:: bash
-
-    npm install
-
 - Set secrets to a local `.env` file::
 
 .. code-block:: bash

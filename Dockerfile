@@ -1,15 +1,3 @@
-FROM node:24-bookworm-slim AS frontend
-
-WORKDIR /app/theme/static_src
-COPY theme/static_src/package.json theme/static_src/package-lock.json ./
-RUN npm ci
-# Tailwind's content globs scan templates across the whole repo, so the full
-# tree has to be present or every utility class gets purged from the build.
-COPY . /app/
-RUN mkdir -p /app/static/js
-RUN npm run build
-
-
 FROM python:3.12-slim-trixie AS application
 
 RUN pip install --no-cache-dir uv==0.12.6
@@ -27,8 +15,6 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
 COPY . ./
-COPY --from=frontend /app/theme/static/css/dist/ ./theme/static/css/dist/
-COPY --from=frontend /app/static/js/alpine.min.js ./static/js/alpine.min.js
 
 RUN uv run --no-sync python manage.py collectstatic --no-input
 

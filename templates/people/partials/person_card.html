@@ -1,0 +1,44 @@
+<a href="{{ person.get_absolute_url }}" class="person-card">
+  {% if person.image %}
+    <img src="{{ person.image.url }}" alt="{{ person.first_name }} {{ person.last_name }}" class="avatar">
+  {% else %}
+    <span class="avatar" aria-hidden="true">{{ person.first_name|slice:":1" }}{{ person.last_name|slice:":1" }}</span>
+  {% endif %}
+
+  <div class="person-card__body">
+    <h3 class="person-card__name">
+      {{ person.first_name }} {% if person.middle_name_or_initial %}{{ person.middle_name_or_initial }} {% endif %}{{ person.last_name }}
+    </h3>
+
+    <div class="person-card__meta">
+      {% if person.date_of_birth or person.date_of_death %}
+        <p>
+          {% if person.date_of_birth %}
+            b. {{ person.date_of_birth|date:"Y" }}
+          {% endif %}
+          {% if person.date_of_death %}
+            {% if person.date_of_birth %} - {% endif %}
+            d. {{ person.date_of_death|date:"Y" }}
+          {% endif %}
+        </p>
+      {% endif %}
+
+      {% for service in person.service_set.all %}
+        {% if forloop.first %}
+          <p>
+            {% if service.military_rank %}{{ service.get_military_rank_display }}{% if service.military_unit %}, {% endif %}{% endif %}{{ service.military_unit }}
+            {% if service.military_governance %}
+              <span class="badge badge--{% if service.military_governance == 'union' %}union{% else %}confederate{% endif %}">
+                {{ service.military_governance|title }}
+              </span>
+            {% endif %}
+          </p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon person-card__chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+  </svg>
+</a>

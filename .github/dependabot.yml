@@ -14,19 +14,6 @@ updates:
     target-branch: "main"
     reviewers:
       - "chnm/systems"
-  - package-ecosystem: "npm"
-    directories:
-      - "/"
-      - "/theme/static_src"
-    groups:
-      all-npm-dependencies:
-        patterns:
-          - "*"
-    schedule:
-      interval: "monthly"
-    target-branch: "main"
-    reviewers:
-      - "chnm/systems"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
