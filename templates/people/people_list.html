@@ -27,30 +27,29 @@
 
       <!-- People grouped by last name initial -->
     <div class="stack letter-groups">
-      {% regroup people by last_name|slice:":1"|upper as by_letter %}
-
-      {% for letter_group in by_letter %}
-        <section id="letter-{{ letter_group.grouper }}" class="letter-group">
-          <h2 class="letter-group__heading">{{ letter_group.grouper }}</h2>
+      {% for letter, group in letter_groups %}
+        <section id="letter-{{ letter }}" class="letter-group">
+          <h2 class="letter-group__heading">{{ letter }}</h2>
 
           <div class="card-grid person-grid">
-            {% for person in letter_group.list %}
+            {% for person in group %}
               {% include "people/partials/person_card.html" %}
             {% endfor %}
           </div>
         </section>
       {% endfor %}
 
-          <!-- Handle names that don't start with a letter -->
-      <section id="other" class="letter-group">
-        <div class="card-grid person-grid">
-          {% for person in people %}
-            {% if not person.last_name|first|upper in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+      {% if other_people %}
+        <section id="other" class="letter-group">
+          <h2 class="letter-group__heading">Other</h2>
+
+          <div class="card-grid person-grid">
+            {% for person in other_people %}
               {% include "people/partials/person_card.html" %}
-            {% endif %}
-          {% endfor %}
-        </div>
-      </section>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
