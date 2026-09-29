@@ -365,19 +365,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-tailwind"
-version = "4.5.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-    { name = "pytailwindcss" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/52/a87b0d08fd786f3f4bd7686edc0d3ae5cd1906d087cf8e2c2ef8157b07d7/django_tailwind-4.5.0.tar.gz", hash = "sha256:c4b40820663ac3932f6951b82b91e3773361a46d9bde972bc8a338eee3c5d045", size = 13966, upload-time = "2026-06-12T13:25:57.638Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/32/ffb8c8f6e86d06912d3afe4800e72a5045d21916171b36e256c07f87cc91/django_tailwind-4.5.0-py3-none-any.whl", hash = "sha256:618314751e867e8871b1e06ed98c0b8beb762ac9b431f739647ad4d82ab8b125", size = 23363, upload-time = "2026-06-12T13:25:56.472Z" },
-]
-
-[[package]]
 name = "django-unfold"
 version = "0.105.0"
 source = { registry = "https://pypi.org/simple" }
@@ -483,7 +470,6 @@ dependencies = [
     { name = "django-prose" },
     { name = "django-simple-history" },
     { name = "django-taggit" },
-    { name = "django-tailwind" },
     { name = "django-unfold" },
     { name = "djangorestframework" },
     { name = "drf-spectacular" },
@@ -521,7 +507,6 @@ requires-dist = [
     { name = "django-prose", specifier = ">=2.1.0" },
     { name = "django-simple-history", specifier = ">=3.13.0" },
     { name = "django-taggit", specifier = ">=6.1.0" },
-    { name = "django-tailwind", specifier = ">=4.5.0" },
     { name = "django-unfold", specifier = ">=0.105.0" },
     { name = "djangorestframework", specifier = ">=3.18.1" },
     { name = "drf-spectacular", specifier = ">=0.30.0" },
@@ -852,15 +837,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/73/85/24eaf5d0d078fc8799ae6d89faf326d6e4d27d862fc9a710a52ab07b7bb5/pylint_plugin_utils-0.9.0.tar.gz", hash = "sha256:5468d763878a18d5cc4db46eaffdda14313b043c962a263a7d78151b90132055", size = 10474, upload-time = "2025-06-24T07:14:00.534Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5e/c9/a3b871b0b590c49e38884af6dab58ab9711053bd5c39b8899b72e367b9f6/pylint_plugin_utils-0.9.0-py3-none-any.whl", hash = "sha256:16e9b84e5326ba893a319a0323fcc8b4bcc9c71fc654fcabba0605596c673818", size = 11129, upload-time = "2025-06-24T07:13:58.993Z" },
-]
-
-[[package]]
-name = "pytailwindcss"
-version = "0.3.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/27/8a/5ba4a60c6a2f235c9ad93a5e9f29d202ad9e8038e8ea293be31057085cee/pytailwindcss-0.3.1.tar.gz", hash = "sha256:e83c65985f078ff91500f74bca595f615e54059d5afc90b233382e118b509b4d", size = 18712, upload-time = "2026-06-12T13:43:01.804Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/95/9b/362cd1ae308a2fd8a9a58ff089cefd2e49976540765afa4e9a2c013876af/pytailwindcss-0.3.1-py3-none-any.whl", hash = "sha256:31583c5bb7fac66c6e6535992e51630e36788cf6e569f4d294e98962fa034535", size = 7496, upload-time = "2026-06-12T13:43:00.675Z" },
 ]
 
 [[package]]

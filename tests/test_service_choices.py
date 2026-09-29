@@ -47,3 +47,22 @@ def test_person_page_shows_rank_and_army_branch_labels(client):
     assert "2nd Lieutenant" in content
     assert "Army branch" in content
     assert "Signal Corps" in content
+
+
+@pytest.mark.django_db
+def test_service_heading_joins_rank_and_unit_with_a_comma(client):
+    ranked = Person.objects.create(last_name="Hollingsworth")
+    Service.objects.create(
+        person=ranked, military_rank="private", military_unit="Company K"
+    )
+    unranked = Person.objects.create(last_name="Marshall")
+    Service.objects.create(person=unranked, military_unit="Company E")
+
+    ranked_page = client.get(reverse("people:person_detail", args=[ranked.id]))
+    unranked_page = client.get(reverse("people:person_detail", args=[unranked.id]))
+    people_list = client.get(reverse("people:people_list")).content.decode()
+
+    assert "Private, Company K" in ranked_page.content.decode()
+    assert ", Company E" not in unranked_page.content.decode()
+    assert "Private, Company K" in people_list
+    assert ", Company E" not in people_list

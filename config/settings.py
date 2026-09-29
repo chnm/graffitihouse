@@ -48,8 +48,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "tailwind",
-    "theme",
     "django.contrib.staticfiles",
     "simple_history",
     "allauth",
@@ -317,9 +315,7 @@ LOGOUT_REDIRECT_URL = "/"
 # Email. Login codes and password resets go through this backend.
 # Examples: consolemail:// (default, prints to the terminal),
 # smtp+tls://user:pass@smtp.example.org:587
-_email = env.email_url_config(
-    env("EMAIL_URL", default="").strip() or "consolemail://"
-)
+_email = env.email_url_config(env("EMAIL_URL", default="").strip() or "consolemail://")
 _email_options = {
     "EMAIL_HOST": "host",
     "EMAIL_PORT": "port",
@@ -449,8 +445,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-## Tailwind specifics
-TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

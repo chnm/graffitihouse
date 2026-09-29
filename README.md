@@ -4,21 +4,19 @@ This repository contains code related to the [NEH-funded planning grant](https:/
 
 ## Setup
 
-The project requires Python 3.12+, [uv](https://docs.astral.sh/uv/),
-Node.js 22+, and PostgreSQL. Create the local configuration and install the
-locked Python and frontend dependencies:
+The project requires Python 3.12+, [uv](https://docs.astral.sh/uv/), and
+PostgreSQL. Create the local configuration and install the locked Python
+dependencies:
 
 ```sh
 cp .env.example .env
 uv sync --group dev --locked
-cd theme/static_src && npm ci && cd ../..
 ```
 
 Create the database named in `.env`, then initialize and run the application:
 
 ```sh
 uv run python manage.py migrate
-uv run python manage.py tailwind build
 uv run python manage.py runserver
 ```
 
@@ -83,14 +81,26 @@ responsible for applying schema changes.
 The most common Make targets are:
 
 - `make preview`: start the Django development server.
-- `make tailwind`: rebuild CSS as source files change.
 - `make check`: run Django's system checks.
 - `make test`: run the pytest suite.
 - `make help`: list all development commands.
 
-Production images install exactly the versions in `uv.lock` and
-`theme/static_src/package-lock.json`; update both lockfiles whenever dependency
-constraints change.
+Production images install exactly the versions in `uv.lock`; update the
+lockfile whenever dependency constraints change.
+
+## Front end
+
+There is no front-end build step. The public site's styles are plain CSS in
+`static/css/site.css`, served as a static file; edit it and reload. The file
+opens with a table of contents and the class naming convention. The Unfold
+admin ships its own styles and does not load this stylesheet.
+
+[Alpine.js](https://alpinejs.dev/) is vendored at `static/js/alpine.min.js`
+(currently 3.16.3). To upgrade it, download the new build and commit it:
+
+```sh
+curl -fsSL -o static/js/alpine.min.js https://cdn.jsdelivr.net/npm/alpinejs@<version>/dist/cdn.min.js
+```
 
 ## Public API
 

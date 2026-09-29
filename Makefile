@@ -15,12 +15,6 @@ test:
 test-coverage:
 	uv run python -m pytest --cov --cov-report=term-missing --cov-report=html
 
-tailwind:
-	uv run python manage.py tailwind start
-
-build-css:
-	cd theme/static_src && npm run build
-
 mm:
 	uv run python manage.py makemigrations
 
@@ -43,12 +37,10 @@ help:
 	@echo "  shell             Open a Django shell"
 	@echo "  test              Run the test suite"
 	@echo "  test-coverage     Run tests with branch coverage"
-	@echo "  tailwind          Watch and rebuild Tailwind CSS"
-	@echo "  build-css         Build minified production CSS"
 	@echo "  mm                Create model migrations"
 	@echo "  migrate           Apply model migrations"
 	@echo "  show-migrations   Show migration status"
 	@echo "  collectstatic     Collect production static files"
 	@echo "  superuser         Create an administrative user"
 
-.PHONY: preview check shell test test-coverage tailwind build-css mm migrate show-migrations collectstatic superuser help
+.PHONY: preview check shell test test-coverage mm migrate show-migrations collectstatic superuser help

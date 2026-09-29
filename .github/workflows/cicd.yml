@@ -23,15 +23,8 @@ jobs:
       - uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: true
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: theme/static_src/package-lock.json
       - name: Install dependencies
-        run: |
-          uv sync --group dev --locked
-          npm ci --prefix theme/static_src
+        run: uv sync --group dev --locked
       - name: Check Django and migrations
         run: |
           uv run python manage.py check
@@ -42,12 +35,10 @@ jobs:
         run: |
           uv run ruff check .
           uv run ruff format --check .
-          uv run djhtml templates theme/templates
+          uv run djhtml templates
           git diff --exit-code
-      - name: Build frontend assets
-        run: |
-          npm run build
-          git diff --exit-code -- static/js/alpine.min.js
+      - name: Collect static files
+        run: uv run python manage.py collectstatic --no-input --dry-run
 
   build-publish:
     needs: test

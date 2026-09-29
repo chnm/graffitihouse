@@ -11,7 +11,6 @@ requires-python = ">=3.12"
 dependencies = [
     "django>=6.1",
     "pillow>=12.3.0",
-    "django-tailwind>=4.5.0",
     "psycopg2-binary>=2.9.12",
     "django-environ>=0.14.0",
     "whitenoise>=6.12.0",

@@ -3,96 +3,70 @@
 
 {% block title %}Civil War Graffiti Project{% endblock %}
 
-{% block extra_head %}
-  <style>
-        /* Card hover effects */
-    .site-card {
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .site-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
     <!-- Hero Section -->
-  <section class="relative h-[80vh] min-h-[520px] overflow-hidden bg-cwg-ink-dark">
+  <section class="hero">
     <img
       src="{% static 'images/hero-graffiti.jpg' %}"
       alt="A whitewashed plaster wall at the Graffiti House covered in pencil signatures and drawings left by Civil War soldiers, including the name George W. Bell."
-      class="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
+      class="hero__image"
       fetchpriority="high"
     >
-    <div class="pointer-events-none absolute inset-0 shadow-[inset_0_0_140px_40px_rgba(25,28,29,0.35)]"></div>
+    <div class="hero__vignette"></div>
 
-    <div class="absolute bottom-0 left-0 w-full sm:bottom-10 sm:left-8 sm:w-auto sm:max-w-md lg:left-14">
-      <div class="border-t border-cwg-brass bg-cwg-paper/[0.92] px-6 py-7 sm:border sm:px-8 sm:py-8">
-        <h1 class="mb-4 text-4xl font-bold leading-[1.05] tracking-tight text-cwg-ink-dark sm:text-5xl">
-          Preserving Civil War Graffiti
-        </h1>
-        <p class="mb-6 max-w-sm leading-relaxed text-cwg-ink-light">
-          Documenting and preserving historical graffiti left by soldiers during the American Civil War, providing unique insights into the lived experiences of those who fought.
-        </p>
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <a href="{% url 'graffiti:walls_list' %}" class="border-b border-cwg-brass pb-0.5 text-cwg-ink-dark transition-colors hover:border-cwg-brass-dark hover:text-cwg-brick">Explore the graffiti</a>
-          <a href="{% url 'people:people_list' %}" class="border-b border-cwg-brass pb-0.5 text-cwg-ink-dark transition-colors hover:border-cwg-brass-dark hover:text-cwg-brick">Meet the soldiers</a>
-        </div>
+    <div class="hero__panel">
+      <h1 class="hero__title">Preserving Civil War Graffiti</h1>
+      <p class="hero__lede">
+        Documenting and preserving historical graffiti left by soldiers during the American Civil War, providing unique insights into the lived experiences of those who fought.
+      </p>
+      <div class="cluster hero__links">
+        <a href="{% url 'graffiti:walls_list' %}" class="hero__link">Explore the graffiti</a>
+        <a href="{% url 'people:people_list' %}" class="hero__link">Meet the soldiers</a>
       </div>
     </div>
   </section>
 
     <!-- About Section -->
-  <section id="about" class="py-16 bg-cwg-paper">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl font-extrabold text-cwg-ink sm:text-4xl">
-          About the Project
-        </h2>
-        <div class="mt-4 max-w-3xl mx-auto">
-          <div class="w-20 h-1 bg-cwg-brick mx-auto mb-6"></div>
-        </div>
-      </div>
+  <section id="about" class="section">
+    <div class="container">
+      <h2 class="section-heading">About the Project</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div class="about">
         <div>
-          <h3 class="text-2xl font-bold text-cwg-ink mb-4">Preserving Historical Voices</h3>
-          <p class="text-cwg-ink text-opacity-80 mb-6">
-            The Civil War Graffiti Project documents and preserves the markings left by soldiers during the American Civil War. These writings and drawings, often found on the walls of homes, churches, and other buildings, provide unique insights into the thoughts, feelings, and experiences of those who lived through this pivotal period in American history.
-          </p>
-          <p class="text-cwg-ink text-opacity-80 mb-6">
-            Using advanced imaging techniques and historical research, our team works to capture, analyze, and contextualize these fragile pieces of history before they are lost to time. Each piece of graffiti tells a story—from simple signatures and unit designations to personal messages, political statements, and artistic expressions.
-          </p>
-          <p class="text-cwg-ink text-opacity-80">
-            By making these historical artifacts accessible through digital preservation, we hope to provide researchers, educators, students, and the public with a window into the personal experiences of Civil War soldiers and the communities affected by the conflict.
-          </p>
+          <h3 class="about__title">Preserving Historical Voices</h3>
+          <div class="stack about__copy">
+            <p>
+              The Civil War Graffiti Project documents and preserves the markings left by soldiers during the American Civil War. These writings and drawings, often found on the walls of homes, churches, and other buildings, provide unique insights into the thoughts, feelings, and experiences of those who lived through this pivotal period in American history.
+            </p>
+            <p>
+              Using advanced imaging techniques and historical research, our team works to capture, analyze, and contextualize these fragile pieces of history before they are lost to time. Each piece of graffiti tells a story—from simple signatures and unit designations to personal messages, political statements, and artistic expressions.
+            </p>
+            <p>
+              By making these historical artifacts accessible through digital preservation, we hope to provide researchers, educators, students, and the public with a window into the personal experiences of Civil War soldiers and the communities affected by the conflict.
+            </p>
+          </div>
         </div>
-        <div class="grid h-[28rem] grid-cols-2 grid-rows-2 gap-4 md:h-[32rem]">
+        <div class="mosaic">
           {% if masonry_images %}
             {% for tile in masonry_images %}
-              <a
-                href="{{ tile.url }}"
-                class="group relative min-h-0 overflow-hidden rounded-lg bg-cwg-ink shadow-lg {% if forloop.counter == 2 %}row-span-2{% endif %}"
-              >
+              <a href="{{ tile.url }}" class="mosaic__tile{% if forloop.counter == 2 %} mosaic__tile--tall{% endif %}">
                 <img
                   src="{{ tile.image.url }}"
                   alt="{{ tile.label }}"
-                  class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  class="mosaic__image"
                   loading="lazy"
                   decoding="async"
                 >
-                <span class="absolute inset-0 bg-gradient-to-t from-cwg-ink/80 via-transparent to-transparent"></span>
-                <span class="absolute inset-x-0 bottom-0 p-4 text-cwg-paper">
-                  <span class="block text-xs font-semibold uppercase tracking-widest text-cwg-brass-light">{{ tile.type }}</span>
-                  <span class="mt-1 block font-semibold leading-tight">{{ tile.label }}</span>
+                <span class="mosaic__shade"></span>
+                <span class="mosaic__caption">
+                  <span class="mosaic__kind">{{ tile.type }}</span>
+                  <span class="mosaic__label">{{ tile.label }}</span>
                 </span>
               </a>
             {% endfor %}
           {% else %}
-            <div class="col-span-2 row-span-2 flex items-center justify-center rounded-lg border border-cwg-paper-dark bg-white p-8 text-center shadow-sm">
-              <p class="max-w-sm text-cwg-ink/70">Wall and graffiti images will appear here as they are added to the collection.</p>
+            <div class="mosaic__empty">
+              <p>Wall and graffiti images will appear here as they are added to the collection.</p>
             </div>
           {% endif %}
         </div>
@@ -101,96 +75,81 @@
   </section>
 
     <!-- Sites Section -->
-  <section id="sites" class="py-16 bg-cwg-paper-dark">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl font-extrabold text-cwg-ink sm:text-4xl">
-          Featured Sites
-        </h2>
-        <div class="mt-4 max-w-3xl mx-auto">
-          <div class="w-20 h-1 bg-cwg-sage mx-auto mb-6"></div>
-        </div>
-      </div>
+  <section id="sites" class="section section--shaded">
+    <div class="container">
+      <h2 class="section-heading section-heading--sage">Featured Sites</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="card-grid">
         {% if sites %}
           {% for site in sites|slice:":2" %}
-            <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
-              <div class="card-cwg h-full">
-                <div class="h-48 overflow-hidden">
-                  {% if site.image %}
-                    <img src="{{ site.image.url }}" alt="{{ site.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                  {% else %}
-                    <div class="w-full h-full bg-gradient-to-r from-cwg-sage to-cwg-sage-dark flex items-center justify-center">
-                      <span class="text-cwg-paper text-xl font-bold px-4 text-center">{{ site.name }}</span>
-                    </div>
-                  {% endif %}
-                </div>
-                <div class="p-6">
-                  <h3 class="text-xl font-bold text-cwg-ink mb-2 group-hover:text-cwg-brass-dark transition-colors">{{ site.name }}</h3>
-                  {% if site.location %}
-                    <p class="text-cwg-black text-opacity-60 mb-4">
-                      {{ site.location.place }}{% if site.location.city %}, {{ site.location.city }}{% endif %}{% if site.location.state %}, {{ site.location.state }}{% endif %}
-                    </p>
-                  {% endif %}
-                  <p class="text-cwg-black text-opacity-80">
-                    {% if site.description %}
-                      {{ site.description|truncatewords:25 }}
-                    {% else %}
-                      A historic site featuring Civil War graffiti with preserved walls and inscriptions.
-                    {% endif %}
+            <a href="{% url 'graffiti:walls_list' %}" class="feature-card">
+              <div class="feature-card__media">
+                {% if site.image %}
+                  <img src="{{ site.image.url }}" alt="{{ site.name }}" class="feature-card__image">
+                {% else %}
+                  <div class="feature-card__placeholder">{{ site.name }}</div>
+                {% endif %}
+              </div>
+              <div class="feature-card__body">
+                <h3 class="feature-card__title">{{ site.name }}</h3>
+                {% if site.location %}
+                  <p class="feature-card__place">
+                    {{ site.location.place }}{% if site.location.city %}, {{ site.location.city }}{% endif %}{% if site.location.state %}, {{ site.location.state }}{% endif %}
                   </p>
-                  <div class="mt-6 flex items-center font-semibold text-cwg-brass-dark">
-                    <span>View graffiti walls</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                  </div>
+                {% endif %}
+                <p class="feature-card__text">
+                  {% if site.description %}
+                    {{ site.description|truncatewords:25 }}
+                  {% else %}
+                    A historic site featuring Civil War graffiti with preserved walls and inscriptions.
+                  {% endif %}
+                </p>
+                <div class="feature-card__cta">
+                  <span>View graffiti walls</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
                 </div>
               </div>
             </a>
           {% endfor %}
         {% else %}
-                    <!-- Fallback cards if no sites in database -->
-          <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
-            <div class="card-cwg h-full">
-              <div class="h-48 overflow-hidden">
-                <div class="w-full h-full bg-gradient-to-r from-cwg-sage to-cwg-sage-dark flex items-center justify-center">
-                  <span class="text-cwg-paper text-xl font-bold">Graffiti House</span>
-                </div>
-              </div>
-              <div class="p-6">
-                <h3 class="text-xl font-bold text-cwg-ink mb-2 group-hover:text-cwg-brass-dark transition-colors">Graffiti House</h3>
-                <p class="text-cwg-black text-opacity-60 mb-4">Brandy Station, VA</p>
-                <p class="text-cwg-black text-opacity-80">
-                  A historic site featuring Civil War graffiti with multiple preserved walls and inscriptions.
-                </p>
-                <div class="mt-6 flex items-center font-semibold text-cwg-brass-dark">
-                  <span>View graffiti walls</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                </div>
+                    <!-- Fallback card if no sites in database -->
+          <a href="{% url 'graffiti:walls_list' %}" class="feature-card">
+            <div class="feature-card__media">
+              <div class="feature-card__placeholder">Graffiti House</div>
+            </div>
+            <div class="feature-card__body">
+              <h3 class="feature-card__title">Graffiti House</h3>
+              <p class="feature-card__place">Brandy Station, VA</p>
+              <p class="feature-card__text">
+                A historic site featuring Civil War graffiti with multiple preserved walls and inscriptions.
+              </p>
+              <div class="feature-card__cta">
+                <span>View graffiti walls</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
               </div>
             </div>
           </a>
         {% endif %}
 
                 <!-- Explore More Card (always shown) -->
-        <a href="{% url 'graffiti:walls_list' %}" class="site-card group">
-          <div class="card-cwg h-full flex flex-col items-center justify-center p-6 text-center">
-            <div class="w-16 h-16 bg-cwg-brass bg-opacity-10 rounded-full flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cwg-brass-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-cwg-ink mb-2">Explore All Sites</h3>
-            <p class="text-cwg-black text-opacity-70 mb-4">
+        <a href="{% url 'graffiti:walls_list' %}" class="feature-card feature-card--explore">
+          <div class="icon-disc">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon--xl" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <div class="feature-card__body">
+            <h3 class="feature-card__title">Explore All Sites</h3>
+            <p class="feature-card__text">
               Discover more historic locations and their preserved Civil War graffiti in our complete collection.
             </p>
-            <div class="mt-2 inline-flex items-center font-semibold text-cwg-brass-dark">
+            <div class="feature-card__cta">
               <span>View all sites</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </div>
@@ -201,15 +160,13 @@
   </section>
 
     <!-- Call to Action -->
-  <section class="bg-cwg-brick py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl font-bold text-cwg-paper mb-4">Ready to explore Civil War graffiti?</h2>
-      <p class="text-cwg-paper text-opacity-90 mb-8 max-w-3xl mx-auto">
+  <section class="cta-band">
+    <div class="container">
+      <h2 class="cta-band__title">Ready to explore Civil War graffiti?</h2>
+      <p class="cta-band__text">
         Discover the personal narratives and historical insights preserved in these unique historical artifacts.
       </p>
-      <a href="{% url 'graffiti:walls_list' %}" class="inline-flex items-center rounded-md border border-transparent bg-cwg-paper px-6 py-3 text-base font-semibold text-cwg-brick-dark transition-colors hover:bg-white">
-        Browse the Collection
-      </a>
+      <a href="{% url 'graffiti:walls_list' %}" class="button button--light">Browse the Collection</a>
     </div>
   </section>
 {% endblock %}
