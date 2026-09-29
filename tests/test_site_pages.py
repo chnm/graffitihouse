@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.urls import reverse
+from PIL import Image
 
 from graffiti.models import GraffitiWall, Site
 
@@ -44,3 +45,31 @@ def test_site_page_groups_walls_by_room(client):
     assert html.count("Room 200") >= 1 and html.count("Room 201") >= 1
     assert html.index("Room 200") < html.index("Room 201")
     assert "2 walls" in html
+
+
+@pytest.mark.django_db
+def test_wall_page_hides_internal_notes(client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    (tmp_path / "images").mkdir()
+    Image.new("RGB", (4, 4)).save(tmp_path / "images" / "wall.jpg")
+    wall = make_wall(Site.objects.create(name="Site"), "W1", "201")
+    wall.notes = "Internal project note"
+    wall.conservation_notes = "Internal conservation note"
+    wall.save()
+
+    html = client.get(
+        reverse("graffiti:overall_image", args=[wall.id])
+    ).content.decode()
+
+    assert "Internal project note" not in html
+    assert "Internal conservation note" not in html
+
+
+@pytest.mark.django_db
+def test_unknown_url_renders_not_found_page(client, settings):
+    settings.DEBUG = False
+
+    response = client.get("/no-such-page/")
+
+    assert response.status_code == 404
+    assert "Page Not Found" in response.content.decode()
