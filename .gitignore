@@ -6,6 +6,7 @@ staticfiles/
 dumpdata.json
 dumpdata2.json
 graffiti.json
+static-data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

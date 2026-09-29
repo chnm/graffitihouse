@@ -251,7 +251,8 @@ else:
             "PORT": env("DB_PORT", default="5432"),
             "NAME": env("DB_NAME", default="graffitihouse"),
             "USER": env("DB_USER", default="graffitihouse"),
-            "PASSWORD": env("DB_PASS", default="password"),
+            # Leave DB_PASS unset to let libpq read ~/.pgpass (or PGPASSFILE).
+            "PASSWORD": env("DB_PASS", default=""),
         }
     }
 
@@ -309,7 +310,9 @@ LOGOUT_REDIRECT_URL = "/"
 # Email. Login codes and password resets go through this backend.
 # Examples: consolemail:// (default, prints to the terminal),
 # smtp+tls://user:pass@smtp.example.org:587
-_email = env.email_url("EMAIL_URL", default="consolemail://")
+_email = env.email_url_config(
+    env("EMAIL_URL", default="").strip() or "consolemail://"
+)
 _email_options = {
     "EMAIL_HOST": "host",
     "EMAIL_PORT": "port",
